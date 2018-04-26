@@ -1,0 +1,185 @@
+#!/bin/bash
+set -e
+set -o pipefail
+
+## TODO: This could use some usability improvements.
+## e.g. `superman npm i eslint` instead of `superman install --npm eslint`
+
+conf=$(realpath ~/.packages.conf) # realpath to avoid awk inplace replacing symlink
+
+if [[ ! -f $conf ]]; then
+	echo -e '[pacman]\n' >> "$conf"
+	echo -e '[npm]\n' >> "$conf"
+	echo -e '[pip]\n' >> "$conf"
+	echo -e '[vscode]\n' >> "$conf"
+fi
+
+if [[ ! $1 =~ ^(install|uninstall|add|remove|list|update-list)$ ]]; then
+	cat >&2 <<-'EOF'
+		Usage:
+
+		  superman install [<manager>]
+		    Installs everything in the list, opt. restricted to a certain manager.
+
+		  superman (install|uninstall) [<manager>] <package>...
+		    (Un)installs package(s) using the specified manager (defaults to pacman)
+		    and automatically updates the list.
+
+		  superman (add|remove) [<manager>] <package>...
+		    Adds/removes package(s) to/from the specified manager's list (defaults
+		    to pacman) without (un)installing anything.
+
+		  superman list [<manager>]
+		    Prints the manager's list, if specified; opens for editing otherwise.
+
+		  superman update-list <manager>
+		    Updates a manager's list to reflect currently installed packages.
+		    Currently --vscode only; best ran from a scheduled task.
+
+		Available managers:
+
+		  --pacman, --npm, --pip, --vscode
+	EOF
+	exit 1
+fi
+
+superman-list() {
+	if [[ $1 == --* ]]; then
+		sed '/^\['"${1:2}"'\]$/,/^\[/!d;//d;/^\s*$/d' "$conf" # https://stackoverflow.com/a/31380266
+	else
+		"${EDITOR:-vi}" "$conf"
+	fi
+}
+
+superman-add() {
+	if [[ $1 == --* ]]; then
+		section=${1:2}; shift
+	else
+		section='pacman'
+	fi
+	if ! grep -qFx "[$section]" "$conf"; then
+		printf '\n[%s]\n' "$section" >> "$conf"
+	fi
+	for pkg in "$@"; do
+		superman-list --"$section" | grep -qFx "$pkg" || \
+		awk -i inplace -v section="$section" -v item="$pkg" -f - "$conf" <<-'EOF'
+			BEGIN { in_section = 0; }
+			in_section == 1 && $0 ~ /^(\[.*)?$/ { print item; in_section = 0 }
+			$0 == "[" section "]" { in_section = 1 }
+			{ print }
+			ENDFILE { if (in_section == 1) { print item } }
+		EOF
+	done
+}
+
+superman-remove() {
+	if [[ $1 == --* ]]; then
+		section=${1:2}; shift
+	else
+		section='pacman'
+	fi
+	for pkg in "$@"; do
+		awk -i inplace -v section="$section" -v item="$pkg" -f - "$conf" <<-'EOF'
+			BEGIN { in_section = 0; }
+			in_section == 1 && $0 ~ /^\[$/ { in_section = 0 }
+			$0 == "[" section "]" { in_section = 1 }
+			in_section == 0 || $0 != item { print }
+		EOF
+	done
+}
+
+command-exists() {
+	command -v "$1" > /dev/null 2>&1
+}
+
+superman-install() {
+	if [[ $# == 0 ]]; then
+		# No arguments, install everything
+		superman-install --pacman
+		if command-exists npm; then superman-install --npm; fi
+		if command-exists pip; then superman-install --pip; fi
+		if command-exists code; then superman-install --vscode; fi
+	else
+		# Pass arguments to `add` (same signature, noop if no packages specified)
+		superman-add "$@"
+		# Get manager
+		if [[ $1 == --* ]]; then
+			manager=${1:2}; shift
+		else
+			manager='pacman'
+		fi
+		# Use all packages in manager's list if none specified
+		if [[ $# == 0 ]]; then
+			readarray -t pkgs <<<"$(superman-list --"$manager")"
+		else
+			pkgs=("$@")
+		fi
+		# Do nothing if no packages specified
+		if [[ ${#pkgs[@]} == 0 ]]; then
+			return
+		fi
+		# Install packages using manager
+		case $manager in
+			pacman)
+				pacman -Sy --noconfirm --needed "${pkgs[@]}" 2>&1 | \
+					{ grep -v 'up to date' || true; }
+				;;
+			npm)
+				npm install -g "${pkgs[@]}"
+				;;
+			pip)
+				pip install --upgrade "${pkgs[@]}" | \
+					{ grep -v 'Requirement already up-to-date' || true; }
+				;;
+			vscode)
+				for pkg in "${pkgs[@]}"; do
+					# Don't bother updating already-installed extensions; vscode will do that itself
+					escapedname=$(sed 's/[]\.|$(){}?+*^]/\\&/g' <<<"$pkg")
+					if ! ls "$USERPROFILE/.vscode/extensions" | grep -Piq '^'"$escapedname"'-[\d\.]+$'; then
+						code --install-extension "$pkg" | \
+							{ grep -v 'is already installed' || true; } || \
+							{ echo "Failed to install vscode extension: $pkg" >&2; return 1; }
+					fi
+				done
+				;;
+			*) echo "Unsupported manager: $manager" >&2 && return 1
+		esac
+	fi
+}
+
+superman-uninstall() {
+	# Pass arguments to `remove` (same signature, noop if no packages specified)
+	superman-remove "$@"
+	# Get manager
+	if [[ $1 == --* ]]; then
+		manager=${1:2}; shift
+	else
+		manager='pacman'
+	fi
+	# Do nothing if no packages specified
+	if [[ $# == 0 ]]; then
+		return
+	fi
+	# Remove packages using manager
+	case $manager in
+		pacman) pacman -R --noconfirm "$@" ;;
+		npm) npm uninstall -g "$@" ;;
+		pip) pip uninstall "$@" ;;
+		vscode) printf '%s\n' "$@" | xargs -rl code --uninstall-extension ;;
+		*) echo "Unsupported manager: $manager" >&2 && return 1
+	esac
+}
+
+superman-update-list() {
+	case ${1:2} in
+		vscode)
+			readarray -t pkgs <<<"$(superman-list --vscode)"
+			superman remove --vscode "${pkgs[@]}"
+			readarray -t pkgs <<<"$(code --list-extensions)"
+			superman add --vscode "${pkgs[@]}"
+			;;
+		*) echo "Unsupported manager: ${1:2}" >&2 && return 1
+	esac
+}
+
+superman-$1 "${@:2}"

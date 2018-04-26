@@ -1,0 +1,142 @@
+{
+  "auto-close-tag.activationOnLanguage": [
+    "xml",
+    "php",
+    "ejs",
+    "javascript",
+    "javascriptreact",
+    "typescriptreact",
+    "plaintext",
+    "markdown"
+  ],
+  "beautify.config": {
+    "end_with_newline": true,
+    "extra_liners": [],
+    "indent_body_inner_html": false,
+    "indent_head_inner_html": false,
+    "indent_size": 2,
+    "space_around_combinator": true
+  },
+  "editor.accessibilitySupport": "off",
+  "editor.fontFamily": "Consolas, Meiryo",
+  "editor.renderControlCharacters": true,
+  "editor.rulers": [ 80 ],
+  "editor.snippetSuggestions": "top",
+  "editor.tabSize": 2,
+  "eslint.options": {
+    "rules": {
+      // Editor takes care of these
+      "no-trailing-spaces": "off",
+      "eol-last": "off"
+    }
+  },
+  "explorer.autoReveal": false,
+  "explorer.confirmDelete": false,
+  "explorer.confirmDragAndDrop": false,
+  "explorer.decorations.badges": false,
+  "explorer.openEditors.visible": 0,
+  "files.associations": {
+    "Vagrantfile": "ruby",
+    ".bashrc_local": "shellscript",
+    ".eslintrc.json": "jsonc",
+    "*.json": "jsonc",
+    ".gitconfig_local": "properties"
+  },
+  "files.eol": "\n",
+  "files.insertFinalNewline": true,
+  "files.trimTrailingWhitespace": true,
+  "git.path": "C:/msys/mingw64/bin/git.exe",
+  "git.enableSmartCommit": true,
+  "gitlens.advanced.git": "C:/msys/mingw64/bin/git.exe",
+  "gitlens.currentLine.enabled": false,
+  "gitlens.codeLens.authors.enabled": false,
+  "gitlens.codeLens.scopes": [ "containers", "blocks" ],
+  "gitlens.codeLens.symbolScopes": [ "!function" ],
+  "gitlens.codeLens.scopesByLanguage": [
+    // Effectively disables these
+    { "language": "css", "scopes": [ "custom" ] },
+    { "language": "html", "scopes": [ "custom" ] },
+    { "language": "json", "scopes": [ "custom" ] },
+    { "language": "jsonc", "scopes": [ "custom" ] },
+    { "language": "less", "scopes": [ "custom" ] },
+    { "language": "scss", "scopes": [ "custom" ] },
+    { "language": "vue", "scopes": [ "custom" ] },
+    { "language": "stylus", "scopes": [ "custom" ] },
+    { "language": "markdown", "scopes": [ "custom" ] },
+    { "language": "python", "scopes": [ "custom" ] }
+  ],
+  "gitlens.keymap": "alternate",
+  "gitlens.strings.codeLens.unsavedChanges.recentChangeOnly": "Unsaved changes",
+  "html.format.endWithNewline": true,
+  "html.format.extraLiners": "",
+  "javascript.referencesCodeLens.enabled": true,
+  "markdown.extension.italic.indicator": "_",
+  "markdown.extension.quickStyling": true,
+  "markdown.preview.breaks": true,
+  "markdown.preview.markEditorSelection": false,
+  "problems.decorations.enabled": false,
+  "python.linting.pylintArgs": [ "--errors-only" ],
+  "telemetry.enableCrashReporter": false,
+  "telemetry.enableTelemetry": false,
+  "terminal.external.windowsExec": "C:/Program Files/ConEmu/ConEmu64.exe",
+  "terminal.integrated.copyOnSelection": true,
+  "terminal.integrated.shell.windows": "C:/msys/usr/bin/bash.exe",
+  "terminal.integrated.shellArgs.windows": [ "-li" ],
+  "todohighlight.isCaseSensitive": true,
+  "todohighlight.keywords": [
+    { "text": "TODO:", "color": "#c678dd", "backgroundColor": "transparent" },
+    { "text": "TODO", "color": "#c678dd", "backgroundColor": "transparent" },
+    { "text": "@todo", "color": "#c678dd", "backgroundColor": "transparent" },
+    { "text": " todo ", "color": "#c678dd", "backgroundColor": "transparent" },
+    { "text": "FIXME:", "color": "#c678dd", "backgroundColor": "transparent" },
+    { "text": "FIXME", "color": "#c678dd", "backgroundColor": "transparent" },
+    { "text": "NOTE:", "color": "#c678dd", "backgroundColor": "transparent" },
+    { "text": "NOTE", "color": "#c678dd", "backgroundColor": "transparent" }
+  ],
+  "typescript.referencesCodeLens.enabled": true,
+  "typescript.implementationsCodeLens.enabled": true,
+  "vsicons.associations.files": [
+    { "icon": "json", "extensions": [ "json" ], "format": "svg" } // Fix jsonc
+  ],
+  "vsicons.dontShowNewVersionMessage": true,
+  "vsicons.presets.foldersAllDefaultIcon": true,
+  "vsicons.presets.jsOfficial": true,
+  "vsicons.presets.tsOfficial": true,
+  "whiteviz.color.dark": "rgba(180, 180, 180, 0.33)",
+  "window.menuBarVisibility": "toggle",
+  "workbench.activityBar.visible": false,
+  "workbench.colorCustomizations": {
+    "editor.background": "#23272e",
+    "editor.lineHighlightBackground": "#292e36",
+    "editor.selectionHighlightBackground": "#484e5b93",
+    "editorRuler.foreground": "#3b4048",
+    "editorCursor.foreground": "#528bff",
+    "editorWarning.foreground": "#00bc00",
+    "terminal.ansiYellow": "#e7cb2b",
+    "terminal.ansiBrightWhite": "#ffffff"
+  },
+  "workbench.editor.enablePreviewFromQuickOpen": false,
+  "workbench.colorTheme": "One Dark Pro",
+  "workbench.iconTheme": "vscode-icons",
+  "workbench.startupEditor": "newUntitledFile",
+  "workbench.tips.enabled": false,
+  "[csharp]": {
+    "editor.tabSize": 4
+  },
+  "[markdown]": {
+    "files.trimTrailingWhitespace": false
+  },
+  "[plaintext]": {
+    "editor.wordWrap": "on",
+    "files.autoGuessEncoding": true
+  },
+  "[python]": {
+    "editor.tabSize": 4
+  },
+  "[shellscript]": {
+    "editor.insertSpaces": false
+  },
+  "gitlens.advanced.messages": {
+    "suppressShowKeyBindingsNotice": true
+  }
+}

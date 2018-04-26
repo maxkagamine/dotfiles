@@ -1,0 +1,17 @@
+{
+	"Empty page": {
+		"prefix": "html",
+		"body": [
+			"<!DOCTYPE html>",
+			"<html>",
+			"<head>",
+			"<title>${1:Stuff}</title>",
+			"",
+			"</head>",
+			"<body>",
+			"$0",
+			"</body>",
+			"</html>"
+		]
+	}
+}

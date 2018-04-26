@@ -1,0 +1,80 @@
+{
+	"React: Component": {
+		"prefix": "rc",
+		"body": [
+			"import React, { Component } from 'react';",
+			"import PropTypes from 'prop-types';",
+			"",
+			"export default class ${1:${TM_FILENAME_BASE/(.*)/${1:/capitalize}/}} extends Component {",
+			"",
+			"  static propTypes = {",
+			"    ",
+			"  };",
+			"",
+			"  render() {",
+			"    return ${0:<div>Stuff.</div>};",
+			"  }",
+			"",
+			"}",
+			""
+		]
+	},
+	"React: Container component": {
+		"prefix": "rcc",
+		"body": [
+			"import React, { Component } from 'react';",
+			"import PropTypes from 'prop-types';",
+			"import connect from 'react-redux';",
+			"",
+			"class ${1:${TM_FILENAME_BASE/(.*)/${1:/capitalize}/}} extends Component {",
+			"",
+			"  static propTypes = {",
+			"    ",
+			"  };",
+			"",
+			"  render() {",
+			"    return ${0:<div>Stuff.</div>};",
+			"  }",
+			"",
+			"}",
+			"",
+			"export default connect(state => ({",
+			"  ",
+			"}), {",
+			"  ",
+			"})($1);",
+			""
+		]
+	},
+	"React: PropType": {
+		"prefix": "pt",
+		"body": "${1:foo}: PropTypes.${2|any,array,bool,element,func,node,number,object,string,symbol,arrayOf(),instanceOf(),objectOf(),oneOf(),oneOfType(),shape()|}${3:.isRequired},$0"
+	},
+	"React: PropType (functions)": {
+		"prefix": "ptf",
+		"body": "${1:foo}: PropTypes.${2|arrayOf,instanceOf,objectOf,oneOf,oneOfType,shape|}($4)${3:.isRequired},$0"
+	},
+	"Test: describe": {
+		"prefix": "describe",
+		"body": [
+			"describe('${1:a thing}', function() {",
+			"  $0",
+			"});"
+		]
+	},
+	"Test: it": {
+		"prefix": "it",
+		"body": [
+			"it('${1:does a thing}', function() {",
+			"  $0",
+			"});"
+		]
+	},
+	"Import SCSS module": {
+		"description": "Import SCSS module",
+		"prefix": "scss",
+		"body": [
+			"import classes from './$TM_FILENAME_BASE.scss';$0"
+		]
+	}
+}

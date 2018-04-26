@@ -1,0 +1,8 @@
+{
+	"Date (for blog posts)": {
+		"prefix": "date",
+		"body": [
+			"$CURRENT_YEAR-$CURRENT_MONTH-$CURRENT_DATE $CURRENT_HOUR:$CURRENT_MINUTE -0400"
+		]
+	}
+}

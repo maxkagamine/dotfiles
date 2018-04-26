@@ -1,0 +1,10 @@
+{
+	"New bash script": {
+		"prefix": "bash",
+		"body": [
+			"#!/usr/bin/env bash",
+			"set -e",
+			"", "$0", ""
+		]
+	}
+}
