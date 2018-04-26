@@ -1,0 +1,1 @@
+These are the [wamerican](https://packages.ubuntu.com/trusty/text/wamerican) & [wamerican-huge](https://packages.ubuntu.com/trusty/text/wamerican-huge) Ubuntu packages normally found in /usr/share/dict. They have proven useful on rare occasion, primarily for shenanigans.

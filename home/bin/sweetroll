@@ -1,0 +1,81 @@
+#!/bin/bash
+set -e
+
+ok=(
+	"I used to be an adventurer like you. Then I took an arrow in the knee..."
+	"Let me guess... someone stole your sweetroll."
+	"Citizen."
+	"No lollygaggin'."
+	"Staying safe I hope."
+	"I'd be a lot warmer and a lot happier with a bellyful of mead..."
+	"Watch the skies, traveler."
+	"My cousin's out fighting dragons, and what do I get? Guard duty."
+	"Gotta keep my eyes open. Damn dragons could swoop down at any time."
+	"Fear not. Come dragon or giant, we'll be ready."
+	"I fear the night. Because the werewolves and vampires don't."
+	"Everything's in order."
+	"Got to thinking... maybe I'm the Dragonborn, and I just don't know it yet?"
+	"What is it? Dragons?"
+)
+
+fail=(
+	"By order of the Jarl, stop right there!"
+	"You have committed crimes against Skyrim and her people. What say you in your defense?"
+	"Stop right there, criminal scum!"
+	"I need to ask you to stop. That... committing... is making people nervous."
+)
+
+if [[ $1 =~ ^(--help|-h)$ ]]; then
+	cat >&2 <<-EOF
+		Usage: sweetroll [exit code]
+		       sweetroll --sfx <sound>
+		       sweetroll --stat <name>
+
+		Without options, prints a random quote appropriate for the exit code (if any).
+		Sweetroll exits with whatever exit code is given.
+
+		With --sfx, plays the specified mp3 from ~/sfx. Available sounds:
+		$(find ~/sfx/ -name '*.mp3' -exec printf '  ' \; -exec basename {} .mp3 \;)
+
+		With --stat, increments the stat identified by <name> and plays the levelup
+		sound effect on certain multiples. <name> must be a valid JSON property name.
+	EOF
+	exit 1
+fi
+
+if [[ $1 == '--sfx' ]]; then
+
+	path=~/sfx/"$2".mp3
+
+	if [[ -f $path ]]; then
+		( ffplay -nodisp -autoexit "$path" &>/dev/null & )
+	else
+		echo "Sound does not exist: $path" >&2
+		exit 2
+	fi
+
+elif [[ $1 == '--stat' ]]; then
+
+	# Initialize stats file if not exist
+	if [[ ! -f ~/.sweetroll ]]; then
+		echo '{}' > ~/.sweetroll
+	fi
+
+	# Increment stat
+	name=$2
+	json=$(jq ".*{\"$name\":(.[\"$name\"]+1)}" < ~/.sweetroll)
+	echo "$json" > ~/.sweetroll
+
+	# Check if multiple
+	value=$(jq ".[\"$name\"]" < ~/.sweetroll)
+	if (( $value % 50 == 0 )); then
+		printf '\e[1m%s increased to %s!\e[m\n' "$name" "$value"
+		sweetroll --sfx levelup
+	fi
+
+elif [[ ! $1 || $1 == 0 ]]; then
+	echo "${ok[$RANDOM % ${#ok[@]}]}"
+else
+	echo "${fail[$RANDOM % ${#fail[@]}]}"
+	exit $1
+fi

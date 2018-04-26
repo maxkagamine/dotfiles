@@ -1,0 +1,31 @@
+{
+	"New blog post": {
+		"prefix": "post",
+		"body": [
+			"---",
+			"title: $1",
+			"# slug: $1",
+			"date: $CURRENT_YEAR-$CURRENT_MONTH-$CURRENT_DATE $CURRENT_HOUR:$CURRENT_MINUTE -0400",
+			"lang: ${2|en,ja|}",
+			"---",
+			"",
+			"$0"
+		]
+	},
+	"Download readme": {
+		"prefix": "dl",
+		"body": [
+			"${1:${TM_DIRECTORY/.*?([^\\\\\\/]+)$/$1/}}",
+			"${TM_DIRECTORY/.*?[^\\\\\\/](?!.*[\\\\\\/])/=/g}", // https://github.com/Microsoft/vscode/issues/34683
+			"",
+			"${2:stuff}",
+			"",
+			"",
+			"Description",
+			"-----------",
+			"",
+			"${3:stuff}",
+			""
+		]
+	}
+}

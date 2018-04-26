@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+set -e
+shopt -s nullglob
+
+repohook="$(git rev-parse --git-dir)/hooks/post-commit"
+globalhooks="$(dirname "${BASH_SOURCE[0]}")/post-commit.d"
+
+if [[ -e "$repohook" ]]; then
+  "$repohook" "$@"
+fi
+
+for f in "$globalhooks"/*; do
+  "$f" "$@"
+done

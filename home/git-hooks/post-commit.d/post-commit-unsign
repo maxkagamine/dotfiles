@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+set -e
+
+if [[ $(git show -s --format='%G?' | tail -n1) != 'N' ]]; then
+
+	user=$(printf '%s <%s>\n' "$(git config user.name)" "$(git config user.email)")
+	author=$(git show -s --format='%an <%ae>' | tail -n1)
+	committer=$(git show -s --format='%cn <%ce>' | tail -n1)
+
+	if [[ $user != $author || $user != $committer ]]; then
+		echo "Git signed a commit that isn't ours; unsigning"
+		git commit -q --amend --no-edit --no-verify --only --allow-empty --no-gpg-sign
+	fi
+
+fi

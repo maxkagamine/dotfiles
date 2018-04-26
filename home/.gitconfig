@@ -1,0 +1,63 @@
+[core]
+	excludesfile = ~/.gitignore
+	autocrlf = input
+	safecrlf = false
+	editor = nano
+	whitespace = cr-at-eol
+	hooksPath = ~/git-hooks
+	fscache = true # Performance boost with GfW version
+[push]
+	default = simple
+[alias]
+	alias = "!f() { git config --global alias.\"$@\"; }; f"
+	aliases = "!echo 'Shell aliases:'; bash -lic alias | perl -ne \"print if s/^alias ([^=]+)='(git(?: .*)?)'$/\\1\\t\\2/\" | column -ts $'\\t' | perl -pe 's/^([^ ]+)/\\e[36m\\1\\e[m/'; echo -e '\\nGit aliases:'; git config --get-regexp ^alias\\. | grep -v ^alias\\.aliases | perl -pe 's/^alias\\.([^ ]+) (.*)/\\1\\t\\2/' | column -ts $'\\t' | perl -pe 's/^([^ ]+)/\\e[36m\\1\\e[m/'"
+	puush = !git push -u origin \"$(git symbolic-ref --short HEAD)\"
+	nuke = !git reset --hard && git clean -fdx -e _stuff/ -e .vagrant/
+	uncommit = reset --soft HEAD~
+	recommit = commit -C ORIG_HEAD
+	ns = "!f() { local c=show; [[ $* == *..* ]] && c=diff; git $c --name-status \"$@\"; }; f"
+	changelog = log --pretty=format:\"- %s\" --reverse
+	msg = log --format=%s -n1
+	graph = log --oneline --graph --all --decorate
+	whoami = !printf '%s <%s>\\n' \"$(git config user.name)\" \"$(git config user.email)\"
+	bs = !__git-bs.sh
+	ch = !__git-ch.sh
+	lr = log --oneline --decorate --left-right
+	unpushed = "!set -o pipefail; git rev-parse --abbrev-ref --symbolic-full-name @{u} | xargs -I% git log --oneline %.."
+	remas = pull origin master
+	co-latest = "!f() { [[ $# == 1 ]] || return 1; git fetch $(git rev-parse --abbrev-ref \"$1\"@{upstream} | sed 's/\\// /'):\"$1\" && git checkout \"$1\"; }; f"
+[color]
+	ui = auto
+[credential]
+	helper = manager
+[merge]
+	tool = kdiff3
+[merge "npm-merge-driver"]
+	name = automatically merge npm lockfiles
+	driver = npx npm-merge-driver merge %A %O %B %P
+[diff]
+	tool = kdiff3
+[mergetool]
+	prompt = false
+	keepBackup = false
+	keepTemporaries = false
+[mergetool "code"]
+	cmd = code --wait $MERGED
+[difftool "code"]
+	cmd = code --diff --wait $LOCAL $REMOTE
+[mergetool "winmerge"]
+	cmd = "/c/Program\\ Files\\ \\(x86\\)/WinMerge/WinMergeU.exe" -u -e -dl \"Local\" -dr \"Remote\" $LOCAL $REMOTE $MERGED
+[difftool "winmerge"]
+	cmd = "/c/Program\\ Files\\ \\(x86\\)/WinMerge/WinMergeU.exe" -u -e $LOCAL $REMOTE
+[fetch]
+	prune = true
+[pull]
+	rebase = true
+[rebase]
+	autoStash = true
+[commit]
+	gpgsign = true
+[log]
+	showSignature = true
+[include]
+	path = ~/.gitconfig_local

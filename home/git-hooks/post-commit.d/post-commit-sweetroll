@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+set -e
+
+# Bump stat unless rebasing (https://stackoverflow.com/a/3921928)
+
+if [[ ! -d $(git rev-parse --git-path rebase-merge) && \
+      ! -d $(git rev-parse --git-path rebase-apply) ]]; then
+
+	sweetroll --stat Committing
+
+fi
