@@ -11,7 +11,7 @@ Of particular interest may be:
 - [setup script](setup/main.sh) which sets up symlinks, installs packages, and does some other environment configuration
 - [.bashrc](home/.bashrc) which contains my aliases/functions as well as some shenanigans, notably:
   - [GG, a bash function for faster git committing](https://maxkagamine.com/blog/gg-a-bash-function-for-faster-git-committing)
-  - The `fus ro dah!` command, powered by [sweetrolls](home/bin/sweetroll) (blog post soon)
+  - [Nuke a git repo with unrelenting force: the FUS RO DAH command](https://maxkagamine.com/blog/nuke-a-git-repo-with-unrelenting-force)
 - [.gitconfig](home/.gitconfig)
 - [superman](home/bin/superman), a custom package manager manager for [syncing packages](home/.packages.conf)
 
