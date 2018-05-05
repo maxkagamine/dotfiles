@@ -149,6 +149,7 @@ gg() {
 }
 
 fus() {
+	# https://kagami.ne/fusrodah
 	if [[ $* =~ ^ro\ dah ]]; then
 		git nuke && sweetroll --sfx fusrodah
 	else
