@@ -2,6 +2,11 @@
 set -e
 set -o pipefail
 
+# TODO: superman
+echo 'Port this to WSL'
+exit 1
+
+
 ## TODO: This could use some usability improvements.
 ## e.g. `superman npm i eslint` instead of `superman install --npm eslint`
 

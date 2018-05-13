@@ -1,1 +1,0 @@
-This is the official v2.5.3 build of nano for Windows ([download zip](http://www.nano-editor.org/dist/v2.5/NT/nano-2.5.3.zip)) as installed by the [nano chocolatey package](https://chocolatey.org/packages/nano) (see download for original readme). Included here as a temporary fix while the latest msys version is broken. See setup/main.sh.
