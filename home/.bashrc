@@ -1,12 +1,10 @@
-# Add ~/bin* to PATH, recursive, and override default gpg
+# Add ~/bin* to PATH, recursive
 
 PATH="$(find -L ~/bin* -name .git -prune -o -name node_modules -prune -o -type d -print 2>/dev/null | tr '\n' ':')$PATH"
-PATH="/c/Program Files (x86)/GnuPG/bin:$PATH"
-. ~/bin/__gpg-completion.sh
 
 # Prompt
 
-. /mingw64/share/git/completion/git-prompt.sh
+. /usr/lib/git-core/git-sh-prompt
 
 GIT_PS1_SHOWDIRTYSTATE=1
 GIT_PS1_SHOWUNTRACKEDFILES=1
@@ -20,14 +18,13 @@ __prompt-command() {
 	local yel='\[\e[0;33m\]'
 	local cyn='\[\e[0;36m\]'
 
-	PS1='\[\e]0;\w\a\]'                  # Set window title
-	PS1+='\n'                            # Newline
-	[[ $err != 0 ]] && PS1+="$red$err "  # Exit code if error
-	PS1+="$yel\w$cyn"                    # Current directory
-	PS1+=$(__git_ps1)                    # Git branch
-	PS1+="$def\n"                        # Newline
-	id -G | grep -qE '\<544\>' && \
-		PS1+='# ' || PS1+='$ '             # Dollar sign or hash if admin
+	PS1='\[\e]0;\w\a\]'              # Set window title
+	PS1+='\n'                        # Newline
+	(( $err )) && PS1+="$red$err "   # Exit code if error
+	PS1+="$yel\w$cyn"                # Current directory
+	PS1+=$(__git_ps1)                # Git branch
+	PS1+="$def\n"                    # Newline
+	PS1+='\$ '                       # Dollar sign or hash
 
 	# Alias empty command to `git status` when in git repo
 	_L="$(history 1)"; [[ "$_L" == "$_X" ]] && \
@@ -39,30 +36,22 @@ PROMPT_COMMAND='__prompt-command'
 
 # General aliases
 
-alias ls='ls -GAh --color=auto'
+alias ls='ls -Ah --color=auto'
 alias ll='ls -l'
-# alias la='ls -A'
-alias which='which 2>/dev/null' # Prints entire PATH on fail otherwise
 alias grep='grep --color=auto'
-alias pacman='pacman --color=auto'
-alias ssh='npc plink'
-alias scp='npc pscp'
 alias dig='dig +noall +answer'
 alias digx='dig @8.8.8.8'
-alias hide='attrib +h'
-alias ffmpeg='ffmpeg -hide_banner'
-alias ffprobe='ffprobe -hide_banner'
-alias yt='youtube-dl --netrc'
+alias ffmpeg='ffmpeg.exe -hide_banner'
+alias ffprobe='ffprobe.exe -hide_banner'
+alias yt='youtube-dl --netrc' # TODO: youtube-dl
 alias ytmp3='yt -xf "best[format_id!=economy]" --audio-format mp3 --audio-quality 0' # 'economy' prevents downloading niconico's low quality, high traffic mode videos
-alias pip2='py -2 -m pip'
-alias exiftool='exiftool -g'
+alias exiftool='exiftool -g' # TODO: Install linux exiftool
 alias exifstrip='exiftool -all='
-alias pkill='taskkill //f //im'
 alias whois='whois -H'
-alias halt='shutdown //s //hybrid //t 0'
-alias reboot='shutdown //r //t 0'
-alias gpg-connect-agent='npc gpg-connect-agent'
-alias dokku='ssh dokku@dokku'
+alias halt='shutdown.exe /s /hybrid /t 0'
+alias reboot='shutdown.exe /r /t 0'
+# TODO: Set up ssh
+# alias dokku='ssh dokku@dokku'
 alias .e='code ~/.bashrc' # Edit bashrc
 alias .l='code ~/.bashrc_local' # Edit local bashrc
 alias .r='. ~/.bashrc' # Reload bashrc
@@ -84,6 +73,7 @@ alias nir='ni && nr'
 alias nirb='ni && nrb'
 alias nirw='ni && nrw'
 
+# TODO: Install linux jq
 __npm-run-complete() {
 	# Faster than `npm completion` and handles scripts with spaces in the name better
 	local cur
@@ -159,7 +149,7 @@ fus() {
 	sweetroll $?
 }
 
-. /mingw64/share/git/completion/git-completion.bash
+. /usr/share/bash-completion/completions/git
 __git_complete g __git_main
 __git_complete gl _git_log
 __git_complete gd _git_diff
@@ -172,49 +162,48 @@ __git_complete gg _git_commit
 
 # .NET aliases
 
-alias dotnet='env -uTEMP -utmp dotnet'
-alias d='dotnet'
-alias db='d build'
-alias dc='d clean'
-alias dr='d run'
-alias dt='d test'
-alias du='d remove package'
+# TODO: dotnet
 
-di() { d add package "$@" && d restore; }
+# alias dotnet='env -uTEMP -utmp dotnet'
+# alias d='dotnet'
+# alias db='d build'
+# alias dc='d clean'
+# alias dr='d run'
+# alias dt='d test'
+# alias du='d remove package'
+
+# di() { d add package "$@" && d restore; }
 
 # Variables & shell opts
 
 HISTTIMEFORMAT='%Y-%m-%d %T  ' # Display timestamp in history
 
 export EDITOR=nano # Set default editor
-export GIT_SSH=$(which plink) # Configure git to use plink
-export FORCE_COLOR=1 # Force chalk/supports-color to use color
-export NPM_CONFIG_UNICODE=true # Use unicode characters in npm tree output
 export DOTNET_CLI_TELEMETRY_OPTOUT=1 # Disable dotnet telemetry
 
 shopt -s globstar
 
 # Functions
 
-npc() {
-	MSYS2_ARG_CONV_EXCL="*" "$@" # No path conversion
-}
-
 exp() {
-	explorer "$(cygpath -w "${1:-.}" | sed 's/\\$//')" || true
-}
-
-su() {
-	/c/Program\ Files/ConEmu/ConEmu64 -reuse -run '{Bash (Admin)}'
+	explorer.exe "$(wslpath -w "${1:-.}")" || true
 }
 
 c() {
 	mkdir -vp -- "$1" | head -n1 && cd -- "$1"
 }
 
+hide() {
+	attrib.exe +h "$(wslpath -w "$1")"
+}
+
+unhide() {
+	attrib.exe -h "$(wslpath -w "$1")"
+}
+
 man() {
 	if [[ $(type -t "$1") =~ ^(keyword|builtin)$ ]]; then
-		help "$1" | "${PAGER:-less}"
+		help "$1" | less -Kc~
 	else
 		command -p man "$1" || "$1" --help 2>&1 | less -Kc~
 	fi
@@ -225,12 +214,13 @@ treelist() {
 }
 
 clip() {
-	perl -pe 'chomp if eof' | command clip
+	perl -pe 'chomp if eof' | clip.exe
 }
 
-unclip() {
-	cat /dev/clipboard
-}
+# TODO: Create an unclip.exe
+# unclip() {
+# 	cat /dev/clipboard
+# }
 
 tclip() {
 	tee >(clip)
@@ -248,13 +238,6 @@ randpw() {
 	tr -dc "$chars" < /dev/urandom | head -c ${1-20}; echo
 }
 
-ipstatus() {
-	netsh interface show interface | \
-		perl -ne '/^Enabled.*Dedicated\s+(.*)$/ && print $1 . "\n"' | \
-		grep -vP '(VMware|Virtual ?Box|VPN)' | xargs -L1 -I% sh -c \
-		'netsh interface show interface "%"; netsh interface ipv4 show addresses "%" | tail -n +2'
-}
-
 wtfismyip() {
 	curl -Ss https://wtfismyip.com/text
 }
@@ -265,8 +248,9 @@ wtfismylocation() {
 }
 
 wtfislisteningon() {
-	id -G | grep -qE '\<544\>' || { echo 'Requires admin' >&2; return 1; }
-	netstat -abno | \
+	# Linux netstat not yet supported https://github.com/Microsoft/WSL/issues/2249
+	net.exe session &>/dev/null || { echo 'Run WSL as administrator.' >&2; return 1; }
+	netstat.exe -abno | \
 		grep -P '^(  TCP|  UDP| \S)' | \
 		grep -PA1 --no-group-separator -e ':'"${1:-\\d+}"'\s+\S+\s+LISTENING' | \
 		sed 'N;s/\n//' | \
@@ -275,10 +259,11 @@ wtfislisteningon() {
 		column -ts $'\t'
 }
 
-putty-sessions() {
-	reg query 'HKCU\Software\SimonTatham\PuTTY\Sessions' | \
-		grep -oP '(?<=Sessions\\).*' | perl -MURI::Escape -e 'print uri_unescape(<>)'
-}
+# TODO: Drop putty?
+# putty-sessions() {
+# 	reg query 'HKCU\Software\SimonTatham\PuTTY\Sessions' | \
+# 		grep -oP '(?<=Sessions\\).*' | perl -MURI::Escape -e 'print uri_unescape(<>)'
+# }
 
 argv() {
 	printf '%s\n' "$@"
@@ -304,7 +289,7 @@ retry() {
 recycle() {
 	local p
 	for p in "$@"; do
-		nircmdc moverecyclebin "$p"
+		nircmdc.exe moverecyclebin "$(wslpath -w "$p")"
 	done
 }
 

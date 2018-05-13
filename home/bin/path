@@ -2,16 +2,12 @@
 set -e
 
 getpaths() {
-    reg query "$1" //v PATH | grep PATH | \
+    reg.exe query "$1" /v PATH | grep PATH | \
         perl -pe 's/^.*?_SZ\s+//' | tr ';' '\n' | \
         sed 's/\\$//' | \
         #xargs -d'\n' -I{} cmd //c "echo {}" | sed 's/\s*$//' | \
         sed 's/%systemroot%/C:\\WINDOWS/gi' | \
-        xargs -d'\n' cygpath
-}
-
-expandpath() {
-    cmd //c "echo $1"
+        xargs -d'\n' wslpath
 }
 
 sysenv='HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment'
