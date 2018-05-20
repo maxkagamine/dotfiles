@@ -26,6 +26,12 @@ try {
 
   [Environment]::SetEnvironmentVariable("WSLENV", "USERPROFILE/p", "User") # https://blogs.msdn.microsoft.com/commandline/2017/12/22/share-environment-vars-between-wsl-and-windows/
 
+  # Allow sudo without password
+
+  Start-Task "Allowing sudo without password"
+
+  wsl sudo bash -c "grep -q NOPASSWD /etc/sudoers || echo $'\n%sudo\tALL=(ALL) NOPASSWD:ALL' | EDITOR='tee -a' visudo > /dev/null"
+
   # Whoop
 
   Write-Progress -Activity $title -Status "Done" -PercentComplete 100
