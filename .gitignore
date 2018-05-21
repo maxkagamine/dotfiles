@@ -1,0 +1,11 @@
+/home/*
+!/home/bin
+!/home/dict
+!/home/git-hooks
+!/home/sfx
+!/home/.bashrc
+!/home/.gitconfig
+!/home/.gitignore
+!/home/.nanorc
+!/home/.packages.conf
+!/home/.profile
