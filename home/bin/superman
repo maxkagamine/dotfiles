@@ -1,190 +1,315 @@
-#!/bin/bash
+#!/usr/bin/env bash
 set -e
 set -o pipefail
 
-# TODO: superman
-echo 'Port this to WSL'
-exit 1
+managers=(apt npm code)
+conf=$(realpath "${SUPERMAN_CONFIG:-$HOME/.packages.conf}") # realpath to avoid awk inplace replacing symlink
 
+in-array() {
+	# Usage: in-array <search> <array>...
+	local x search=$1; shift
+	for x in "$@"; do [[ $x == $search ]] && return 0; done
+	return 1
+}
 
-## TODO: This could use some usability improvements.
-## e.g. `superman npm i eslint` instead of `superman install --npm eslint`
+trace() {
+	if [[ $TRACE ]]; then
+		printf '\e[1;30msuperman: ' >&2
+		if [[ $manager ]]; then printf "($manager) " >&2; fi
+		printf "${FUNCNAME[1]#superman-} " >&2
+		if (( $# > 0 )); then printf '%q ' "$@" >&2; fi
+		printf '\e[m\n' >&2
+	fi
+}
 
-conf=$(realpath ~/.packages.conf) # realpath to avoid awk inplace replacing symlink
-
+# Create packages list if not exist
 if [[ ! -f $conf ]]; then
-	echo -e '[pacman]\n' >> "$conf"
-	echo -e '[npm]\n' >> "$conf"
-	echo -e '[pip]\n' >> "$conf"
-	echo -e '[vscode]\n' >> "$conf"
+	for manager in "${managers[@]}"; do
+		printf "[$manager]\n\n" >> "$conf"
+	done
 fi
 
-if [[ ! $1 =~ ^(install|uninstall|add|remove|list|update-list)$ ]]; then
-	cat >&2 <<-'EOF'
+# Check for manager
+manager=
+if in-array "$1" "${managers[@]}"; then
+	manager=$1
+	shift
+fi
+
+# Check for command
+cmd=help
+if [[ -z $manager ]] && in-array "$1" i install moo || \
+   [[ -n $manager ]] && in-array "$1" i install u uninstall ls sync moo; then
+	cmd=$1
+	shift
+	# Expand aliases
+	case "$cmd" in
+		i) cmd=install ;;
+		u) cmd=uninstall ;;
+	esac
+	# Add subcommands
+	if [[ $cmd == 'ls' ]] && in-array "$1" add remove; then
+		cmd=$cmd-$1
+		shift
+	fi
+fi
+
+##
+## Commands
+##
+
+superman-help() {
+	cat >&2 <<-EOF
 		Usage:
 
-		  superman install [<manager>]
-		    Installs everything in the list, opt. restricted to a certain manager.
+		  superman (i|install)
+		    Installs everything in the list for each manager.
 
-		  superman (install|uninstall) [<manager>] <package>...
-		    (Un)installs package(s) using the specified manager (defaults to pacman)
-		    and automatically updates the list.
+		  superman <manager> (i|install) [<pkg>...]
+		    Installs one or more packages, or the entire list if none given.
 
-		  superman (add|remove) [<manager>] <package>...
-		    Adds/removes package(s) to/from the specified manager's list (defaults
-		    to pacman) without (un)installing anything.
+		  superman <manager> (u|uninstall) <pkg>...
+		    Uninstalls one or more packages.
 
-		  superman list [<manager>]
-		    Prints the manager's list, if specified; opens for editing otherwise.
+		  superman <manager> ls [(add|remove) <pkg>...]
+		    Prints the list or adds/removes packages without (un)installing anything.
 
-		  superman update-list <manager>
-		    Updates a manager's list to reflect currently installed packages.
-		    Currently --vscode only; best ran from a scheduled task.
+		  superman <manager> sync
+		    Updates the list to reflect currently installed packages.
 
-		Available managers:
+		Supported managers:
 
-		  --pacman, --npm, --pip, --vscode
+		  $(printf '%s, ' "${managers[@]}" | head -c -2)
+
+		                                        This superman has Super Cow Powers.
 	EOF
-	exit 1
-fi
-
-superman-list() {
-	if [[ $1 == --* ]]; then
-		sed '/^\['"${1:2}"'\]$/,/^\[/!d;//d;/^\s*$/d' "$conf" # https://stackoverflow.com/a/31380266
-	else
-		"${EDITOR:-vi}" "$conf"
-	fi
-}
-
-superman-add() {
-	if [[ $1 == --* ]]; then
-		section=${1:2}; shift
-	else
-		section='pacman'
-	fi
-	if ! grep -qFx "[$section]" "$conf"; then
-		printf '\n[%s]\n' "$section" >> "$conf"
-	fi
-	for pkg in "$@"; do
-		superman-list --"$section" | grep -qFx "$pkg" || \
-		awk -i inplace -v section="$section" -v item="$pkg" -f - "$conf" <<-'EOF'
-			BEGIN { in_section = 0; }
-			in_section == 1 && $0 ~ /^(\[.*)?$/ { print item; in_section = 0 }
-			$0 == "[" section "]" { in_section = 1 }
-			{ print }
-			ENDFILE { if (in_section == 1) { print item } }
-		EOF
-	done
-}
-
-superman-remove() {
-	if [[ $1 == --* ]]; then
-		section=${1:2}; shift
-	else
-		section='pacman'
-	fi
-	for pkg in "$@"; do
-		awk -i inplace -v section="$section" -v item="$pkg" -f - "$conf" <<-'EOF'
-			BEGIN { in_section = 0; }
-			in_section == 1 && $0 ~ /^\[$/ { in_section = 0 }
-			$0 == "[" section "]" { in_section = 1 }
-			in_section == 0 || $0 != item { print }
-		EOF
-	done
-}
-
-command-exists() {
-	command -v "$1" > /dev/null 2>&1
+	return 1
 }
 
 superman-install() {
-	if [[ $# == 0 ]]; then
-		# No arguments, install everything
-		superman-install --pacman
-		if command-exists npm; then superman-install --npm; fi
-		if command-exists pip; then superman-install --pip; fi
-		if command-exists code; then superman-install --vscode; fi
+	trace "$@"
+	if [[ $manager ]]; then
+		# Add specified packages to list, if any
+		if (( $# > 0 )); then
+			superman-ls-add "$@"
+		fi
+		# Install specified packages or all in list if none given
+		local output pkgs=("$@")
+		if (( $# == 0 )); then
+			output=$(superman-ls)
+			readarray -t pkgs <<< "$output"
+			if [[ ${#pkgs[@]} == 1 && ! $pkgs ]]; then pkgs=(); fi
+		fi
+		if (( ${#pkgs[@]} > 0 )); then
+			superman-manager "$manager" install "${pkgs[@]}"
+		fi
+	elif (( $# == 0 )); then
+		# Install everything in list for each manager
+		for manager in "${managers[@]}"; do
+			manager="$manager" superman-install
+		done
 	else
-		# Pass arguments to `add` (same signature, noop if no packages specified)
-		superman-add "$@"
-		# Get manager
-		if [[ $1 == --* ]]; then
-			manager=${1:2}; shift
-		else
-			manager='pacman'
-		fi
-		# Use all packages in manager's list if none specified
-		if [[ $# == 0 ]]; then
-			readarray -t pkgs <<<"$(superman-list --"$manager")"
-		else
-			pkgs=("$@")
-		fi
-		# Do nothing if no packages specified
-		if [[ ${#pkgs[@]} == 0 ]]; then
-			return
-		fi
-		# Install packages using manager
-		case $manager in
-			pacman)
-				pacman -Sy --noconfirm --needed "${pkgs[@]}" 2>&1 | \
-					{ grep -v 'up to date' || true; }
-				;;
-			npm)
-				npm install -g "${pkgs[@]}"
-				;;
-			pip)
-				pip install --upgrade "${pkgs[@]}" | \
-					{ grep -v 'Requirement already up-to-date' || true; }
-				;;
-			vscode)
-				for pkg in "${pkgs[@]}"; do
-					# Don't bother updating already-installed extensions; vscode will do that itself
-					escapedname=$(sed 's/[]\.|$(){}?+*^]/\\&/g' <<<"$pkg")
-					if ! ls "$USERPROFILE/.vscode/extensions" | grep -Piq '^'"$escapedname"'-[\d\.]+$'; then
-						code --install-extension "$pkg" | \
-							{ grep -v 'is already installed' || true; } || \
-							{ echo "Failed to install vscode extension: $pkg" >&2; return 1; }
-					fi
-				done
-				;;
-			*) echo "Unsupported manager: $manager" >&2 && return 1
-		esac
+		# Command run with packages specified but without manager
+		superman-help
 	fi
 }
 
 superman-uninstall() {
-	# Pass arguments to `remove` (same signature, noop if no packages specified)
-	superman-remove "$@"
-	# Get manager
-	if [[ $1 == --* ]]; then
-		manager=${1:2}; shift
-	else
-		manager='pacman'
+	trace "$@"
+	if (( $# > 0 )); then
+		superman-manager "$manager" uninstall "$@"
+		superman-ls-remove "$@"
 	fi
-	# Do nothing if no packages specified
-	if [[ $# == 0 ]]; then
-		return
-	fi
-	# Remove packages using manager
-	case $manager in
-		pacman) pacman -R --noconfirm "$@" ;;
-		npm) npm uninstall -g "$@" ;;
-		pip) pip uninstall "$@" ;;
-		vscode) printf '%s\n' "$@" | xargs -rl code --uninstall-extension ;;
-		*) echo "Unsupported manager: $manager" >&2 && return 1
-	esac
 }
 
-superman-update-list() {
-	case ${1:2} in
-		vscode)
-			readarray -t pkgs <<<"$(superman-list --vscode)"
-			superman remove --vscode "${pkgs[@]}"
-			readarray -t pkgs <<<"$(code --list-extensions)"
-			superman add --vscode "${pkgs[@]}"
-			;;
-		*) echo "Unsupported manager: ${1:2}" >&2 && return 1
-	esac
+superman-ls() {
+	trace "$@"
+	awk -v section="$manager" -f - "$conf" <<-'EOF'
+		in_section && $0 ~ /^(\[.*)?$/ { in_section = 0 }
+		in_section { print }
+		$0 == "[" section "]" { in_section = 1 }
+	EOF
 }
 
-superman-$1 "${@:2}"
+superman-ls-add() {
+	trace "$@"
+	if (( $# > 0 )); then
+		if ! grep -Fxq "[$manager]" "$conf"; then
+			printf '\n[%s]\n' "$manager" >> "$conf"
+		fi
+		local items=$(printf '%s\n' "$@")
+		awk -i inplace -v section="$manager" -v items="$items" -f - "$conf" <<-'EOF'
+			function write_list() {
+				asort(list)
+				for (i in list) print list[i]
+			}
+			BEGIN {
+				split(items, temp, "\n")
+				for (i in temp) list[temp[i]] = temp[i]
+			}
+			in_section && $0 ~ /^(\[.*)?$/ { in_section = 0; write_list() }
+			in_section { list[$0] = $0 }
+			!in_section { print }
+			$0 == "[" section "]" { in_section = 1 }
+			END { if (in_section) write_list() }
+		EOF
+	fi
+}
+
+superman-ls-remove() {
+	trace "$@"
+	if (( $# > 0 )); then
+		local items=$(printf '%s\n' "$@")
+		awk -i inplace -v section="$manager" -v items="$items" -f - "$conf" <<-'EOF'
+			BEGIN {
+				split(items, temp, "\n")
+				for (i in temp) list[temp[i]] = temp[i]
+			}
+			in_section && $0 ~ /^(\[.*)?$/ { in_section = 0 }
+			!in_section || !($0 in list) { print }
+			$0 == "[" section "]" { in_section = 1 }
+		EOF
+	fi
+}
+
+superman-sync() {
+	trace "$@"
+	local installed list output add remove
+	# Get currently installed packages and packages in list
+	installed=$(superman-manager "$manager" list-installed | sort)
+	list=$(superman-ls | sort)
+	# Get packages that are installed but not in the list
+	output=$(comm -13 <(echo "$list") <(echo "$installed"))
+	readarray -t add <<< "$output"
+	if [[ ${#add[@]} == 1 && ! $add ]]; then add=(); fi
+	# Get packages in the list that are not installed
+	output=$(comm -23 <(echo "$list") <(echo "$installed"))
+	readarray -t remove <<< "$output"
+	if [[ ${#remove[@]} == 1 && ! $remove ]]; then remove=(); fi
+	# Update list
+	superman-ls-add "${add[@]}"
+	superman-ls-remove "${remove[@]}"
+	# Show diff
+	if (( ${#add[@]} > 0 )); then printf '+%s\n' "${add[@]}"; fi
+	if (( ${#remove[@]} > 0 )); then printf -- '-%s\n' "${remove[@]}"; fi
+}
+
+##
+## Managers
+##
+
+superman-manager() {
+	# Usage: superman-manager <manager> <command> [<args>...]
+	local cmd="superman-manager-$1-$2"
+	if ! type "$cmd" &>/dev/null; then
+		echo "superman: command not implemented for manager '$1'" >&2
+		return 1
+	elif ! type "$1" &>/dev/null; then
+		echo "superman: manager '$1' not found" >&2
+		return 1
+	fi
+	"$cmd" "${@:3}"
+}
+
+##
+## Manager: apt
+##
+
+superman-manager-apt-install() {
+	trace "$@"
+	apt install -y -- "$@"
+}
+
+superman-manager-apt-uninstall() {
+	trace "$@"
+	apt remove -y -- "$@"
+}
+
+##
+## Manager: npm
+##
+
+superman-manager-npm-install() {
+	trace "$@"
+	npm install -g -- "$@"
+}
+
+superman-manager-npm-uninstall() {
+	trace "$@"
+	npm uninstall -g -- "$@"
+}
+
+##
+## Manager: pip
+##
+
+# TODO: If superman needed for pip, will need to handle case where superman is
+# run with sudo (e.g. via `sudo superman install`); possibly run pip with
+# `sudo -u "$SUDO_USER"` and set PATH to include $HOME/.local/bin so that the
+# correct version of pip is used.
+
+# superman-manager-pip-install() {
+# 	trace "$@"
+# 	pip install --user --upgrade -- "$@" | \
+# 		{ grep -v 'Requirement already up-to-date' || true; }
+# }
+
+# superman-manager-pip-uninstall() {
+# 	trace "$@"
+# 	pip uninstall -- "$@"
+# }
+
+##
+## Manager: code
+##
+
+superman-manager-code-install() {
+	trace "$@"
+	local ext
+	for ext in "$@"; do
+		code --install-extension "$ext" | \
+			{ grep -v 'is already installed' || true; }
+	done
+}
+
+superman-manager-code-uninstall() {
+	trace "$@"
+	local ext
+	for ext in "$@"; do
+		code --uninstall-extension "$ext"
+	done
+}
+
+superman-manager-code-list-installed() {
+	trace "$@"
+	code --list-extensions
+}
+
+##
+## Moo
+##
+
+superman-moo() {
+	local red=$'\e[1;31m'
+	local blue=$'\e[1;34m'
+	local def=$'\e[m'
+	cat <<-EOF
+
+	                  It's a bird!
+
+	    It's a plane!                  It's....
+
+	               ${red}\\^^^^^^^^\\${def}   (__)
+	                ${red}\`^^^^^^^^\\\\${def} (oo)
+	               *----.${blue}______${red}\\${def}/\\/
+	           ${red},__${blue}_____${red}/   ---  ${red}\\${blue}______${def}^
+	          ${red},__${blue}______${red}\\   \\S/  ${blue}/\\_____${def}^
+	                    ${blue}\\______/${def}
+
+	                       supercow!
+
+	EOF
+}
+
+# Run command
+"superman-$cmd" "$@"
