@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
 T='gYw' # The test text
 # T='███'

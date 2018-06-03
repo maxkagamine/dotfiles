@@ -15,4 +15,4 @@ fi
 
 set -o xtrace
 
-ffmpeg.exe -hide_banner -i "$(wslpath -w "$input")" -c:v libvpx -crf 10 -b:v 1M -c:a libvorbis "$(wslpath -w "$output")"
+ffmpeg -hide_banner -i $input" -c:v libvpx -crf 10 -b:v 1M -c:a libvorbis "$output"

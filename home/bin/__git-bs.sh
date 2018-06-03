@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 set -e
 
 # Adapted from https://gist.github.com/vitalk/8639831
