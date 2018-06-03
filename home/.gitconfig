@@ -50,6 +50,8 @@
 	autoStash = true
 [commit]
 	gpgSign = true
+[gpg]
+	program = gpg2
 [log]
 	showSignature = true
 [include]
