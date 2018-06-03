@@ -1,27 +1,28 @@
 [core]
-	excludesfile = ~/.gitignore
+	excludesFile = ~/.gitignore
 	autocrlf = input
 	safecrlf = false
 	editor = nano
 	whitespace = cr-at-eol
 	hooksPath = ~/git-hooks
+	fileMode = false
 [alias]
 	alias = "!f() { git config --global alias.\"$@\"; }; f"
 	puush = !git push -u origin \"$(git symbolic-ref --short HEAD)\"
 	nuke = !git reset --hard && git clean -fdx -e _stuff/ -e .vagrant/
 	uncommit = reset --soft HEAD~
 	recommit = commit -C ORIG_HEAD
-	ns = "!f() { local c=show; [[ $* == *..* ]] && c=diff; git $c --name-status \"$@\"; }; f"
-	changelog = log --pretty=format:\"- %s\" --reverse
-	msg = log --format=%s -n1
-	graph = log --oneline --graph --all --decorate
+	ns = "!f() { git diff --name-status \"${1:-HEAD^..}\"; }; f"
+	changelog = log --pretty='format:- %s' --reverse --no-show-signature
+	msg = log --format=%s -n1 --no-show-signature
+	graph = log --oneline --graph --all --decorate --no-show-signature
 	whoami = !printf '%s <%s>\\n' \"$(git config user.name)\" \"$(git config user.email)\"
 	bs = !__git-bs.sh
 	ch = !__git-ch.sh
 	lr = log --oneline --decorate --left-right --no-show-signature
-	unpushed = "!set -o pipefail; git rev-parse --abbrev-ref --symbolic-full-name @{u} | xargs -I% git log --oneline %.."
+	unpushed = "!bash -c 'set -o pipefail; git rev-parse --abbrev-ref --symbolic-full-name @{u} | xargs -I% git log --oneline --no-show-signature %..'"
 	remas = pull origin master
-	co-latest = "!f() { [[ $# == 1 ]] || return 1; git fetch $(git rev-parse --abbrev-ref \"$1\"@{upstream} | sed 's/\\// /'):\"$1\" && git checkout \"$1\"; }; f"
+	co-latest = !__git-co-latest.sh
 [color]
 	ui = auto
 [merge]
@@ -48,7 +49,7 @@
 [rebase]
 	autoStash = true
 [commit]
-	gpgsign = true
+	gpgSign = true
 [log]
 	showSignature = true
 [include]

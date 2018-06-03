@@ -17,7 +17,7 @@ Of particular interest may be:
 
 Terminal appearance could use some improvement, and I expect to switch to [WSL](https://en.wikipedia.org/wiki/Windows_Subsystem_for_Linux) once my home computer is running Windows 10, now that Windows programs can be run from within the Linux environment.
 
-For those who sign their commits, I have a [post-commit hook](home/git-hooks/post-commit.d/post-commit-unsign) that keeps git from signing other people's commits (for instance, during a rebase) with [`commit.gpgsign`](https://git-scm.com/docs/git-config#git-config-commitgpgSign) set since git will indiscriminately sign everything otherwise. If anyone knows a better solution, please let me know.
+For those who sign their commits, I have a [post-commit hook](home/git-hooks/post-commit.d/post-commit-unsign) that keeps git from signing other people's commits (for instance, during a rebase) with [`commit.gpgSign`](https://git-scm.com/docs/git-config#git-config-commitgpgSign) set since git will indiscriminately sign everything otherwise. If anyone knows a better solution, please let me know.
 
 The `__new-*.bat` files in [bin](home/bin) are used by a set of registry tweaks, not included here, to add e.g. "New → package.json" and "New → .gitignore (Visual Studio)" to Explorer's context menu, taking advantage of a little-known [feature](http://mc-computing.com/WinExplorer/WinExplorerRegistry_ShellNew.htm) in the ShellNew key that allows arbitrary commands to be run.
 
