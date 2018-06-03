@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+set -e
+
+cmd=python3
+
+if [[ $1 =~ ^(-h|--help)$ ]]; then
+	cat >&2 <<-EOF
+		usage: py <file> [<args>...]
+		       py [-2|-3|-<version>] [<python args>]
+
+		Python launcher, loosely mimicking the Windows version (PEP 397).
+
+		If the first argument does not begin with a dash and a file is given with a
+		shebang containing "python", the file is ran according to its shebang.
+
+		Otherwise, if the first argument is a dash followed by a number, that
+		version of python is used, defaulting to $cmd if not, and any remaining
+		arguments are passed to python.
+
+		---
+
+	EOF
+fi
+
+if [[ $1 =~ ^-[0-9] ]]; then
+	cmd="python${1:1}"
+	shift
+elif [[ ! $1 =~ ^- && -f $1 ]]; then
+	shebang=$(head -n1 "$1")
+	if [[ $shebang =~ ^\#!.*python ]]; then
+		cmd=perl # https://askubuntu.com/a/850575
+	fi
+fi
+
+"$cmd" "$@"
