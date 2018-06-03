@@ -34,6 +34,29 @@ __prompt-command() {
 
 PROMPT_COMMAND='__prompt-command'
 
+# Variables & shell opts
+
+HISTTIMEFORMAT='%Y-%m-%d %T  ' # Display timestamp in history
+
+export EDITOR=nano # Set default editor
+
+shopt -s globstar
+
+# Start gpg agent
+# https://github.com/diablodale/pinentry-wsl-ps1
+
+_gpg_pid=$(pgrep gpg-agent)
+if [[ ! $_gpg_pid ]]; then
+	gpgconf --launch gpg-agent && _gpg_pid=$(pgrep gpg-agent)
+fi
+
+export GPG_AGENT_INFO="$HOME/.gnupg/S.gpg-agent:$_gpg_pid:1"
+export GPG_TTY=$(tty)
+export SSH_AUTH_SOCK="$HOME/.gnupg/S.gpg-agent.ssh"
+
+unset SSH_AGENT_PID
+unset _gpg_pid
+
 # General aliases
 
 alias ls='ls -Ah --color=auto'
@@ -50,8 +73,8 @@ alias exifstrip='exiftool -all='
 alias whois='whois -H'
 alias halt='shutdown.exe /s /hybrid /t 0'
 alias reboot='shutdown.exe /r /t 0'
-# TODO: Set up ssh
-# alias dokku='ssh dokku@dokku'
+alias gpg='gpg2'
+alias dokku='ssh dokku'
 alias .e='code ~/.bashrc' # Edit bashrc
 alias .l='code ~/.bashrc_local' # Edit local bashrc
 alias .r='. ~/.bashrc' # Reload bashrc
@@ -159,29 +182,6 @@ __git_complete gpl _git_pull
 __git_complete gcol _git_checkout
 __git_complete gg _git_commit
 
-# .NET aliases
-
-# TODO: dotnet
-
-# alias dotnet='env -uTEMP -utmp dotnet'
-# alias d='dotnet'
-# alias db='d build'
-# alias dc='d clean'
-# alias dr='d run'
-# alias dt='d test'
-# alias du='d remove package'
-
-# di() { d add package "$@" && d restore; }
-
-# Variables & shell opts
-
-HISTTIMEFORMAT='%Y-%m-%d %T  ' # Display timestamp in history
-
-export EDITOR=nano # Set default editor
-export DOTNET_CLI_TELEMETRY_OPTOUT=1 # Disable dotnet telemetry
-
-shopt -s globstar
-
 # Functions
 
 exp() {
@@ -198,14 +198,6 @@ hide() {
 
 unhide() {
 	attrib.exe -h "$(wslpath -w "$1")"
-}
-
-man() {
-	if [[ $(type -t "$1") =~ ^(keyword|builtin)$ ]]; then
-		help "$1" | less -Kc~
-	else
-		command -p man "$1" || "$1" --help 2>&1 | less -Kc~
-	fi
 }
 
 treelist() {
@@ -257,12 +249,6 @@ wtfislisteningon() {
 		{ echo $'Proto\tPort\tProcess\tPID'; sort -nuk2; } | \
 		column -ts $'\t'
 }
-
-# TODO: Drop putty?
-# putty-sessions() {
-# 	reg query 'HKCU\Software\SimonTatham\PuTTY\Sessions' | \
-# 		grep -oP '(?<=Sessions\\).*' | perl -MURI::Escape -e 'print uri_unescape(<>)'
-# }
 
 argv() {
 	printf '%s\n' "$@"

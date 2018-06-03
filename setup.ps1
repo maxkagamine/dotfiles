@@ -82,6 +82,9 @@ try {
   Start-Task "Installing youtube-dl"
   exec { wsl sudo bash -c 'curl -sL https://yt-dl.org/downloads/latest/youtube-dl -o /usr/local/bin/youtube-dl && chmod a+rx \$_' }
 
+  Start-Task "Installing GPG pinentry for WSL"
+  exec { wsl sudo bash -c 'curl -sL https://raw.githubusercontent.com/diablodale/pinentry-wsl-ps1/master/pinentry-wsl-ps1.sh -o /usr/local/bin/pinentry-wsl-ps1 && chmod a+rx \$_' }
+
   # Whoop
 
   Write-Progress -Activity $title -Status "Done" -PercentComplete 100

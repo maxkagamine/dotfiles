@@ -1,4 +1,5 @@
 /home/*
+!/home/.gnupg
 !/home/bin
 !/home/git-hooks
 !/home/sfx
@@ -8,3 +9,8 @@
 !/home/.nanorc
 !/home/.packages.conf
 !/home/.profile
+
+/home/.gnupg/*
+!/home/.gnupg/gpg-agent.conf
+!/home/.gnupg/S.gpg-agent
+!/home/.gnupg/S.gpg-agent.ssh
