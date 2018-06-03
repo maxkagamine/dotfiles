@@ -1,3 +1,5 @@
+$ErrorActionPreference = "Stop"
+
 $title = $host.UI.RawUI.WindowTitle = "Environment setup"
 $global:currentTask = -1
 $global:taskCount = (Select-String "Start-Task" -Path $PSCommandPath).Matches.Count - 2
@@ -6,11 +8,14 @@ function Start-Task($task) {
   Write-Progress -Activity $title -Status $task -PercentComplete (++$global:currentTask / $global:taskCount * 100)
 }
 
-function Assert-Success {
+function Exec([scriptblock] $cmd) {
+  & $cmd
   if ($LastExitCode -ne 0) {
     throw "Command exited with non-zero exit code."
   }
 }
+
+Write-Output "`n`n`n`n`n`n`n`n" # Move cursor down below progress bar
 
 try {
 
@@ -27,21 +32,17 @@ try {
     throw "Developer mode not enabled."
   }
 
-  wsl sudo true
-  Assert-Success
+  exec { wsl sudo true }
 
   # Set environment variables
 
   Start-Task "Setting environment variables"
-
   [Environment]::SetEnvironmentVariable("WSLENV", "USERPROFILE/p", "User") # https://blogs.msdn.microsoft.com/commandline/2017/12/22/share-environment-vars-between-wsl-and-windows/
 
   # Allow sudo without password
 
   Start-Task "Allowing sudo without password"
-
-  wsl sudo bash -c "grep -q NOPASSWD /etc/sudoers || echo $'\n%sudo\tALL=(ALL) NOPASSWD:ALL' | EDITOR='tee -a' visudo > /dev/null"
-  Assert-Success
+  exec { wsl sudo bash -c "grep -q NOPASSWD /etc/sudoers || echo $'\n%sudo\tALL=(ALL) NOPASSWD:ALL' | EDITOR='tee -a' visudo > /dev/null" }
 
   # Set home directory
 
@@ -51,8 +52,35 @@ try {
   $homeWin = Join-Path -Path $PSScriptRoot -ChildPath "home"
   $homeWsl = wsl wslpath $homeWin.Replace("\", "/")
 
-  wsl sudo awk -i inplace -v user=$user -v home=$homeWsl '{ \$1 ~ \"^\" user && \$6=home; print }' FS=: OFS=: /etc/passwd
-  Assert-Success
+  exec { wsl sudo awk -i inplace -v user=$user -v home=$homeWsl '{ \$1 ~ \"^\" user && \$6=home; print }' FS=: OFS=: /etc/passwd }
+
+  # Install packages
+
+  Start-Task "Preparing to install packages"
+  exec { wsl sudo add-apt-repository -y ppa:git-core/ppa }
+  exec { bash -c "curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash -" } # Runs apt-get update
+
+  Start-Task "Installing apt packages"
+  exec { wsl sudo ~/bin/superman apt install }
+
+  Start-Task "Updating npm"
+  exec { wsl sudo npm install -g npm }
+
+  Start-Task "Installing pip"
+  exec { bash -c "curl -sL https://bootstrap.pypa.io/get-pip.py | python3 - --user" }
+
+  Start-Task "Installing npm packages"
+  exec { wsl sudo ~/bin/superman npm install }
+
+  Start-Task "Installing VS Code extensions"
+  if (Get-Command code -ea SilentlyContinue) {
+    exec { wsl ~/bin/superman code install }
+  } else {
+    Write-Output "VS Code not installed; skipping"
+  }
+
+  Start-Task "Installing youtube-dl"
+  exec { wsl sudo bash -c 'curl -sL https://yt-dl.org/downloads/latest/youtube-dl -o /usr/local/bin/youtube-dl && chmod a+rx \$_' }
 
   # Whoop
 
@@ -60,9 +88,9 @@ try {
   Write-Host "Done"
 
 } catch {
-  Write-Error $_.Exception
+  Write-Error $_.Exception -ea Continue
   Write-Progress -Activity $title -Completed
 }
 
-Write-Host -NoNewLine "Press any key to close...";
-$null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown");
+Write-Host -NoNewLine "Press any key to close..."
+$null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 set -e
 
 if (( $# < 2 )) || [[ $1 == '-h' || $1 == '--help' ]]; then
@@ -17,7 +17,7 @@ for f in "${@:2}"; do
 
 	# Convert to mp3 if lossy, flac if lossless
 	if [[ $outformat == 'auto' ]]; then
-		origformat=$(ffprobe.exe -v error -select_streams a:0 -show_entries stream=codec_name -of default=noprint_wrappers=1:nokey=1 "$(wslpath -w "$infile")")
+		origformat=$(ffprobe -v error -select_streams a:0 -show_entries stream=codec_name -of default=noprint_wrappers=1:nokey=1 "$infile")
 		if [[ $origformat =~ ^(pcm.*|flac|alac)$ ]]; then
 			outformat=flac
 		else
@@ -45,6 +45,6 @@ for f in "${@:2}"; do
 
 	outfile="${f%.*}.$ext"
 
-	ffmpeg.exe -hide_banner -i "$(wslpath -w "$infile")" -vn ${args[@]} "$(wslpath -w "$outfile")"
+	ffmpeg -hide_banner -i "$infile" -vn ${args[@]} "$outfile"
 
 done

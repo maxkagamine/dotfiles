@@ -41,11 +41,11 @@ alias ll='ls -l'
 alias grep='grep --color=auto'
 alias dig='dig +noall +answer'
 alias digx='dig @8.8.8.8'
-alias ffmpeg='ffmpeg.exe -hide_banner'
-alias ffprobe='ffprobe.exe -hide_banner'
-alias yt='youtube-dl --netrc' # TODO: youtube-dl
+alias ffmpeg='ffmpeg -hide_banner'
+alias ffprobe='ffprobe -hide_banner'
+alias yt='youtube-dl --netrc'
 alias ytmp3='yt -xf "best[format_id!=economy]" --audio-format mp3 --audio-quality 0' # 'economy' prevents downloading niconico's low quality, high traffic mode videos
-alias exiftool='exiftool -g' # TODO: Install linux exiftool
+alias exiftool='exiftool -g'
 alias exifstrip='exiftool -all='
 alias whois='whois -H'
 alias halt='shutdown.exe /s /hybrid /t 0'
@@ -73,7 +73,6 @@ alias nir='ni && nr'
 alias nirb='ni && nrb'
 alias nirw='ni && nrw'
 
-# TODO: Install linux jq
 __npm-run-complete() {
 	# Faster than `npm completion` and handles scripts with spaces in the name better
 	local cur

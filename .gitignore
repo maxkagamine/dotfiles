@@ -1,6 +1,5 @@
 /home/*
 !/home/bin
-!/home/dict
 !/home/git-hooks
 !/home/sfx
 !/home/.bashrc
