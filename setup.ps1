@@ -49,12 +49,22 @@ try {
   Start-Task "Setting home directory"
 
   $user = $(wsl whoami)
-  $homeWin = Join-Path -Path $PSScriptRoot -ChildPath "home"
+  $homeWin = Join-Path $PSScriptRoot "home"
   $homeWsl = wsl wslpath $homeWin.Replace("\", "/")
 
   exec { wsl sudo awk -i inplace -v user=$user -v home=$homeWsl '{ \$1 ~ \"^\" user && \$6=home; print }' FS=: OFS=: /etc/passwd }
 
-  # Install packages
+  # Add bin directories to PATH
+
+  Start-Task "Adding bin directories to PATH"
+
+  $binDirs = (Join-Path $homeWin ".local\bin"), (Join-Path $homeWin "bin")
+
+  $userPath = [Environment]::GetEnvironmentVariable("PATH", "User").Split(";")
+  $userPath = $binDirs + @($userPath | Where-Object { !($binDirs -contains $_) })
+  [Environment]::SetEnvironmentVariable("PATH", $userPath -join ";", "User")
+
+  # Install things
 
   Start-Task "Preparing to install packages"
   exec { wsl sudo add-apt-repository -y ppa:git-core/ppa }
