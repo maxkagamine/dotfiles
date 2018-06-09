@@ -15,6 +15,10 @@ function Exec([scriptblock] $cmd) {
   }
 }
 
+function Convert-ToWslPath([Parameter(ValueFromPipeline = $true)] $path) {
+  wsl wslpath $path.Replace("\", "/")
+}
+
 Write-Output "`n`n`n`n`n`n`n`n" # Move cursor down below progress bar
 
 try {
@@ -50,9 +54,49 @@ try {
 
   $user = $(wsl whoami)
   $homeWin = Join-Path $PSScriptRoot "home"
-  $homeWsl = wsl wslpath $homeWin.Replace("\", "/")
+  $homeWsl = $homeWin | Convert-ToWslPath
 
   exec { wsl sudo awk -i inplace -v user=$user -v home=$homeWsl '{ \$1 ~ \"^\" user && \$6=home; print }' FS=: OFS=: /etc/passwd }
+
+  # Mount user folders under home directory
+  # Using fstab as symlinks cannot cross drives: https://docs.microsoft.com/en-us/windows/wsl/release-notes#build-17046
+
+  Start-Task "Mounting user folders under home directory"
+
+  $fstab = (exec { wsl awk '{ print \$1 }' /etc/fstab }).Split("`n")
+  $shellFolders = Get-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders"
+
+  $userFolders = @{
+    "Documents" = [Environment]::GetFolderPath("MyDocuments")
+    "Music" = [Environment]::GetFolderPath("MyMusic")
+    "Pictures" = [Environment]::GetFolderPath("MyPictures")
+    "Videos" = [Environment]::GetFolderPath("MyVideos")
+    "Downloads" = $shellFolders.'{374DE290-123F-4565-9164-39C4925E467B}'
+    "Google Drive" = ($shellFolders.PSObject.Properties | Where-Object { $_.Value -like "*Google Drive*" }).Value
+    "Projects" = ($shellFolders.PSObject.Properties | Where-Object { $_.Value -like "*Projects*" }).Value
+    "Games" = "D:\Games" # Tamriel only
+  }
+
+  foreach ($folder in $userFolders.GetEnumerator()) {
+    if ($folder.Value -ne $null -and (Test-Path $folder.Value)) {
+      # Mount drive first (https://github.com/Microsoft/WSL/issues/2636#issuecomment-378746406)
+      $drive = $folder.Value.Substring(0, 1).ToUpper()
+      if (!$fstab.Contains($drive + ":")) {
+        Write-Output "Adding drive $drive to fstab"
+        $mount = "{0}: /mnt/{1} drvfs rw,noatime,uid=1000,gid=1000,umask=22,fmask=11 0 0" -f $drive, $drive.ToLower()
+        exec { $mount | wsl sudo tee -a /etc/fstab > $null }
+        $fstab += $drive + ":"
+      }
+      # Add bind mount
+      New-Item "$(Join-Path $homeWin $folder.Key)" -ItemType Directory -Force > $null
+      $device = ($folder.Value | Convert-ToWslPath).Replace(" ", "\040")
+      if (!$fstab.Contains($device)) {
+        Write-Output "Adding $device to fstab"
+        $mountPoint = "$homeWsl/$($folder.Key)".Replace(" ", "\040")
+        exec { "{0} {1} none bind 0 0" -f $device, $mountPoint | wsl sudo tee -a /etc/fstab > $null }
+      }
+    }
+  }
 
   # Add bin directories to PATH
 
