@@ -146,6 +146,12 @@ try {
   Start-Task "Installing GPG pinentry for WSL"
   exec { wsl sudo bash -c 'curl -sL https://raw.githubusercontent.com/diablodale/pinentry-wsl-ps1/master/pinentry-wsl-ps1.sh -o /usr/local/bin/pinentry-wsl-ps1 && chmod a+rx \$_' }
 
+  # Register cmd profile
+
+  Start-Task "Registering cmd profile"
+  New-Item "HKCU:\Software\Microsoft\Command Processor" -Force > $null
+  Set-ItemProperty -Path "HKCU:\Software\Microsoft\Command Processor" -Name "AutoRun" -Value "$(Join-Path $PSScriptRoot "cmdrc.bat")"
+
   # Whoop
 
   Write-Progress -Activity $title -Status "Done" -PercentComplete 100
