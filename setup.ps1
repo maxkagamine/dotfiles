@@ -47,7 +47,11 @@ function Mount-Bind($sourceWin, $destWsl) {
 function New-Symlink($link, $target, [switch] $force) {
   # New-Item does not yet support developer mode unprivileged symlinks: https://github.com/PowerShell/PowerShell/issues/2845
   if ($force) { Remove-Item $link -Force -ea SilentlyContinue }
-  exec { cmd /c mklink $link $target > $null }
+  if (Test-Path $target -PathType Container) {
+    exec { cmd /c mklink /d $link $target > $null }
+  } else {
+    exec { cmd /c mklink $link $target > $null }
+  }
 }
 
 Write-Output "`n`n`n`n`n`n`n`n" # Move cursor down below progress bar to start
@@ -120,7 +124,7 @@ try {
   $binDirs = (Join-Path $homeWin ".local\bin"), (Join-Path $homeWin "bin")
 
   $userPath = [Environment]::GetEnvironmentVariable("PATH", "User").Split(";")
-  $userPath = $binDirs + @($userPath | Where-Object { !($binDirs -contains $_) })
+  $userPath = $binDirs + @($userPath | Where-Object { $binDirs -notcontains $_ })
   [Environment]::SetEnvironmentVariable("PATH", $userPath -join ";", "User")
 
   # Install things
@@ -170,6 +174,22 @@ try {
   Start-Task "Registering cmd profile"
   New-Item "HKCU:\Software\Microsoft\Command Processor" -Force > $null
   Set-ItemProperty -Path "HKCU:\Software\Microsoft\Command Processor" -Name "AutoRun" -Value $(Join-Path $PSScriptRoot "cmdrc.bat")
+
+  # Set up vscode
+
+  Start-Task "Setting up VS Code"
+  New-Item $(Join-Path $env:APPDATA "Code\User") -ItemType Directory -Force > $null
+  Get-ChildItem $(Join-Path $PSScriptRoot "vscode") | ForEach-Object {
+    # Get target path
+    $target = $(Join-Path $env:APPDATA "Code\User\$($_.Name)")
+    # Send to recycle bin if existing regular file
+    $existing = Get-Item $target -ea SilentlyContinue
+    if ($existing -ne $null -and $existing.Attributes -notmatch "ReparsePoint") {
+      & "$homeWin\bin\nircmdc.exe" moverecyclebin $target
+    }
+    # Symlink
+    New-Symlink $target $_.FullName -Force
+  }
 
   # Whoop
 
