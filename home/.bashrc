@@ -1,6 +1,8 @@
-# Add ~/bin* to PATH, recursive
+# Prepend user bin to PATH
 
-PATH="$(find -L ~/bin* -name .git -prune -o -name node_modules -prune -o -type d -print 2>/dev/null | tr '\n' ':')$PATH"
+if [[ ":$PATH:" != *":$HOME/.local/bin:$HOME/bin:"* ]]; then
+	export PATH="$HOME/.local/bin:$HOME/bin:$PATH"
+fi
 
 # Prompt
 
