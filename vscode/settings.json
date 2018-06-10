@@ -17,6 +17,7 @@
     "indent_size": 2,
     "space_around_combinator": true
   },
+  "debug.toolBarLocation": "docked",
   "editor.accessibilitySupport": "off",
   "editor.fontFamily": "Consolas, Meiryo",
   "editor.renderControlCharacters": true,
@@ -45,9 +46,10 @@
   "files.eol": "\n",
   "files.insertFinalNewline": true,
   "files.trimTrailingWhitespace": true,
-  "git.path": "C:/msys/mingw64/bin/git.exe",
   "git.enableSmartCommit": true,
-  "gitlens.advanced.git": "C:/msys/mingw64/bin/git.exe",
+  "gitlens.advanced.messages": {
+    "suppressShowKeyBindingsNotice": true
+  },
   "gitlens.currentLine.enabled": false,
   "gitlens.codeLens.authors.enabled": false,
   "gitlens.codeLens.scopes": [ "containers", "blocks" ],
@@ -71,17 +73,16 @@
   "html.format.extraLiners": "",
   "javascript.referencesCodeLens.enabled": true,
   "markdown.extension.italic.indicator": "_",
-  "markdown.extension.quickStyling": true,
   "markdown.preview.breaks": true,
   "markdown.preview.markEditorSelection": false,
+  "powershell.codeFormatting.preset": "OTBS",
   "problems.decorations.enabled": false,
   "python.linting.pylintArgs": [ "--errors-only" ],
   "telemetry.enableCrashReporter": false,
   "telemetry.enableTelemetry": false,
   "terminal.external.windowsExec": "C:/Program Files/ConEmu/ConEmu64.exe",
   "terminal.integrated.copyOnSelection": true,
-  "terminal.integrated.shell.windows": "C:/msys/usr/bin/bash.exe",
-  "terminal.integrated.shellArgs.windows": [ "-li" ],
+  "terminal.integrated.shell.windows": "wsl.exe",
   "todohighlight.isCaseSensitive": true,
   "todohighlight.keywords": [
     { "text": "TODO:", "color": "#c678dd", "backgroundColor": "transparent" },
@@ -135,8 +136,5 @@
   },
   "[shellscript]": {
     "editor.insertSpaces": false
-  },
-  "gitlens.advanced.messages": {
-    "suppressShowKeyBindingsNotice": true
   }
 }
