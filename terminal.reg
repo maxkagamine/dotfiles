@@ -6,13 +6,13 @@ Windows Registry Editor Version 5.00
 @="Open terminal here"
 
 [HKEY_CLASSES_ROOT\Drive\shell\x_terminal\command]
-@="\"C:\\Program Files\\ConEmu\\ConEmu64.exe\" -dir \"%L\" -run {Bash.}"
+@="\"C:\\Program Files\\ConEmu\\ConEmu64.exe\" -dir \"%L\" -run {here}"
 
 [HKEY_CLASSES_ROOT\Directory\shell\x_terminal]
 @="Open terminal here"
 
 [HKEY_CLASSES_ROOT\Directory\shell\x_terminal\command]
-@="\"C:\\Program Files\\ConEmu\\ConEmu64.exe\" -dir \"%L\" -run {Bash.}"
+@="\"C:\\Program Files\\ConEmu\\ConEmu64.exe\" -dir \"%L\" -run {here}"
 
 [HKEY_CLASSES_ROOT\Directory\Background]
 [HKEY_CLASSES_ROOT\Directory\Background\shell]
@@ -20,7 +20,7 @@ Windows Registry Editor Version 5.00
 @="Open terminal here"
 
 [HKEY_CLASSES_ROOT\Directory\Background\shell\x_terminal\command]
-@="\"C:\\Program Files\\ConEmu\\ConEmu64.exe\" -dir \"%V\" -run {Bash.}"
+@="\"C:\\Program Files\\ConEmu\\ConEmu64.exe\" -dir \"%V\" -run {here}"
 
 ; Associate .sh files
 
@@ -42,13 +42,13 @@ Windows Registry Editor Version 5.00
 [HKEY_CLASSES_ROOT\shfile\shell]
 [HKEY_CLASSES_ROOT\shfile\shell\open]
 [HKEY_CLASSES_ROOT\shfile\shell\open\command]
-@="\"C:\\Program Files\\ConEmu\\ConEmu64.exe\" -here -run {Bashc} \"%1\" %*"
+@="\"C:\\Program Files\\ConEmu\\ConEmu64.exe\" -here -run {shfile} \"%1\" %*"
 
 [HKEY_CLASSES_ROOT\shfile\shell\runas]
 "HasLUAShield"=""
 
 [HKEY_CLASSES_ROOT\shfile\shell\runas\command]
-@="\"C:\\Program Files\\ConEmu\\ConEmu64.exe\" -here -run {Bashc} \"%1\" %*"
+@="\"C:\\Program Files\\ConEmu\\ConEmu64.exe\" -here -run {shfile} \"%1\" %*"
 
 [HKEY_CLASSES_ROOT\shfile\shellex]
 [HKEY_CLASSES_ROOT\shfile\shellex\DropHandler]
