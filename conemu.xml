@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <key name="Software">
 	<key name="ConEmu">
-		<key name=".Vanilla" modified="2018-06-10 01:53:02" build="180528">
+		<key name=".Vanilla" modified="2018-06-10 03:37:01" build="180528">
 			<value name="StartType" type="hex" data="02"/>
 			<value name="CmdLine" type="string" data=""/>
 			<value name="StartTasksFile" type="string" data=""/>
@@ -616,25 +616,7 @@
 					<value name="Active" type="long" data="0"/>
 					<value name="Count" type="long" data="1"/>
 				</key>
-				<key name="Task3" modified="2018-06-10 01:53:40" build="180528">
-					<value name="Name" type="string" data="{Bashc}"/>
-					<value name="Flags" type="dword" data="00000004"/>
-					<value name="Hotkey" type="dword" data="00000000"/>
-					<value name="GuiArgs" type="string" data='-icon "%appdata%\terminal.ico"'/>
-					<value name="Cmd1" type="string" data='bash.exe -lic "\"\$0\" \"\$@\"" -new_console:n:p5'/>
-					<value name="Active" type="long" data="0"/>
-					<value name="Count" type="long" data="1"/>
-				</key>
-				<key name="Task4" modified="2018-06-10 01:53:40" build="180528">
-					<value name="Name" type="string" data="{Bash.}"/>
-					<value name="Flags" type="dword" data="00000004"/>
-					<value name="Hotkey" type="dword" data="00000000"/>
-					<value name="GuiArgs" type="string" data='-icon "%appdata%\terminal.ico"'/>
-					<value name="Cmd1" type="string" data="wsl.exe -new_console:n:p5"/>
-					<value name="Active" type="long" data="0"/>
-					<value name="Count" type="long" data="1"/>
-				</key>
-				<key name="Task5" modified="2018-06-10 01:16:57" build="180528">
+				<key name="Task3" modified="2018-06-10 03:37:01" build="180528">
 					<value name="Name" type="string" data="{cmd}"/>
 					<value name="Flags" type="dword" data="00000000"/>
 					<value name="Hotkey" type="dword" data="00000000"/>
@@ -643,7 +625,7 @@
 					<value name="Active" type="long" data="0"/>
 					<value name="Count" type="long" data="1"/>
 				</key>
-				<key name="Task6" modified="2018-06-10 01:16:57" build="180528">
+				<key name="Task4" modified="2018-06-10 03:37:01" build="180528">
 					<value name="Name" type="string" data="{cmd (Admin)}"/>
 					<value name="Flags" type="dword" data="00000000"/>
 					<value name="Hotkey" type="dword" data="00000000"/>
@@ -652,7 +634,7 @@
 					<value name="Active" type="long" data="0"/>
 					<value name="Count" type="long" data="1"/>
 				</key>
-				<key name="Task7" modified="2018-06-10 01:16:57" build="180528">
+				<key name="Task5" modified="2018-06-10 03:37:01" build="180528">
 					<value name="Name" type="string" data="{PowerShell}"/>
 					<value name="Flags" type="dword" data="00000000"/>
 					<value name="Hotkey" type="dword" data="00000000"/>
@@ -661,12 +643,30 @@
 					<value name="Active" type="long" data="0"/>
 					<value name="Count" type="long" data="1"/>
 				</key>
-				<key name="Task8" modified="2018-06-10 01:16:57" build="180528">
+				<key name="Task6" modified="2018-06-10 03:37:01" build="180528">
 					<value name="Name" type="string" data="{PowerShell (Admin)}"/>
 					<value name="Flags" type="dword" data="00000000"/>
 					<value name="Hotkey" type="dword" data="00000000"/>
 					<value name="GuiArgs" type="string" data=""/>
 					<value name="Cmd1" type="string" data="powershell.exe -new_console:a"/>
+					<value name="Active" type="long" data="0"/>
+					<value name="Count" type="long" data="1"/>
+				</key>
+				<key name="Task7" modified="2018-06-10 03:37:01" build="180528">
+					<value name="Name" type="string" data="{here}"/>
+					<value name="Flags" type="dword" data="00000004"/>
+					<value name="Hotkey" type="dword" data="00000000"/>
+					<value name="GuiArgs" type="string" data='-icon "%appdata%\terminal.ico"'/>
+					<value name="Cmd1" type="string" data="wsl.exe -new_console:n:p5"/>
+					<value name="Active" type="long" data="0"/>
+					<value name="Count" type="long" data="1"/>
+				</key>
+				<key name="Task8" modified="2018-06-10 03:37:01" build="180528">
+					<value name="Name" type="string" data="{shfile}"/>
+					<value name="Flags" type="dword" data="00000004"/>
+					<value name="Hotkey" type="dword" data="00000000"/>
+					<value name="GuiArgs" type="string" data='-icon "%appdata%\terminal.ico"'/>
+					<value name="Cmd1" type="string" data='bash.exe -lic "c=(); for x in \"\$0\" \"\$@\"; do c+=(\"\$(wslpath -a \"\$x\")\"); done; \"\${c[@]}\"" -new_console:n:p5'/>
 					<value name="Active" type="long" data="0"/>
 					<value name="Count" type="long" data="1"/>
 				</key>
