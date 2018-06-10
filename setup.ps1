@@ -160,6 +160,11 @@ try {
   New-Symlink $(Join-Path $env:APPDATA "conemu.xml") $(Join-Path $PSScriptRoot "conemu.xml") -Force
   New-Symlink $(Join-Path $env:APPDATA "terminal.ico") $(Join-Path $PSScriptRoot "terminal.ico") -Force
 
+  # Associate .sh files & add to context menu
+
+  Start-Task "Associating .sh files & adding to context menu"
+  & "$homeWin\bin\elevate.exe" regedit.exe /s $(Join-Path $PSScriptRoot "terminal.reg")
+
   # Register cmd profile
 
   Start-Task "Registering cmd profile"
