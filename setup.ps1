@@ -5,7 +5,9 @@ $global:currentTask = -1
 $global:taskCount = (Select-String "Start-Task" -Path $PSCommandPath).Matches.Count - 2
 
 function Start-Task($task) {
-  Write-Progress -Activity $title -Status $task -PercentComplete (++$global:currentTask / $global:taskCount * 100)
+  $percent = ++$global:currentTask / $global:taskCount * 100
+  Write-Progress -Activity $title -Status $task -PercentComplete $percent
+  $host.UI.RawUI.WindowTitle = "{0} ({1}%) / {2}" -f $title, [Math]::Round($percent), $task
 }
 
 function Exec([scriptblock] $cmd) {
@@ -40,6 +42,12 @@ function Mount-Bind($sourceWin, $destWsl) {
     Write-Output "Adding $mountPoint -> $device to fstab"
     exec { "{0} {1} none bind 0 0" -f $device, $mountPoint | wsl sudo tee -a /etc/fstab > $null }
   }
+}
+
+function New-Symlink($link, $target, [switch] $force) {
+  # New-Item does not yet support developer mode unprivileged symlinks: https://github.com/PowerShell/PowerShell/issues/2845
+  if ($force) { Remove-Item $link -Force -ea SilentlyContinue }
+  exec { cmd /c mklink $link $target > $null }
 }
 
 Write-Output "`n`n`n`n`n`n`n`n" # Move cursor down below progress bar to start
@@ -146,16 +154,23 @@ try {
   Start-Task "Installing GPG pinentry for WSL"
   exec { wsl sudo bash -c 'curl -sL https://raw.githubusercontent.com/diablodale/pinentry-wsl-ps1/master/pinentry-wsl-ps1.sh -o /usr/local/bin/pinentry-wsl-ps1 && chmod a+rx \$_' }
 
+  # Symlink conemu config
+
+  Start-Task "Symlinking ConEmu config"
+  New-Symlink $(Join-Path $env:APPDATA "conemu.xml") $(Join-Path $PSScriptRoot "conemu.xml") -Force
+  New-Symlink $(Join-Path $env:APPDATA "terminal.ico") $(Join-Path $PSScriptRoot "terminal.ico") -Force
+
   # Register cmd profile
 
   Start-Task "Registering cmd profile"
   New-Item "HKCU:\Software\Microsoft\Command Processor" -Force > $null
-  Set-ItemProperty -Path "HKCU:\Software\Microsoft\Command Processor" -Name "AutoRun" -Value "$(Join-Path $PSScriptRoot "cmdrc.bat")"
+  Set-ItemProperty -Path "HKCU:\Software\Microsoft\Command Processor" -Name "AutoRun" -Value $(Join-Path $PSScriptRoot "cmdrc.bat")
 
   # Whoop
 
   Write-Progress -Activity $title -Status "Done" -PercentComplete 100
   Write-Host "Done"
+  $host.UI.RawUI.WindowTitle = $title
 
 } catch {
   Write-Error $_.Exception -ea Continue
