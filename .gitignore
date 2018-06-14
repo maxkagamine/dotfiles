@@ -11,6 +11,7 @@
 !/home/.profile
 
 /home/.gnupg/*
+!/home/.gnupg/gpg.conf
 !/home/.gnupg/gpg-agent.conf
 !/home/.gnupg/S.gpg-agent
 !/home/.gnupg/S.gpg-agent.ssh
