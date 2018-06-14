@@ -190,6 +190,18 @@ exp() {
 	explorer.exe "$(wslpath -w "${1:-.}")" || true
 }
 
+code() {
+	if [[ $# == 0 || $1 =~ ^- ]]; then
+		command code "$@"
+	else
+		local p paths=()
+		for p in "$@"; do
+			paths+=("$(wslpath -aw "$@")")
+		done
+		command code "${paths[@]}"
+	fi
+}
+
 c() {
 	mkdir -vp -- "$1" | head -n1 && cd -- "$1"
 }
