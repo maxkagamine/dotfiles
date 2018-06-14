@@ -27,7 +27,7 @@ function Mount-DrvFs($driveLetter) {
   wsl grep -q "^$device " /etc/fstab
   if ($LastExitCode -ne 0) {
     Write-Output "Adding drive $device to fstab"
-    $mount = "{0} /mnt/{1} drvfs rw,noatime,uid=1000,gid=1000,umask=22,fmask=11 0 0" -f $device, $driveLetter.ToLower()
+    $mount = "{0} /mnt/{1} drvfs rw,noatime,uid=1000,gid=1000,metadata,umask=22,fmask=11 0 0" -f $device, $driveLetter.ToLower()
     exec { $mount | wsl sudo tee -a /etc/fstab > $null }
   }
 }
