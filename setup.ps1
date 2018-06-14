@@ -18,7 +18,7 @@ function Exec([scriptblock] $cmd) {
 }
 
 function Convert-ToWslPath($path) {
-  wsl wslpath $path.Replace("\", "/")
+  exec { wsl wslpath $path.Replace("\", "/") }
 }
 
 function Mount-DrvFs($driveLetter) {
@@ -36,7 +36,7 @@ function Mount-Bind($sourceWin, $destWsl) {
   exec { wsl mkdir -p -- $destWsl }
   Mount-DrvFs $sourceWin.Substring(0, 1)
   $device = (Convert-ToWslPath $sourceWin).Replace(" ", "\040")
-  wsl grep -q "^$($device.Replace("\", "\\")) " /etc/fstab
+  wsl grep -q "^$($device.Replace("\", "\\\\")) " /etc/fstab
   if ($LastExitCode -ne 0) {
     $mountPoint = $destWsl.Replace(" ", "\040")
     Write-Output "Adding $mountPoint -> $device to fstab"
@@ -46,10 +46,16 @@ function Mount-Bind($sourceWin, $destWsl) {
 
 function New-Symlink($link, $target, [switch] $force) {
   # New-Item does not yet support developer mode unprivileged symlinks: https://github.com/PowerShell/PowerShell/issues/2845
-  if ($force) { Remove-Item $link -Force -ea SilentlyContinue }
   if (Test-Path $target -PathType Container) {
+    if ($force) {
+      # Bug in Remove-Item https://github.com/powershell/powershell/issues/621
+      [System.IO.Directory]::Delete($link, $true)
+    }
     exec { cmd /c mklink /d $link $target > $null }
   } else {
+    if ($force) {
+      Remove-Item $link -Force -ea SilentlyContinue
+    }
     exec { cmd /c mklink $link $target > $null }
   }
 }
@@ -70,8 +76,6 @@ try {
   if ($key.AllowDevelopmentWithoutDevLicense -ne 1) {
     throw "Developer mode not enabled."
   }
-
-  exec { wsl sudo true }
 
   # Set environment variables
 
@@ -105,10 +109,14 @@ try {
     "Music" = [Environment]::GetFolderPath("MyMusic")
     "Pictures" = [Environment]::GetFolderPath("MyPictures")
     "Videos" = [Environment]::GetFolderPath("MyVideos")
-    "Downloads" = $shellFolders.'{374DE290-123F-4565-9164-39C4925E467B}'
-    "Google Drive" = ($shellFolders.PSObject.Properties | Where-Object { $_.Value -like "*Google Drive*" }).Value
-    "Projects" = ($shellFolders.PSObject.Properties | Where-Object { $_.Value -like "*Projects*" }).Value
+    "Downloads" = $shellFolders."{374DE290-123F-4565-9164-39C4925E467B}"
+    "Google Drive" = ($shellFolders.PSObject.Properties | Where-Object { $_.Value -like "*Google Drive*" } | Select-Object -First 1).Value
+    "Projects" = ($shellFolders.PSObject.Properties | Where-Object { $_.Value -like "*Projects*" } | Select-Object -First 1).Value
     "Games" = "D:\Games" # Tamriel only
+  }
+
+  if ($userFolders."Google Drive" -eq $null) {
+    $userFolders."Google Drive" = Join-Path $env:USERPROFILE "Google Drive"
   }
 
   foreach ($folder in $userFolders.GetEnumerator()) {
