@@ -47,17 +47,17 @@ shopt -s globstar
 # Start gpg agent
 # https://github.com/diablodale/pinentry-wsl-ps1
 
-_gpg_pid=$(pgrep gpg-agent)
-if [[ ! $_gpg_pid ]]; then
-	gpgconf --launch gpg-agent && _gpg_pid=$(pgrep gpg-agent)
+GPG_AGENT_PID=$(pgrep gpg-agent)
+if [[ ! $GPG_AGENT_PID ]]; then
+	gpgconf --launch gpg-agent && GPG_AGENT_PID=$(pgrep gpg-agent)
 fi
 
-export GPG_AGENT_INFO="$HOME/.gnupg/S.gpg-agent:$_gpg_pid:1"
+export GPG_AGENT_INFO="$HOME/.gnupg/S.gpg-agent:$GPG_AGENT_PID:1"
 export GPG_TTY=$(tty)
-export SSH_AUTH_SOCK="$HOME/.gnupg/S.gpg-agent.ssh"
+export SSH_AUTH_SOCK="/tmp/S.gpg-agent.ssh"
 
 unset SSH_AGENT_PID
-unset _gpg_pid
+unset GPG_AGENT_PID
 
 # General aliases
 
