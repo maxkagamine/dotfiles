@@ -82,10 +82,17 @@ try {
   Start-Task "Setting environment variables"
   [Environment]::SetEnvironmentVariable("WSLENV", "USERPROFILE/p", "User") # https://blogs.msdn.microsoft.com/commandline/2017/12/22/share-environment-vars-between-wsl-and-windows/
 
-  # Allow sudo without password
+  # Configure sudo
 
-  Start-Task "Allowing sudo without password"
-  exec { wsl sudo bash -c "grep -q NOPASSWD /etc/sudoers || echo $'\n%sudo\tALL=(ALL) NOPASSWD:ALL' | EDITOR='tee -a' visudo > /dev/null" }
+  Start-Task "Configuring sudo"
+
+  $sudoers = @"
+Defaults`t!env_reset
+Defaults`t!secure_path
+%sudo`tALL=(ALL) NOPASSWD:ALL
+"@
+
+  exec { $sudoers | wsl sudo bash -c "tr -d \$'\r' | EDITOR=tee visudo -f /etc/sudoers.d/verysecurewow > /dev/null" }
 
   # Set home directory
   # Using fstab rather than edit /etc/passwd to keep home directory from appearing as a git repo
