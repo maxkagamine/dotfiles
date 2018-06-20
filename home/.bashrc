@@ -4,6 +4,22 @@ if [[ ":$PATH:" != *":$HOME/.local/bin:$HOME/bin:"* ]]; then
 	export PATH="$HOME/.local/bin:$HOME/bin:$PATH"
 fi
 
+# Redirect to home dir if within a bind mount
+
+__redir() {
+	local line from to cur=$(pwd)
+	while read -r line; do
+		from=$(awk '{ gsub(/\\040/, " ", $1); print $1 }' <<<"$line")
+		if [[ "$cur/" == "$from/"*  ]]; then
+			to=$(awk '{ gsub(/\\040/, " ", $2); print $2 }' <<<"$line")
+			cd "$to/${cur:${#from}}"
+			break
+		fi
+	done < /etc/fstab
+}
+
+__redir; unset __redir
+
 # Prompt
 
 . /usr/lib/git-core/git-sh-prompt
