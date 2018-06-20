@@ -56,7 +56,7 @@ PROMPT_COMMAND='__prompt-command'
 
 HISTTIMEFORMAT='%Y-%m-%d %T  ' # Display timestamp in history
 
-export EDITOR=nano # Set default editor
+export EDITOR=nano # Avert ye eyes, setting default editor to nano
 
 shopt -s globstar
 
@@ -238,10 +238,9 @@ clip() {
 	perl -pe 'chomp if eof' | clip.exe
 }
 
-# TODO: Create an unclip.exe
-# unclip() {
-# 	cat /dev/clipboard
-# }
+unclip() {
+	powershell.exe -noprofile -command 'Get-Clipboard'
+}
 
 tclip() {
 	tee >(clip)
