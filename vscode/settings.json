@@ -72,6 +72,7 @@
   "html.format.endWithNewline": true,
   "html.format.extraLiners": "",
   "javascript.referencesCodeLens.enabled": true,
+  "javascript.showUnused": false,
   "markdown.extension.italic.indicator": "_",
   "markdown.preview.breaks": true,
   "markdown.preview.markEditorSelection": false,
@@ -94,8 +95,9 @@
     { "text": "NOTE:", "color": "#c678dd", "backgroundColor": "transparent" },
     { "text": "NOTE", "color": "#c678dd", "backgroundColor": "transparent" }
   ],
-  "typescript.referencesCodeLens.enabled": true,
   "typescript.implementationsCodeLens.enabled": true,
+  "typescript.referencesCodeLens.enabled": true,
+  "typescript.showUnused": false,
   "vsicons.associations.files": [
     { "icon": "json", "extensions": [ "json" ], "format": "svg" } // Fix jsonc
   ],
