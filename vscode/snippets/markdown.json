@@ -27,5 +27,9 @@
 			"${3:stuff}",
 			""
 		]
+	},
+	"ESLint rule link": {
+		"prefix": "eslint",
+		"body": [ "[`$1`](https://eslint.org/docs/rules/$1)" ]
 	}
 }
