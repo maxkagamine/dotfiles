@@ -76,6 +76,7 @@
   "javascript.referencesCodeLens.enabled": true,
   "javascript.showUnused": false,
   "markdown.extension.italic.indicator": "_",
+  "markdown.extension.preview.autoShowPreviewToSide": true,
   "markdown.extension.toc.levels": "2..6",
   "markdown.preview.breaks": true,
   "markdown.preview.markEditorSelection": false,
