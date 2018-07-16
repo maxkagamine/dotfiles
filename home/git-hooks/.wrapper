@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+set -e
+shopt -s nullglob
+
+hookname=$(basename "${BASH_SOURCE[0]}")
+repohook="$(git rev-parse --git-dir)/hooks/$hookname"
+globalhooks="$(dirname "${BASH_SOURCE[0]}")/$hookname.d"
+
+if [[ -e "$repohook" ]]; then
+  "$repohook" "$@"
+fi
+
+for f in "$globalhooks"/*; do
+  "$f" "$@"
+done
