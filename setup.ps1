@@ -146,6 +146,7 @@ Defaults`t!secure_path
 
   Start-Task "Preparing to install packages"
   exec { wsl sudo add-apt-repository -y ppa:git-core/ppa }
+  exec { wsl sudo bash -c 'wget -q https://packages.microsoft.com/config/ubuntu/16.04/packages-microsoft-prod.deb -O /tmp/packages-microsoft-prod.deb && sudo dpkg -i \$_ && rm \$_' }
   exec { bash -c "curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash -" } # Runs apt-get update
 
   Start-Task "Installing apt packages"
