@@ -81,6 +81,7 @@ try {
 
   Start-Task "Setting environment variables"
   [Environment]::SetEnvironmentVariable("WSLENV", "USERPROFILE/p", "User") # https://blogs.msdn.microsoft.com/commandline/2017/12/22/share-environment-vars-between-wsl-and-windows/
+  [Environment]::SetEnvironmentVariable("WSLGIT_USE_INTERACTIVE_SHELL", "0", "User") # https://github.com/andy-5/wslgit
 
   # Configure sudo
 
