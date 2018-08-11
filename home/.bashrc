@@ -52,13 +52,16 @@ __prompt-command() {
 
 PROMPT_COMMAND='__prompt-command'
 
-# Variables & shell opts
+# Variables & shell config
 
 HISTTIMEFORMAT='%Y-%m-%d %T  ' # Display timestamp in history
 
 export EDITOR=nano # Avert ye eyes, setting default editor to nano
 
 shopt -s globstar
+
+. ~/bin/fzf-completion.bash
+. ~/bin/fzf-key-bindings.bash
 
 # Start gpg agent
 # https://github.com/diablodale/pinentry-wsl-ps1
@@ -127,11 +130,12 @@ complete -F __npm-run-complete nr nir
 
 # Git aliases & functions
 
+alias g='git'
 alias gl='git log'
 alias gd='git diff'
 alias ga='git add'
 alias gc='git commit'
-alias gb='git branch'
+alias gb='git branch-fzf'
 alias gf='git fetch'
 alias gr='git rebase'
 alias grh='git reset HEAD'
@@ -140,15 +144,7 @@ alias gcb='git checkout -b'
 alias gch='git ch'
 alias gpl='git pull'
 alias gps='git push'
-alias gcol='git co-latest'
-
-g() { # TODO: Consider replacing git ch with fzf: https://github.com/davidosomething/dotfiles/blob/master/bin/fbr
-	if [[ $# == 0 ]]; then
-		git ch
-	else
-		git "$@"
-	fi
-}
+alias gcol='git checkout-latest'
 
 gg() {
 	# Usage: gg [-A] [<git commit options>] [bare message...]

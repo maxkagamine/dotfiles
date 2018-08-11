@@ -2,9 +2,12 @@
 set -e
 
 if [[ $# != 1 ]]; then
-	echo 'Usage: git co-latest <branch>' >&2
-	echo 'Pulls the local branch before checking it out. Useful to avoid' >&2
-	echo 'rolling back a large number of changes before getting latest.' >&2
+	cat >&2 <<-EOF
+		Usage: git checkout-latest <branch>
+
+		Pulls the local branch before checking it out. Useful to avoid
+		rolling back a large number of changes before getting latest.
+	EOF
 	exit 1
 fi
 
