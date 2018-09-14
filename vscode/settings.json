@@ -22,6 +22,7 @@
   "editor.fontFamily": "Consolas, Meiryo",
   "editor.renderControlCharacters": true,
   "editor.rulers": [ 80 ],
+  "editor.showUnused": false,
   "editor.snippetSuggestions": "top",
   "editor.tabSize": 2,
   "eslint.options": {
@@ -74,7 +75,6 @@
   "html.format.endWithNewline": true,
   "html.format.extraLiners": "",
   "javascript.referencesCodeLens.enabled": true,
-  "javascript.showUnused": false,
   "markdown.extension.italic.indicator": "_",
   "markdown.extension.preview.autoShowPreviewToSide": true,
   "markdown.extension.toc.levels": "2..6",
@@ -101,7 +101,6 @@
   ],
   "typescript.implementationsCodeLens.enabled": true,
   "typescript.referencesCodeLens.enabled": true,
-  "typescript.showUnused": false,
   "vsicons.associations.files": [
     { "icon": "json", "extensions": [ "json" ], "format": "svg" } // Fix jsonc
   ],

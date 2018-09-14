@@ -1,0 +1,21 @@
+{
+	"React: Component": {
+		"prefix": "rc",
+		"body": [
+			"import React, { Component } from 'react';",
+			"",
+			"interface ${1:${TM_FILENAME_BASE/(.*)/${1:/capitalize}/}}Props {",
+			"  ",
+			"}",
+			"",
+			"export default class $1 extends Component<$1Props> {",
+			"",
+			"  render() {",
+			"    return ${0:<div>Stuff.</div>};",
+			"  }",
+			"",
+			"}",
+			""
+		]
+	}
+}

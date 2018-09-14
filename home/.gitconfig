@@ -19,6 +19,7 @@
 	whoami = !printf '%s <%s>\\n' \"$(git config user.name)\" \"$(git config user.email)\"
 	lr = log --oneline --decorate --left-right --no-show-signature
 	unpushed = "!bash -c 'set -o pipefail; git rev-parse --abbrev-ref --symbolic-full-name @{u} | xargs -I% git log --oneline --no-show-signature %..'"
+	unmerged = log origin/master..
 	remas = pull origin master
 [color]
 	ui = auto

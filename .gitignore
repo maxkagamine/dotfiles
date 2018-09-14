@@ -4,6 +4,7 @@
 !/home/git-hooks
 !/home/sfx
 !/home/.bashrc
+!/home/.dircolors
 !/home/.gitconfig
 !/home/.gitignore
 !/home/.nanorc
