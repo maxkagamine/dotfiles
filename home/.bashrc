@@ -55,13 +55,13 @@ PROMPT_COMMAND='__prompt-command'
 # Variables & shell config
 
 HISTTIMEFORMAT='%Y-%m-%d %T  ' # Display timestamp in history
-
-export EDITOR=nano # Avert ye eyes, setting default editor to nano
-
+export EDITOR=nano # ¯\_(ツ)_/¯
 shopt -s globstar
+eval "$(dircolors ~/.dircolors)"
 
 . ~/bin/fzf-completion.bash
 . ~/bin/fzf-key-bindings.bash
+complete -F _fzf_path_completion -o default -o bashdefault ga gco grh
 
 # Start gpg agent
 # https://github.com/diablodale/pinentry-wsl-ps1
@@ -141,7 +141,6 @@ alias gr='git rebase'
 alias grh='git reset HEAD'
 alias gco='git checkout'
 alias gcb='git checkout -b'
-alias gch='git ch'
 alias gpl='git pull'
 alias gps='git push'
 alias gcol='git checkout-latest'
