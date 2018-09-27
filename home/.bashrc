@@ -230,7 +230,7 @@ treelist() {
 }
 
 clip() {
-	perl -pe 'chomp if eof' | clip.exe
+	powershell.exe -noprofile -command '$input | Set-Clipboard'
 }
 
 unclip() {
