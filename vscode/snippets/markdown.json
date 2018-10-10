@@ -21,8 +21,8 @@
 			"${2:stuff}",
 			"",
 			"",
-			"Description",
-			"-----------",
+			"Source description",
+			"------------------",
 			"",
 			"${3:stuff}",
 			""
