@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+set -e
+
+if [[ $EUID -ne 0 ]]; then
+	echo 'Run as root.' >&2
+	exit 1
+fi
+
+if [[ ! $1 =~ ^[A-Za-z]:?$ ]]; then
+	cat >&2 <<-EOF
+		Usage: mountdrv <letter>
+
+		Case-insensitive, colon optional. Will attempt to remount drive if
+		disconnected while mounted ("invalid argument" on ls).
+	EOF
+	exit 1
+fi
+
+drv=$(tr a-z A-Z <<<"${1%:}"):
+mnt=/mnt/$(tr A-Z a-z <<<"${1%:}")
+
+if ! mkdir "$mnt" &>/dev/null && ! ls "$mnt" &>/dev/null; then
+	# Drive may have been disconnected; attempt to remount it
+	umount "$mnt"
+fi
+
+mount -t drvfs "$drv" "$mnt"
