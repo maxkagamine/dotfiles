@@ -15,4 +15,4 @@ fi
 
 set -o xtrace
 
-ffmpeg -hide_banner -i $input" -c:v libvpx -crf 10 -b:v 1M -c:a libvorbis "$output"
+ffmpeg -hide_banner -i "$input" -c:v libvpx -crf 10 -b:v 1M -c:a libvorbis "$output"

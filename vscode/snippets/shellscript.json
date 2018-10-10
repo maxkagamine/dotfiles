@@ -3,8 +3,19 @@
 		"prefix": "bash",
 		"body": [
 			"#!/usr/bin/env bash",
-			"set -e",
+			"set -eo pipefail",
 			"", "$0", ""
+		]
+	},
+	"Help text": {
+		"prefix": "help",
+		"body": [
+			"if [[ $# == 0 || \\$1 =~ ^(--help|-h)$ ]]; then",
+			"\tcat >&2 <<-'EOF'",
+			"\t\tUsage: $TM_FILENAME ${0:<stuff>}",
+			"\tEOF",
+			"\texit 1",
+			"fi"
 		]
 	}
 }

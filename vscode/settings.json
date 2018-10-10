@@ -18,6 +18,7 @@
     "space_around_combinator": true
   },
   "debug.toolBarLocation": "docked",
+  "editor.acceptSuggestionOnEnter": "off",
   "editor.accessibilitySupport": "off",
   "editor.fontFamily": "Consolas, Meiryo",
   "editor.renderControlCharacters": true,
@@ -79,6 +80,7 @@
   "markdown.extension.preview.autoShowPreviewToSide": true,
   "markdown.extension.toc.levels": "2..6",
   "markdown.preview.breaks": true,
+  "markdown.preview.doubleClickToSwitchToEditor": false,
   "markdown.preview.markEditorSelection": false,
   "powershell.codeFormatting.preset": "OTBS",
   "problems.decorations.enabled": false,
