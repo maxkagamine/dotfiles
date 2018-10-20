@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+set -eo pipefail
+
+if [[ ! $(git config user.signingKey) ]]; then
+	exit
+fi
+
+show() { git -c log.showSignature=false show -s --format="$@"; }
+
+if [[ $(show '%G?') == 'N' ]]; then # Not signed
+
+	self=$(printf '%s <%s>\n' "$(git config user.name)" "$(git config user.email)")
+	author=$(show '%an <%ae>')
+	committer=$(show '%cn <%ce>')
+
+	if [[ $author == $self && $committer == $self ]]; then
+		git commit -q --amend --no-edit --no-verify --only --allow-empty --gpg-sign
+
+		echo "🔑  Signed commit, now $(git rev-parse --short HEAD)"
+	fi
+
+fi
