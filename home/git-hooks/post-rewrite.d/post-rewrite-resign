@@ -1,0 +1,77 @@
+#!/usr/bin/env bash
+set -eo pipefail
+
+if [[ ! $(git config user.signingKey) ]]; then
+	exit
+fi
+
+show() { git -c log.showSignature=false show -s --format="$@"; }
+
+# This is only necessary when rebasing; amend will fire post-commit hook
+
+if [[ $1 != 'rebase' ]]; then
+	exit
+fi
+
+# Find own previously-signed commits
+
+key=$(git config user.signingKey)
+self=$(printf '%s <%s>\n' "$(git config user.name)" "$(git config user.email)")
+
+resign=()
+resign_count=0
+total_count=0
+
+while read rewrite; do
+
+	old_hash=$(cut -d' ' -f1 <<<"$rewrite")
+	new_hash=$(cut -d' ' -f2 <<<"$rewrite")
+
+	author=$(show '%an <%ae>' "$new_hash")
+	committer=$(show '%cn <%ce>' "$new_hash")
+	prev_signed_with=$(show '%GK' "$new_hash")
+
+	if [[ ! $prev_signed_with ]]; then # Checking new commit first in case amended
+		prev_signed_with=$(show '%GK' "$old_hash")
+	fi
+
+	# printf '\e[1;30mpost-rewrite: %s\e[m\n' "$old_hash / $new_hash / $author / $committer / $prev_signed_with / $self / $key"
+
+	if [[ $author == $self && $committer == $self && $prev_signed_with == $key ]]; then
+		resign+=("$new_hash")
+		resign_count=$((resign_count + 1))
+	fi
+
+	total_count=$((total_count + 1))
+
+done
+
+if [[ $resign_count == 0 ]]; then
+	exit
+fi
+
+# Resign commits
+
+first=${resign[0]}
+
+if [[ $first == $(git rev-list HEAD | tail -n1) ]]; then # Root commit
+	revlist='HEAD'
+else
+	revlist=$first^..
+fi
+
+git filter-branch -f --commit-filter '
+	if [ '"$(printf '$GIT_COMMIT = %q -o ' "${resign[@]}" | head -c-4)"' ]; then
+		git commit-tree -S "$@"
+	else
+		git commit-tree "$@"
+	fi
+' -- "$revlist" 2>&1 >/dev/null
+
+# Yay
+
+if [[ $resign_count == $total_count ]]; then
+	echo "🔑  Signed all $total_count commits"
+else
+	echo "🔑  Signed $resign_count of $total_count commits"
+fi
