@@ -45,6 +45,6 @@ for f in "${@:2}"; do
 
 	outfile="${f%.*}.$ext"
 
-	ffmpeg -hide_banner -i "$infile" -vn ${args[@]} "$outfile"
+	ffmpeg -hide_banner -i "$infile" -vn "${args[@]}" "$outfile"
 
 done

@@ -175,6 +175,9 @@ Defaults`t!secure_path
   Start-Task "Installing GPG pinentry for WSL"
   exec { wsl sudo bash -c 'curl -sL https://raw.githubusercontent.com/diablodale/pinentry-wsl-ps1/master/pinentry-wsl-ps1.sh -o /usr/local/bin/pinentry-wsl-ps1 && chmod a+rx \$_' }
 
+  Start-Task "Installing shellcheck"
+  exec { wsl sudo bash -c 'curl -sL https://storage.googleapis.com/shellcheck/shellcheck-stable.linux.x86_64.tar.xz | tar xfJ - --strip-components 1 -C /usr/local/bin shellcheck-stable/shellcheck && chmod a+rx /usr/local/bin/shellcheck' }
+
   # Symlink conemu config
 
   Start-Task "Symlinking ConEmu config"

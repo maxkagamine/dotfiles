@@ -17,5 +17,16 @@
 			"\texit 1",
 			"fi"
 		]
+	},
+	"Die function": {
+		"prefix": "die",
+		"body": [
+			"# shellcheck disable=SC2181,SC2059",
+			"die() {",
+			"\tlocal err=$(( $? > 0 ? $? : 1 ))",
+			"\t[[ $# == 0 ]] || printf '\\e[31m'\"\\$1\"'\\n\\e[m' \"${@:2}\" >&2",
+			"\texit \\$err",
+			"}", ""
+		]
 	}
 }

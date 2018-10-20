@@ -1,3 +1,5 @@
+# shellcheck shell=bash disable=SC1090,SC2119,SC2155,SC2164
+
 # Prepend user bin to PATH
 
 if [[ ":$PATH:" != *":$HOME/.local/bin:$HOME/bin:"* ]]; then
@@ -38,10 +40,10 @@ __prompt-command() {
 
 	PS1='\[\e]0;\w\a\]'              # Set window title
 	PS1+='\n'                        # Newline
-	(( $err )) && PS1+="$red$err "   # Exit code if error
-	PS1+="$yel\w$cyn"                # Current directory
+	(( err )) && PS1+="$red$err "    # Exit code if error
+	PS1+="$yel"'\w'"$cyn"            # Current directory
 	PS1+=$(__git_ps1)                # Git branch
-	PS1+="$def\n"                    # Newline
+	PS1+="$def"'\n'                  # Newline
 	PS1+='\$ '                       # Dollar sign or hash
 
 	# Alias empty command to `git status` when in git repo
@@ -230,6 +232,7 @@ treelist() {
 }
 
 clip() {
+	# shellcheck disable=SC2016
 	powershell.exe -noprofile -command '$input | Set-Clipboard'
 }
 
@@ -250,7 +253,7 @@ randpw() {
 		chars="$chars!\"#\$%&'()*+,-./:;<=>?[\\]^_{|}~"
 		shift
 	fi
-	tr -dc "$chars" < /dev/urandom | head -c ${1-20}; echo
+	tr -dc "$chars" < /dev/urandom | head -c "${1-20}"; echo
 }
 
 wtfismyip() {
@@ -291,7 +294,7 @@ retry() {
 	while ! bash -lic "$1"' "$@"' "$@"; do # Handles aliases
 		printf '\e[1;31mretry: command failed, next attempt at %s\e[m\n' \
 			"$(date -d "$delay seconds" +%X | tr -d ' ')"
-		sleep $delay
+		sleep "$delay"
 	done
 }
 

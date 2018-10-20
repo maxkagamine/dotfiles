@@ -5,6 +5,7 @@ if [[ ! $(git config user.signingKey) ]]; then
 	exit
 fi
 
+# shellcheck disable=SC2145
 show() { git -c log.showSignature=false show -s --format="$@"; }
 
 if [[ $(show '%G?') == 'N' ]]; then # Not signed
@@ -13,7 +14,7 @@ if [[ $(show '%G?') == 'N' ]]; then # Not signed
 	author=$(show '%an <%ae>')
 	committer=$(show '%cn <%ce>')
 
-	if [[ $author == $self && $committer == $self ]]; then
+	if [[ $author == "$self" && $committer == "$self" ]]; then
 		git commit -q --amend --no-edit --no-verify --only --allow-empty --gpg-sign
 
 		echo "🔑  Signed commit, now $(git rev-parse --short HEAD)"

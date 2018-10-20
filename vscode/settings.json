@@ -83,8 +83,11 @@
   "markdown.preview.doubleClickToSwitchToEditor": false,
   "markdown.preview.markEditorSelection": false,
   "powershell.codeFormatting.preset": "OTBS",
+  "powershell.integratedConsole.showOnStartup": false,
   "problems.decorations.enabled": false,
   "python.linting.pylintArgs": [ "--errors-only" ],
+  "shellcheck.customArgs": [ "-x" ],
+  "shellcheck.useWSL": true,
   "telemetry.enableCrashReporter": false,
   "telemetry.enableTelemetry": false,
   "terminal.external.windowsExec": "C:/Program Files/ConEmu/ConEmu64.exe",
@@ -127,6 +130,7 @@
   "workbench.colorTheme": "One Dark Pro",
   "workbench.iconTheme": "vscode-icons",
   "workbench.startupEditor": "newUntitledFile",
+  "workbench.statusBar.feedback.visible": false,
   "workbench.tips.enabled": false,
   "[csharp]": {
     "editor.tabSize": 4
