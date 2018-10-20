@@ -45,23 +45,23 @@ while out=$(
 	if [[ $key == 'ctrl-d' ]]; then
 		if [[ $ref =~ ^refs/remotes/ ]]; then
 			remote=$(cut -d/ -f3 <<<"$ref")
-			if head=$(git symbolic-ref -q "refs/remotes/$remote/HEAD") && [[ $head == $ref ]]; then
+			if head=$(git symbolic-ref -q "refs/remotes/$remote/HEAD") && [[ $head == "$ref" ]]; then
 				printf 'One does not simply delete %s on %s.\n' "$branch" "$remote"
 				continue
 			fi
 			printf 'Really delete remote branch \e[31m%s/%s\e[m? [yN] ' "$remote" "$branch"
-			read yn
+			read -r yn
 			if [[ $yn =~ ^[yY]$ ]]; then
 				git push --delete "$remote" "$branch"
 			else
 				exit 1
 			fi
-		elif head=$(git symbolic-ref -q HEAD) && [[ $head == $ref ]]; then
+		elif head=$(git symbolic-ref -q HEAD) && [[ $head == "$ref" ]]; then
 			echo 'One does not simply delete the current branch.'
 			continue
 		elif ! git branch -d "$branch"; then
 			printf '\e[1A\e[0K\r' # Remove previous line
-			read -p 'Force delete? [Yn] ' yn
+			read -rp 'Force delete? [Yn] ' yn
 			if [[ $yn =~ ^[nN]$ ]]; then
 				exit 1
 			else

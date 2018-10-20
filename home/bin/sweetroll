@@ -75,7 +75,7 @@ elif [[ $1 == '--stat' ]]; then
 
 	# Check if multiple
 	value=$(jq ".[\"$name\"]" < ~/.sweetroll)
-	if (( $value % 50 == 0 )); then
+	if (( value % 50 == 0 )); then
 		printf '\e[1m%s increased to %s!\e[m\n' "$name" "$value"
 		sweetroll --sfx levelup
 	fi
@@ -84,5 +84,5 @@ elif [[ ! $1 || $1 == 0 ]]; then
 	echo "${ok[$RANDOM % ${#ok[@]}]}"
 else
 	echo "${fail[$RANDOM % ${#fail[@]}]}"
-	exit $1
+	exit "$1"
 fi

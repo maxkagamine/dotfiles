@@ -5,6 +5,7 @@ if [[ ! $(git config user.signingKey) ]]; then
 	exit
 fi
 
+# shellcheck disable=SC2145
 show() { git -c log.showSignature=false show -s --format="$@"; }
 
 # This is only necessary when rebasing; amend will fire post-commit hook
@@ -22,7 +23,7 @@ resign=()
 resign_count=0
 total_count=0
 
-while read rewrite; do
+while read -r rewrite; do
 
 	old_hash=$(cut -d' ' -f1 <<<"$rewrite")
 	new_hash=$(cut -d' ' -f2 <<<"$rewrite")
@@ -37,7 +38,7 @@ while read rewrite; do
 
 	# printf '\e[1;30mpost-rewrite: %s\e[m\n' "$old_hash / $new_hash / $author / $committer / $prev_signed_with / $self / $key"
 
-	if [[ $author == $self && $committer == $self && $prev_signed_with == $key ]]; then
+	if [[ $author == "$self" && $committer == "$self" && $prev_signed_with == "$key" ]]; then
 		resign+=("$new_hash")
 		resign_count=$((resign_count + 1))
 	fi
@@ -46,7 +47,7 @@ while read rewrite; do
 
 done
 
-if [[ $resign_count == 0 ]]; then
+if (( resign_count == 0 )); then
 	exit
 fi
 
@@ -60,17 +61,18 @@ else
 	revlist=$first^..
 fi
 
+# shellcheck disable=SC2016
 git filter-branch -f --commit-filter '
 	if [ '"$(printf '$GIT_COMMIT = %q -o ' "${resign[@]}" | head -c-4)"' ]; then
 		git commit-tree -S "$@"
 	else
 		git commit-tree "$@"
 	fi
-' -- "$revlist" 2>&1 >/dev/null
+' -- "$revlist" > /dev/null
 
 # Yay
 
-if [[ $resign_count == $total_count ]]; then
+if (( resign_count == total_count )); then
 	echo "🔑  Signed all $total_count commits"
 else
 	echo "🔑  Signed $resign_count of $total_count commits"

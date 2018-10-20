@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# shellcheck disable=SC2119,SC2120
 set -e
 set -o pipefail
 
@@ -8,15 +9,15 @@ conf=$(realpath "${SUPERMAN_CONFIG:-$HOME/.packages.conf}") # realpath to avoid 
 in-array() {
 	# Usage: in-array <search> <array>...
 	local x search=$1; shift
-	for x in "$@"; do [[ $x == $search ]] && return 0; done
+	for x in "$@"; do [[ $x == "$search" ]] && return 0; done
 	return 1
 }
 
 trace() {
 	if [[ $TRACE ]]; then # TRACE ON!
 		printf '\e[1;30msuperman: ' >&2
-		if [[ $manager ]]; then printf "($manager) " >&2; fi
-		printf "${FUNCNAME[1]#superman-} " >&2
+		if [[ $manager ]]; then printf '(%s) ' "$manager" >&2; fi
+		printf '%s ' "${FUNCNAME[1]#superman-}" >&2
 		if (( $# > 0 )); then printf '%q ' "$@" >&2; fi
 		printf '\e[m\n' >&2
 	fi
@@ -25,7 +26,7 @@ trace() {
 # Create packages list if not exist
 if [[ ! -f $conf ]]; then
 	for manager in "${managers[@]}"; do
-		printf "[$manager]\n\n" >> "$conf"
+		printf '[%s]\n\n' "$manager" >> "$conf"
 	done
 fi
 
@@ -94,11 +95,10 @@ superman-install() {
 			superman-ls-add "$@"
 		fi
 		# Install specified packages or all in list if none given
-		local output pkgs=("$@")
+		local pkgs=("$@")
 		if (( $# == 0 )); then
-			output=$(superman-ls)
-			readarray -t pkgs <<< "$output"
-			if [[ ${#pkgs[@]} == 1 && ! $pkgs ]]; then pkgs=(); fi
+			readarray -t pkgs < <(superman-ls)
+			if [[ ${#pkgs[@]} == 1 && ! ${pkgs[0]} ]]; then pkgs=(); fi
 		fi
 		if (( ${#pkgs[@]} > 0 )); then
 			superman-manager "$manager" install "${pkgs[@]}"
@@ -133,11 +133,12 @@ superman-ls() {
 
 superman-ls-add() {
 	trace "$@"
+	local items
 	if (( $# > 0 )); then
 		if ! grep -Fxq "[$manager]" "$conf"; then
 			printf '\n[%s]\n' "$manager" >> "$conf"
 		fi
-		local items=$(printf '%s\n' "$@")
+		items=$(printf '%s\n' "$@")
 		awk -i inplace -v section="$manager" -v items="$items" -f - "$conf" <<-'EOF'
 			function write_list() {
 				IGNORECASE = 1
@@ -159,8 +160,9 @@ superman-ls-add() {
 
 superman-ls-remove() {
 	trace "$@"
+	local items
 	if (( $# > 0 )); then
-		local items=$(printf '%s\n' "$@")
+		items=$(printf '%s\n' "$@")
 		awk -i inplace -v section="$manager" -v items="$items" -f - "$conf" <<-'EOF'
 			BEGIN {
 				split(items, temp, "\n")
@@ -175,18 +177,16 @@ superman-ls-remove() {
 
 superman-sync() {
 	trace "$@"
-	local installed list output add remove
+	local installed list add remove
 	# Get currently installed packages and packages in list
 	installed=$(superman-manager "$manager" list-installed | sort)
 	list=$(superman-ls | sort)
 	# Get packages that are installed but not in the list
-	output=$(comm -13 <(echo "$list") <(echo "$installed"))
-	readarray -t add <<< "$output"
-	if [[ ${#add[@]} == 1 && ! $add ]]; then add=(); fi
+	readarray -t add < <(comm -13 <(echo "$list") <(echo "$installed"))
+	if [[ ${#add[@]} == 1 && ! ${add[0]} ]]; then add=(); fi
 	# Get packages in the list that are not installed
-	output=$(comm -23 <(echo "$list") <(echo "$installed"))
-	readarray -t remove <<< "$output"
-	if [[ ${#remove[@]} == 1 && ! $remove ]]; then remove=(); fi
+	readarray -t remove < <(comm -23 <(echo "$list") <(echo "$installed"))
+	if [[ ${#remove[@]} == 1 && ! ${remove[0]} ]]; then remove=(); fi
 	# Update list
 	superman-ls-add "${add[@]}"
 	superman-ls-remove "${remove[@]}"
