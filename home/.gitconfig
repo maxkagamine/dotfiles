@@ -21,6 +21,8 @@
 	unpushed = "!bash -c 'set -o pipefail; git rev-parse --abbrev-ref --symbolic-full-name @{u} | xargs -I% git log --oneline --no-show-signature %..'"
 	unmerged = log origin/master..
 	remas = pull origin master
+	whatfileschanged = "!f() { cd -- \"${GIT_PREFIX:-.}\"; git whatchanged --name-only --pretty=format: --no-show-signature \"$@\" | grep .; }; f"
+	whatfileswereadded = "!f() { cd -- \"${GIT_PREFIX:-.}\"; git whatchanged --name-status --pretty=format: --no-show-signature \"$@\" | sed -rn 's/^A\\s+(.*)/\\1/p'; }; f"
 [color]
 	ui = auto
 [merge]
