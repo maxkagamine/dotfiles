@@ -82,7 +82,7 @@ unset GPG_AGENT_PID
 
 # General aliases
 
-alias ls='ls -Ah --color=auto'
+alias ls='LC_COLLATE=C ls -Ah --color=auto --group-directories-first'
 alias ll='ls -l'
 alias grep='grep --color=auto'
 alias dig='dig +noall +answer'
