@@ -76,7 +76,7 @@ elif [[ $1 == '--stat' ]]; then
 	# Check if multiple
 	value=$(jq ".[\"$name\"]" < ~/.sweetroll)
 	if (( value % 50 == 0 )); then
-		printf '\e[1m%s increased to %s!\e[m\n' "$name" "$value"
+		printf '\n    ✨   \e[1m%s increased to %s!\e[m ✨ \n\n' "$name" "$value"
 		sweetroll --sfx levelup
 	fi
 
