@@ -6,6 +6,19 @@ if (( $# > 1 )) || [[ $# == 1 && ! $1 =~ ^(-a|--all)$ ]]; then
 	exit
 fi
 
+delete-branch() {
+	# Usage: delete-branch <local branch name>
+	if ! git branch -d "$1"; then
+		printf '\e[1A\e[0K\r' # Remove previous line
+		read -rp 'Force delete? [Yn] ' yn
+		if [[ $yn =~ ^[nN]$ ]]; then
+			return 1
+		else
+			git branch -D "$1"
+		fi
+	fi
+}
+
 patterns=(refs/heads)
 if [[ $1 =~ ^(-a|--all)$ ]]; then
 	patterns+=(refs/remotes)
@@ -57,16 +70,10 @@ while out=$(
 				exit 1
 			fi
 		elif head=$(git symbolic-ref -q HEAD) && [[ $head == "$ref" ]]; then
-			echo 'One does not simply delete the current branch.'
-			continue
-		elif ! git branch -d "$branch"; then
-			printf '\e[1A\e[0K\r' # Remove previous line
-			read -rp 'Force delete? [Yn] ' yn
-			if [[ $yn =~ ^[nN]$ ]]; then
-				exit 1
-			else
-				git branch -D "$branch"
-			fi
+			printf '\e[32m%s\e[m will be deleted after switching branches.\n' "$branch"
+			delete_after_checkout=$branch
+		else
+			delete-branch "$branch"
 		fi
 		continue
 	fi
@@ -81,6 +88,15 @@ while out=$(
 	break
 
 done
+
+if [[ $delete_after_checkout ]]; then
+	if head=$(git symbolic-ref -q HEAD) && [[ $head == "refs/heads/$delete_after_checkout" ]]; then
+		printf 'Aborted deleting \e[32m%s\e[m. One does not simply delete the current branch.\n' "$delete_after_checkout"
+		exit 1
+	else
+		delete-branch "$delete_after_checkout"
+	fi
+fi
 
 if [[ ! $out ]]; then
 	exit 1
