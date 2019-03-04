@@ -89,8 +89,9 @@ alias dig='dig +noall +answer'
 alias digx='dig @8.8.8.8'
 alias ffmpeg='ffmpeg -hide_banner'
 alias ffprobe='ffprobe -hide_banner'
-alias yt='youtube-dl --netrc'
-alias ytmp3='yt -xf "best[format_id!=economy]" --audio-format mp3 --audio-quality 0' # 'economy' prevents downloading niconico's low quality, high traffic mode videos
+alias youtube-dl='youtube-dl --netrc'
+alias yt='youtube-dl -f bestvideo[fps=60]+bestaudio/bestvideo+bestaudio/best'
+alias ytmp3='youtube-dl -xf "(bestaudio/best)[format_id!=economy]" --audio-format mp3 --audio-quality 0' # '!=economy' prevents downloading niconico's low quality, high traffic mode videos
 alias exiftool='exiftool -g'
 alias exifstrip='exiftool -all='
 alias whois='whois -H'
