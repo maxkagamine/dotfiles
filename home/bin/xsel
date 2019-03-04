@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+set -eo pipefail
+
+if [[ $# == 0 || $1 =~ ^(--help|-h)$ ]]; then
+	cat >&2 <<-'EOF'
+		Usage: xsel (--clipboard|-b) (--input|-i|--output|-o)
+
+		xsel shim for WSL, redirecting clipboard I/O to PowerShell.
+		Only handles the options listed above.
+	EOF
+	exit 1
+fi
+
+selection=
+mode=
+
+for opt in "$@"; do
+	case $opt in
+		--clipboard|-b) selection='clipboard' ;;
+		--input|-i) mode='copy' ;;
+		--output|-o) mode='paste' ;;
+		-bi|-ib) selection='clipboard'; mode='copy' ;;
+		-bo|-ob) selection='clipboard'; mode='paste' ;;
+	esac
+done
+
+if [[ $selection != 'clipboard' || ! $mode ]]; then
+	echo "xsel shim received unsupported options:$(printf ' %q' "$@")" >&2
+	exit 72
+fi
+
+case $mode in
+	copy)
+		# shellcheck disable=SC2016
+		powershell.exe -noprofile -command '$input | Set-Clipboard'
+		;;
+	paste)
+		powershell.exe -noprofile -command 'Get-Clipboard'
+		;;
+esac
