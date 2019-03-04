@@ -84,6 +84,8 @@ unset GPG_AGENT_PID
 
 alias ls='LC_COLLATE=C ls -Ah --color=auto --group-directories-first'
 alias ll='ls -l'
+alias clip='xsel -bi'
+alias unclip='xsel -bo'
 alias grep='grep --color=auto'
 alias dig='dig +noall +answer'
 alias digx='dig @8.8.8.8'
@@ -230,15 +232,6 @@ unhide() {
 
 treelist() {
 	tree --noreport "$@" | tail -n +2 | awk '{print substr($0,5,length)}'
-}
-
-clip() {
-	# shellcheck disable=SC2016
-	powershell.exe -noprofile -command '$input | Set-Clipboard'
-}
-
-unclip() {
-	powershell.exe -noprofile -command 'Get-Clipboard'
 }
 
 tclip() {
