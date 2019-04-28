@@ -153,7 +153,7 @@ alias gcol='git checkout-latest'
 gg() {
 	# Usage: gg [-A] [<git commit options>] [bare message...]
 	# Commits everything if -A or nothing staged
-	# https://kagami.ne/gg
+	# https://maxkagamine.com/blog/gg-a-bash-function-for-faster-git-committing
 	git rev-parse --is-inside-work-tree > /dev/null || return
 	local opts=()
 	local staged=$(git diff --cached --quiet)$?
@@ -179,7 +179,7 @@ gg() {
 }
 
 fus() {
-	# https://kagami.ne/fusrodah
+	# https://maxkagamine.com/blog/nuke-a-git-repo-with-unrelenting-force
 	if [[ $* =~ ^ro\ dah ]]; then
 		git nuke && sweetroll --sfx fusrodah
 	else
