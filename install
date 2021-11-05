@@ -1,0 +1,2 @@
+#!/bin/bash
+cd "$(dirname "${BASH_SOURCE[0]}")" && ./profiles/"${1:-${HOSTNAME,,}}"

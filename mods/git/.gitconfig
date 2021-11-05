@@ -1,0 +1,47 @@
+[user]
+  name = Max Kagamine
+  email = max@kgmn.jp
+  signingKey = BAFB1EA9420D0109F91943F933BCD7C80AC41AFA
+[core]
+  autocrlf = input
+  editor = nano
+  excludesFile = ~/.gitignore
+  whitespace = trailing-space,tab-in-indent
+[alias]
+  alias = "!f() { git config --global alias.\"$@\"; }; f"
+  changelog = log --pretty='format:- %s' --reverse --no-show-signature
+  lr = log --oneline --decorate --left-right --no-show-signature
+  msg = log --format=%s -n1 --no-show-signature
+  ns = "!f() { git diff --name-status \"${1:-HEAD^..}\"; }; f"
+  nuke = !git reset --hard && git clean -fdx -e _stuff/ -e .vagrant/
+  puush = !git push -u origin \"$(git symbolic-ref --short HEAD)\"
+  recommit = commit -C ORIG_HEAD
+  remas = pull origin master
+  uncommit = reset --soft HEAD~
+  whoami = !printf '%s <%s>\\n' \"$(git config user.name)\" \"$(git config user.email)\"
+[color]
+  ui = auto
+[commit]
+  gpgSign = true # TODO: Restore previous git hook to sign only own commits
+[diff]
+  tool = code
+[difftool "code"]
+  cmd = code --diff --wait $LOCAL $REMOTE
+[fetch]
+  prune = true
+[log]
+  showSignature = true
+[merge]
+  tool = code
+[mergetool]
+  keepBackup = false
+  keepTemporaries = false
+  prompt = false
+[mergetool "code"]
+  cmd = code --wait $MERGED
+[pull]
+  rebase = true
+[push]
+  default = simple
+[rebase]
+  autoStash = true
