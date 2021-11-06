@@ -30,3 +30,13 @@ This applies to [Tamriel, my main machine](https://photos.app.goo.gl/GYYD6cBjdmb
 > ### powershell.exe: Permission denied,<br />explorer.exe: Permission denied, ...
 >
 > If you [enable Linux file permissions for /mnt](https://docs.microsoft.com/en-us/windows/wsl/file-permissions) and set directories and files to be respectively 755 and 644 by default as I do [here](./profiles/tamriel), programs in C:\Windows or Program Files won't be executable in Linux. For most programs, you can `chmod +x` from an elevated terminal, but to chmod PowerShell and other system programs, you'll need to first find the exe, right click, Properties &gt; Security &gt; Advanced, take ownership and give Administrators full control.
+
+## fzf
+
+Bash integration for fzf; enables [fuzzy completion & keyboard shortcuts](https://github.com/junegunn/fzf#key-bindings-for-command-line) with fancy, syntax-highlighted previews.
+
+See also [**git-branch-fzf**](mods/git/.local/bin/git-branch-fzf), my awesome fzf-powered interactive branch switcher with keyboard shortcuts to toggle remote branches, delete branches (including remote and even the current branch), and to [fetch the latest](mods/git/.local/bin/git-checkout-latest) of a branch before switching.
+
+## nano
+
+<img src="https://i.imgur.com/8sqd67K.png" height="350" />

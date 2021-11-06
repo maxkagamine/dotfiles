@@ -34,6 +34,7 @@ wget https://github.com/BlackReloaded/wsl2-ssh-pageant/releases/latest/download/
 
 stow -R \
   bash \
+  fzf \
   git \
   nano \
   wsl
