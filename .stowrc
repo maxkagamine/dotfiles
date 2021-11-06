@@ -1,3 +1,4 @@
 --dir=mods
 --target=~
+--no-folding
 --verbose=2

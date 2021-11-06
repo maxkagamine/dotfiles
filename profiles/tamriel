@@ -9,6 +9,10 @@ EOF
 sudo apt-get update && sudo apt-get install -qy \
   stow
 
+wget https://github.com/BlackReloaded/wsl2-ssh-pageant/releases/latest/download/wsl2-ssh-pageant.exe \
+  -O ~/.ssh/wsl2-ssh-pageant.exe && chmod +x "$_"
+
 stow -R \
   bash \
+  wsl \
   git
