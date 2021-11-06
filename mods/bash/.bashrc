@@ -24,6 +24,7 @@ alias ffprobe='ffprobe -hide_banner'
 alias grep='grep --color=auto'
 alias less='less -FRX'
 alias ls='ls -lAh --color=auto --group-directories-first'
+alias tree='tree --dirsfirst -aCI ".git|node_modules"'
 alias unclip='xsel -bo'
 
 # Reload bashrc

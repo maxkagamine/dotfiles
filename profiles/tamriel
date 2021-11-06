@@ -22,16 +22,28 @@ if [[ ! -d /mnt/s ]]; then
 fi
 #endregion
 
+curl -fsSL https://deb.nodesource.com/setup_current.x | sudo -E bash -
+
 sudo apt-get update && sudo apt-get install -qy \
   stow \
+  build-essential \
   fd-find \
+  ffmpeg \
   fzf \
+  imagemagick \
   jq \
+  libimage-exiftool-perl \
+  nodejs \
   python-is-python3 \
-  source-highlight
+  shellcheck \
+  source-highlight \
+  stow \
+  tree
+
+mkdir -p ~/.local/bin
 
 wget https://github.com/BlackReloaded/wsl2-ssh-pageant/releases/latest/download/wsl2-ssh-pageant.exe \
-  -O ~/.ssh/wsl2-ssh-pageant.exe && chmod +x "$_"
+  -O ~/.local/bin/wsl2-ssh-pageant.exe && chmod +x "$_"
 
 wget https://yt-dl.org/downloads/latest/youtube-dl \
   -O ~/.local/bin/youtube-dl && chmod +x "$_"
