@@ -1,0 +1,103 @@
+#!/bin/bash
+set -eo pipefail
+
+if (( $# > 1 )) || [[ $# == 1 && ! $1 =~ ^(-a|--all)$ ]]; then
+  git branch "$@"
+  exit
+fi
+
+delete_branch() {
+  # Usage: delete_branch <local branch name>
+  if ! git branch -d "$1"; then
+    printf '\e[1A\e[0K\r' # Remove previous line
+    read -rp 'Force delete? [Yn] ' yn
+    if [[ $yn =~ ^[nN]$ ]]; then
+      return 1
+    else
+      git branch -D "$1"
+    fi
+  fi
+}
+
+patterns=(refs/heads)
+if [[ $1 =~ ^(-a|--all)$ ]]; then
+  patterns+=(refs/remotes)
+  shift
+fi
+
+format='%(refname:rstrip=-2)/' # Color should come after the part not displayed by fzf
+format+='%(if:equals=refs/remotes)%(refname:rstrip=-2)%(then)%(color:red)%(end)' # Color remote branches red
+format+='%(if)%(HEAD)%(then)%(color:green)%(end)' # Color current branch green
+format+='%(refname:lstrip=2)%(color:reset)'
+
+while out=$(
+  git for-each-ref --format="$format" --ignore-case --color=always "${patterns[@]}" |
+  grep -Pv '/HEAD(\e.*)?$' |
+  fzf --height 25% --ansi --cycle --exit-0 --expect ctrl-a,ctrl-d,ctrl-l \
+      --delimiter / --with-nth 3.. \
+      --preview 'git log -n 50 --oneline --no-show-signature --color {}' \
+      --header '[^A] Toggle remotes  [^D] Delete  [^L] Get latest'
+); do
+
+  readarray -t arr <<<"$out"
+  key=${arr[0]}
+  ref=${arr[1]}
+  branch=$(sed -r 's#^refs/(heads|remotes/[^/]+)/##' <<<"$ref")
+
+  # Toggle remotes with Ctrl+A
+  if [[ $key == 'ctrl-a' ]]; then
+    if [[ ${#patterns[@]} == 1 ]]; then
+      patterns+=(refs/remotes)
+    else
+      patterns=(refs/heads)
+    fi
+    continue
+  fi
+
+  # Delete branch with Ctrl+D
+  if [[ $key == 'ctrl-d' ]]; then
+    if [[ $ref =~ ^refs/remotes/ ]]; then
+      remote=$(cut -d/ -f3 <<<"$ref")
+      if head=$(git symbolic-ref -q "refs/remotes/$remote/HEAD") && [[ $head == "$ref" ]]; then
+        printf 'One does not simply delete %s on %s.\n' "$branch" "$remote"
+        continue
+      fi
+      printf 'Really delete remote branch \e[31m%s/%s\e[m? [yN] ' "$remote" "$branch"
+      read -r yn
+      if [[ $yn =~ ^[yY]$ ]]; then
+        git push --delete "$remote" "$branch"
+      else
+        exit 1
+      fi
+    elif head=$(git symbolic-ref -q HEAD) && [[ $head == "$ref" ]]; then
+      printf '\e[32m%s\e[m will be deleted after switching branches.\n' "$branch"
+      delete_after_checkout=$branch
+    else
+      delete_branch "$branch"
+    fi
+    continue
+  fi
+
+  # Check out latest with Ctrl+L
+  if [[ $key == 'ctrl-l' ]]; then
+    git checkout-latest "$branch"
+    break
+  fi
+
+  git checkout "$branch"
+  break
+
+done
+
+if [[ $delete_after_checkout ]]; then
+  if head=$(git symbolic-ref -q HEAD) && [[ $head == "refs/heads/$delete_after_checkout" ]]; then
+    printf 'Aborted deleting \e[32m%s\e[m. One does not simply delete the current branch.\n' "$delete_after_checkout"
+    exit 1
+  else
+    delete_branch "$delete_after_checkout"
+  fi
+fi
+
+if [[ ! $out ]]; then
+  exit 1
+fi

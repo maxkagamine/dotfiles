@@ -1,0 +1,17 @@
+#!/bin/bash
+set -e
+
+if [[ $# != 1 ]]; then
+  cat >&2 <<EOF
+Usage: git checkout-latest <branch>
+
+Pulls the local branch before checking it out. Useful to avoid
+rolling back a large number of changes before getting latest.
+EOF
+  exit 1
+fi
+
+if upstream=$(git rev-parse --abbrev-ref "$1@{upstream}"); then
+  git fetch "${upstream%%/*}" "${upstream#*/}:$1"
+  git checkout "$1"
+fi

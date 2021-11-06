@@ -2,10 +2,11 @@
 
 alias g='git'
 alias ga='git add'
-alias gb='git branch'
+alias gb='git branch-fzf'
 alias gc='git commit'
 alias gcb='git checkout -b'
 alias gco='git checkout'
+alias gcol='git checkout-latest'
 alias gd='git diff'
 alias gf='git fetch'
 alias gg!='gg --amend --no-edit'
@@ -15,8 +16,6 @@ alias gps='git push'
 alias gr='git rebase'
 alias grh='git reset HEAD'
 alias gs='git status'
-# alias gb='git branch-fzf'
-# alias gcol='git checkout-latest'
 
 gg() {
   # Usage: gg [-A] [<git commit options>] [bare message...]
@@ -62,10 +61,10 @@ if source /usr/share/bash-completion/completions/git 2>/dev/null; then
   __git_complete g __git_main
   __git_complete gb _git_branch
   __git_complete gco _git_checkout
+  __git_complete gcol _git_checkout
   __git_complete gd _git_diff
   __git_complete gg _git_commit
   __git_complete gl _git_log
   __git_complete gpl _git_pull
   __git_complete gr _git_rebase
-  # __git_complete gcol _git_checkout
 fi
