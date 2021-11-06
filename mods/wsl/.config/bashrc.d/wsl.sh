@@ -3,6 +3,9 @@
 CDPATH='.:/mnt/s:/mnt/c/Users/max:/mnt/c/Users/max/Projects'
 alias cd='>/dev/null cd'
 
+# shellcheck disable=SC2139
+alias .e="code '$(wslpath -w "$DOTFILES_DIR")'"
+
 exp() {
   explorer.exe "$(wslpath -w "${1:-.}")" || true
 }

@@ -2,6 +2,9 @@
 
 PATH="$HOME/.local/bin:$PATH"
 
+export DOTFILES_DIR
+DOTFILES_DIR=$(realpath -m ~/.bashrc/../../..)
+
 # Bail if non-interactive shell
 [[ $- == *i* ]] || return
 
