@@ -7,12 +7,13 @@ options = "metadata,umask=022,fmask=111"
 EOF
 
 sudo apt-get update && sudo apt-get install -qy \
-  stow
+  stow \
+  jq
 
 wget https://github.com/BlackReloaded/wsl2-ssh-pageant/releases/latest/download/wsl2-ssh-pageant.exe \
   -O ~/.ssh/wsl2-ssh-pageant.exe && chmod +x "$_"
 
 stow -R \
   bash \
-  wsl \
-  git
+  git \
+  wsl

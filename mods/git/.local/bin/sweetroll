@@ -1,0 +1,96 @@
+#!/bin/bash
+set -eo pipefail
+
+DATA_DIR=~/.local/share/sweetroll
+STATS_FILE="$DATA_DIR/stats.json"
+
+MSG_OK=(
+  "I used to be an adventurer like you. Then I took an arrow in the knee..."
+  "Let me guess... someone stole your sweetroll."
+  "No lollygaggin'."
+  "Staying safe I hope."
+  "I'd be a lot warmer and a lot happier with a bellyful of mead..."
+  "Watch the skies, traveler."
+  "My cousin's out fighting dragons, and what do I get? Guard duty."
+  "Gotta keep my eyes open. Damn dragons could swoop down at any time."
+  "Fear not. Come dragon or giant, we'll be ready."
+  "I fear the night. Because the werewolves and vampires don't."
+  "Everything's in order."
+  "Got to thinking... maybe I'm the Dragonborn, and I just don't know it yet?"
+  "What is it? Dragons?"
+)
+
+MSG_ERR=(
+  "By order of the Jarl, stop right there!"
+  "You have committed crimes against Skyrim and her people. What say you in your defense?"
+  "Stop right there, criminal scum!"
+  "I need to ask you to stop. That... committing... is making people nervous."
+)
+
+throw() {
+  printf 'sweetroll: %s\n' "$1" >&2
+  return 1
+}
+
+if [[ $1 =~ ^(--help|-h)$ ]]; then
+  cat >&2 <<EOF
+Usage: sweetroll [exit code]
+       sweetroll --sfx <sound>
+       sweetroll --stat <name>
+
+Without options, prints a random quote appropriate for the exit code (if any).
+Sweetroll exits with whatever exit code is given.
+
+With --sfx, plays the specified mp3 from ~/sfx. Available sounds:
+$(find "$SFX_DIR" -name '*.mp3' -exec printf '  ' \; -exec basename {} .mp3 \;)
+
+With --stat, increments the stat identified by <name> and plays the levelup
+sound effect on certain multiples. <name> must be a valid JSON property name.
+EOF
+  exit 1
+fi
+
+sweetroll_sfx() {
+  path="$DATA_DIR/$1.mp3"
+  if [[ ! -f $path ]]; then
+    throw "sound does not exist: $path"
+  fi
+  if command -v cmdmp3.exe &>/dev/null; then
+    ( cmdmp3.exe "$(wslpath -w "$path")" &>/dev/null & )
+  elif command -v ffplay &>/dev/null; then
+    ( ffplay -nodisp -autoexit "$path" &>/dev/null & )
+  fi
+}
+
+sweetroll_stat() {
+  if [[ ! -f $STATS_FILE ]]; then
+    echo '{}' > $STATS_FILE
+  fi
+
+  name=$1
+  json=$(jq ".*{\"$name\":(.[\"$name\"]+1)}" < $STATS_FILE)
+  echo "$json" > $STATS_FILE
+
+  value=$(jq ".[\"$name\"]" < $STATS_FILE)
+  if (( value % 50 == 0 )); then
+    printf '\n  ✨ \e[1m%s increased to %s!\e[m ✨\n\n' "$name" "$value"
+    sweetroll_sfx levelup
+  fi
+}
+
+sweetroll_msg() {
+  if [[ $1 == 0 ]]; then
+    echo "${MSG_OK[$RANDOM % ${#MSG_OK[@]}]}"
+  else
+    echo "${MSG_ERR[$RANDOM % ${#MSG_ERR[@]}]}"
+  fi
+  return "$1"
+}
+
+if [[ $1 == '--sfx' ]]; then
+  sweetroll_sfx "$2"
+elif [[ $1 == '--stat' ]]; then
+  sweetroll_stat "$2"
+else
+  sweetroll_msg "${1:-0}"
+fi
