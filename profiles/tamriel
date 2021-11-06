@@ -3,11 +3,12 @@ set -e
 
 sudo tee /etc/wsl.conf >/dev/null <<EOF
 [automount]
-options = "metadata,umask=22,fmask=11"
+options = "metadata,umask=022,fmask=111"
 EOF
 
 sudo apt-get update && sudo apt-get install -qy \
   stow
 
 stow -R \
+  bash \
   git
