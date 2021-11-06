@@ -11,12 +11,14 @@ HISTSIZE=10000
 HISTTIMEFORMAT='%Y-%m-%d %T  '
 
 # General aliases
+alias clip='xsel -bi'
 alias dig='dig +noall +answer'
 alias ffmpeg='ffmpeg -hide_banner'
 alias ffprobe='ffprobe -hide_banner'
 alias grep='grep --color=auto'
 alias less='less -FRX'
 alias ls='ls -lAh --color=auto --group-directories-first'
+alias unclip='xsel -bo'
 
 # Reload bashrc
 alias .r='. ~/.bashrc'
@@ -24,6 +26,10 @@ alias .r='. ~/.bashrc'
 # General-use functions
 mkcd() {
   mkdir -vp -- "$1" && cd -- "$1" || return
+}
+
+tclip() {
+  tee >(clip)
 }
 
 wtfismyip() {

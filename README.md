@@ -18,12 +18,15 @@ Applies the convention of loading configuration files from a directory to bashrc
 
 This applies to [Tamriel, my main machine](https://photos.app.goo.gl/GYYD6cBjdmbnX3tf6) running the [Windows Subsystem for Linux](https://docs.microsoft.com/en-us/windows/wsl/), because I can't computer without a command line but Windows is life (at least until Bethesda releases _Skyrim: Chrome OS Edition_).
 
->  ### Setting up GPG & YubiKey for WSL
+> ### Setting up GPG & YubiKey for WSL
 >  
->  1. Install [Gpg4win](https://gpg4win.org/download.html) & [YubiKey Manager](https://www.yubico.com/support/download/yubikey-manager/)
->     - Ignore the PINs in the PIV app; the OpenPGP app on the YubiKey [is separate](https://github.com/drduh/YubiKey-Guide/issues/248). I'd even disable PIV in "Interfaces" to avoid confusion if you're not using it.
+> 1. Install [Gpg4win](https://gpg4win.org/download.html) & [YubiKey Manager](https://www.yubico.com/support/download/yubikey-manager/)
+>    - Ignore the PINs in the PIV app; the OpenPGP app on the YubiKey [is separate](https://github.com/drduh/YubiKey-Guide/issues/248). I'd even disable PIV in "Interfaces" to avoid confusion if you're not using it.
 > 2. Follow [Yubico's guide here](https://developers.yubico.com/PGP/SSH_authentication/Windows.html), but hold off on cloning something since we'll do that in WSL. You don't need PuTTY (the GPG agent replaces Pageant).
 >    - Use Task Scheduler to run `"C:\Program Files (x86)\GnuPG\bin\gpg-connect-agent.exe" /bye` at log on. Remember to uncheck everything in Conditions. I enabled "If the task fails, restart every 1 minute" in Settings.
 > 3. Use [wsl2-ssh-pageant](https://github.com/BlackReloaded/wsl2-ssh-pageant) to connect the Linux-side SSH and GPG agents to GPG running Windows-side.
 > 4. After restarting WSL (`wsl.exe --shutdown`), you should be able to run `gpg --card-status` in Linux👍 Import your public key and test that it works with `ssh git@github.com`.
 
+> ### powershell.exe: Permission denied,<br />explorer.exe: Permission denied, ...
+>
+> If you [enable Linux file permissions for /mnt](https://docs.microsoft.com/en-us/windows/wsl/file-permissions) and set directories and files to be respectively 755 and 644 by default as I do [here](./profiles/tamriel), programs in C:\Windows or Program Files won't be executable in Linux. For most programs, you can `chmod +x` from an elevated terminal, but to chmod PowerShell and other system programs, you'll need to first find the exe, right click, Properties &gt; Security &gt; Advanced, take ownership and give Administrators full control.
