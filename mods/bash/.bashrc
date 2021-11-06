@@ -31,7 +31,7 @@ wtfismyip() {
 }
 
 # Load mods
-for mod in ~/.config/bashrc.d/*.bashrc; do
+for mod in ~/.config/bashrc.d/*.sh; do
   # shellcheck disable=SC1090
   . "$mod"
 done
