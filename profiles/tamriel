@@ -1,21 +1,23 @@
 #!/bin/bash
 set -e
 
+#region Windows filesystem mount
 sudo tee /etc/wsl.conf >/dev/null <<EOF
 [automount]
 options = "metadata,umask=022,fmask=111"
 EOF
 
 if [[ ! -d /mnt/s ]]; then
-  sudo tee -a /etc/fstab >/dev/null <<EOF
-S: /mnt/s drvfs metadata,umask=022,fmask=111 0 0
-EOF
-  sudo mkdir /mnt/s
-  sudo mount -a
+  echo 'S: /mnt/s drvfs metadata,umask=022,fmask=111 0 0' | \
+    sudo tee -a /etc/fstab >/dev/null && \
+    sudo mkdir /mnt/s && sudo mount -a
 fi
+#endregion
 
 sudo apt-get update && sudo apt-get install -qy \
   stow \
+  source-highlight \
+  fd-find \
   fzf \
   jq
 

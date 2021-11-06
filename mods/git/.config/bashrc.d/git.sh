@@ -68,3 +68,9 @@ if source /usr/share/bash-completion/completions/git 2>/dev/null; then
   __git_complete gpl _git_pull
   __git_complete gr _git_rebase
 fi
+
+if command -v _fzf_path_completion &>/dev/null; then
+  # https://github.com/junegunn/fzf#custom-fuzzy-completion
+  complete -F _fzf_path_completion -o default -o bashdefault \
+    ga gco grh
+fi
