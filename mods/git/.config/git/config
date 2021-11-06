@@ -5,7 +5,7 @@
 [core]
   autocrlf = input
   editor = nano
-  excludesFile = ~/.gitignore
+  excludesFile = ~/.config/git/ignore
   whitespace = trailing-space,tab-in-indent
 [alias]
   alias = "!f() { git config --global alias.\"$@\"; }; f"
