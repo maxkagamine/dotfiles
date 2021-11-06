@@ -9,7 +9,7 @@ DOTFILES_DIR=$(realpath -m ~/.bashrc/../../..)
 [[ $- == *i* ]] || return
 
 # Shell config
-shopt -s histappend checkwinsize globstar nullglob extglob
+shopt -s histappend globstar
 bind 'set completion-ignore-case on'
 bind 'set colored-stats on'
 HISTSIZE=10000
