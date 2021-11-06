@@ -1,6 +1,14 @@
 #!/bin/bash
 set -e
 
+#region Passwordless sudo
+sudo EDITOR=tee visudo -f /etc/sudoers.d/wsl >/dev/null <<EOF
+Defaults  !env_reset
+Defaults  !secure_path
+%sudo     ALL=(ALL) NOPASSWD:ALL
+EOF
+#endregion
+
 #region Windows filesystem mount
 sudo tee /etc/wsl.conf >/dev/null <<EOF
 [automount]
