@@ -7,6 +7,7 @@ PATH="$HOME/.local/bin:$PATH"
 
 # Shell config
 shopt -s histappend checkwinsize globstar nullglob extglob
+bind 'set completion-ignore-case on'
 HISTSIZE=10000
 HISTTIMEFORMAT='%Y-%m-%d %T  '
 

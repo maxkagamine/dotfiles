@@ -1,5 +1,8 @@
 # shellcheck shell=bash
 
+CDPATH='.:/mnt/s:/mnt/c/Users/max:/mnt/c/Users/max/Projects'
+alias cd='>/dev/null cd'
+
 exp() {
   explorer.exe "$(wslpath -w "${1:-.}")" || true
 }
