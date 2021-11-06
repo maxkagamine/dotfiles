@@ -1,6 +1,11 @@
 #!/bin/bash
 set -e
 
+sudo tee /etc/wsl.conf >/dev/null <<EOF
+[automount]
+options = "metadata,umask=22,fmask=11"
+EOF
+
 sudo apt-get update && sudo apt-get install -qy \
   stow
 
