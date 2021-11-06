@@ -48,10 +48,14 @@ wget https://github.com/BlackReloaded/wsl2-ssh-pageant/releases/latest/download/
 wget https://yt-dl.org/downloads/latest/youtube-dl \
   -O ~/.local/bin/youtube-dl && chmod +x "$_"
 
+sh -c "$(curl -fsSL https://starship.rs/install.sh)" -- \
+  -y -b ~/.local/bin >/dev/null
+
 stow -R \
   bash \
   fzf \
   git \
   nano \
+  starship \
   wsl \
   youtube_dl
