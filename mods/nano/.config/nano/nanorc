@@ -1,0 +1,15 @@
+# https://www.nano-editor.org/dist/latest/nanorc.5.html
+
+set autoindent
+set boldtext
+set linenumbers
+# set minibar # v5.5 (Jan 2021)
+set mouse
+set nohelp
+set numbercolor brightblack,normal
+set smarthome
+set tabsize 2
+set tabstospaces
+set titlecolor brightblack,normal
+
+include "/usr/share/nano/*.nanorc"
