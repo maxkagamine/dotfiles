@@ -19,6 +19,8 @@
   remas = pull origin master
   uncommit = reset --soft HEAD~
   whoami = !printf '%s <%s>\\n' \"$(git config user.name)\" \"$(git config user.email)\"
+[advice]
+  statusHints = false
 [color]
   ui = auto
 [commit]
