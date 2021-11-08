@@ -14,4 +14,6 @@ _ps1_empty_string_alias() {
   _LAST2="$_LAST"
 }
 
-PROMPT_COMMAND="_ps1_empty_string_alias $PROMPT_COMMAND"
+if [[ $PROMPT_COMMAND != *_ps1_empty_string_alias* ]]; then
+  PROMPT_COMMAND="_ps1_empty_string_alias $PROMPT_COMMAND"
+fi
