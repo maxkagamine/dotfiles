@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+set -eo pipefail
 
 #region Passwordless sudo
 sudo EDITOR=tee visudo -f /etc/sudoers.d/wsl >/dev/null <<EOF
@@ -41,6 +41,8 @@ sudo apt-get update && sudo apt-get install -qy \
 
 mkdir -p ~/.local/bin
 
+ln -s "$(which fdfind)" ~/.local/bin/fd
+
 wget https://github.com/BlackReloaded/wsl2-ssh-pageant/releases/latest/download/wsl2-ssh-pageant.exe \
   -O ~/.local/bin/wsl2-ssh-pageant.exe && chmod +x "$_"
 
@@ -52,6 +54,7 @@ sh -c "$(curl -fsSL https://starship.rs/install.sh)" -- \
 
 stow -R \
   bash \
+  dircolors \
   empty_string_is_git_status \
   fzf \
   git \

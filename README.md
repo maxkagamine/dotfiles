@@ -1,8 +1,10 @@
-# maxkagamine's dotfiles&ensp;<a href="https://twitter.com/maxkagamine"><img src="https://abs.twimg.com/responsive-web/client-web/icon-default.ee534d85.png" height="24" /></a>
+# maxkagamine's dotfiles&ensp;<a href="https://twitter.com/intent/tweet?url=https%3A%2F%2Fgithub.com%2Fmaxkagamine%2Fdotfiles&via=maxkagamine&text=Awesome%20dotfiles%21&hashtags=programming"><img src="https://abs.twimg.com/responsive-web/client-web/icon-default.ee534d85.png" height="24" /></a>
 
-Behold, [GNU Stow](https://www.gnu.org/software/stow/manual/html_node/index.html#Top): the mod manager for your Linux home directory! Stow takes a folder of "packages" and automates symlinking the ones you want into a combined target directory. Anyone who's used Vortex or MO2 to mod games like [Skyrim](https://www.youtube.com/playlist?list=PLYooEAFUfhDfO3m_WQWkHdIB3Zh2kIXKp) will find this familiar: we keep our mod files organized into separate folders, and the mod manager combines them into the game's folder either by symlinks or virtualization. As Stow acts similarly, I figured I'd apply the "mod" concept to dotfiles.
+<p align="center"><img src="doc/cross-machine awesomeness.png" /></p>
 
-Like a mod manager, we can have multiple "profiles" here for different machines. Having written [absurdly complicated setup scripts](https://github.com/maxkagamine/dotfiles/blob/old/setup.ps1) in the past, I decided to keep things simpler this time around... each profile is just [a short bash script](./profiles/tamriel) not unlike a Dockerfile, and [./install](./install) is a mere one-liner.
+Behold, [GNU Stow](https://www.gnu.org/software/stow/manual/html_node/index.html#Top): the mod manager for your Linux home directory! I figured I'd apply the "mod" concept to my dotfiles &mdash; anyone who's used Vortex or MO2 to mod games like [Skyrim](https://www.youtube.com/playlist?list=PLYooEAFUfhDfO3m_WQWkHdIB3Zh2kIXKp) will find how stow works surprisingly familiar. Mod (dot) files are organized into separate folders, and the mod manager combines them into the game (shell)'s folder using symlinks.
+
+Also like a mod manager, we can have multiple "profiles" for different machines. Now, having written [excessively-complicated setup scripts](https://github.com/maxkagamine/dotfiles/blob/old/setup.ps1) in the past, I decided to keep things simpler this time around... each profile is just [a short bash script](./profiles/tamriel), sortof like a Dockerfile, and [./install](./install) is a mere one-liner.
 
 ## <img src="https://github.com/microsoft/terminal/raw/a74c37bbcd699ce2cd90bb5d81412663a6236fcc/res/terminal/images/StoreLogo.scale-100.png" height="30" align="top" /> [bash](./mods/bash)
 
@@ -29,11 +31,19 @@ This applies to [Tamriel, my main machine](https://photos.app.goo.gl/GYYD6cBjdmb
 >
 > If you [enable Linux file permissions for /mnt](https://docs.microsoft.com/en-us/windows/wsl/file-permissions) and set directories and files to be respectively 755 and 644 by default as I do [here](./profiles/tamriel), programs in C:\Windows or Program Files won't be executable in Linux. For most programs, you can `chmod +x` from an elevated terminal, but to chmod PowerShell and other system programs, you'll need to first find the exe, right click, Properties &gt; Security &gt; Advanced, take ownership and give Administrators full control.
 
-## [fzf](./mods/fzf/.config/bashrc.d/fzf.sh)
+## &#8202;<img src="http://craftassets.unraid.net.s3.amazonaws.com/static/favicon/android-chrome-192x192.png?v=1.0" align="top" height="25" /> [unraid](./mods/unraid)
 
-Bash integration for fzf; enables [fuzzy completion & keyboard shortcuts](https://github.com/junegunn/fzf#key-bindings-for-command-line) with fancy, syntax-highlighted previews.
+For [Sovngarde, my NAS.](https://photos.app.goo.gl/GYYD6cBjdmbnX3tf6) There isn't much here, but if you're running Unraid as well, see [**How to install GNU Stow on Unraid**](https://gist.github.com/maxkagamine/7e3741b883a272230eb451bdd84a8e23).
 
-See also [<img src="https://raw.githubusercontent.com/vscode-icons/vscode-icons/3df43eb5a6dc932719159aa98d33d082cd1cceb0/icons/file_type_git.svg" height="15" />**git-branch-fzf**](mods/git/.local/bin/git-branch-fzf), my awesome fzf-powered interactive branch switcher with keyboard shortcuts to toggle remote branches, delete branches (including remote and even the current branch), and to [fetch the latest](mods/git/.local/bin/git-checkout-latest) of a branch before switching.
+---
+
+Best part about this setup is you can easily create tailored "mod lists" and get a consistent terminal experience across machines. (The [starship](https://starship.rs/) prompt is especially nice for this &mdash; did you notice the ssh in the screenshot at the top?)
+
+---
+
+## [dircolors](./mods/dircolors)
+
+(Psst: if you want to change your ls colors, [my file](./mods/dircolors/.config/dircolors) might be an easier starting-off point than `--print-database`. I spent the time formatting it so you don't have to.)
 
 ## [empty string is git status](./mods/empty_string_is_git_status/.config/bashrc.d/zz_empty_string_is_git_status.sh)
 
@@ -50,13 +60,19 @@ See also [<img src="https://raw.githubusercontent.com/vscode-icons/vscode-icons/
 
 True story. This is a trick I learned long ago: using `PROMPT_COMMAND` to compare the last history entry to that which was seen the previous time the prompt was shown, as hitting enter at an empty prompt will run the command again, but the last history number will be the same. Side effect is hitting <kbd>Ctrl+C</kbd> (instead of <kbd>Ctrl+U</kbd>) or <kbd>Alt+Shift+#</kbd> at a prompt will trigger git status, too.
 
+## [fzf](./mods/fzf/.config/bashrc.d/fzf.sh)
+
+Bash integration for fzf; enables [fuzzy completion & keyboard shortcuts](https://github.com/junegunn/fzf#key-bindings-for-command-line) with fancy, syntax-highlighted previews.
+
+See also [<img src="https://raw.githubusercontent.com/vscode-icons/vscode-icons/3df43eb5a6dc932719159aa98d33d082cd1cceb0/icons/file_type_git.svg" height="15" />**git-branch-fzf**](mods/git/.local/bin/git-branch-fzf), my awesome fzf-powered interactive branch switcher with keyboard shortcuts to toggle remote branches, delete branches (including remote and even the current branch), and to [fetch the latest](mods/git/.local/bin/git-checkout-latest) of a branch before switching.
+
 ## [nano](./mods/nano/.config/nano/nanorc)
 
-<img src="https://i.imgur.com/8sqd67K.png" height="350" />
+<img src="https://i.imgur.com/8sqd67K.png" height="375" />
 
 ## [node](./mods/node/.config/bashrc.d/node.sh)
 
-~~Four thousand node_modules directories~~&nbsp; Just some npm aliases.
+~~Thirty-nine thousand node_modules files~~&nbsp; Just some npm aliases.
 
 ## [starship](./mods/starship)
 
