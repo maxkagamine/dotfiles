@@ -1,0 +1,48 @@
+# Docs:
+#   https://man7.org/linux/man-pages/man5/dir_colors.5.html
+#
+# Preview:
+#   ~/.local/bin/dircolors_preview [<dircolors file>]
+#
+# Colors:                           Bold: 01   Underscore: 04
+#       Black  Red  Green  Yellow  Blue  Magenta  Cyan  White
+#   FG  30     31   32     33      34    35       36    37
+#   BG  40     41   42     43      44    45       46    47
+
+TERM xterm*
+RESET 0
+NORMAL 00                        # Normal (non-filename) text
+FILE 00                          # Regular file
+
+## BLUE
+DIR 01;34                        # Directories
+
+## CYAN
+LINK 36                          # Symbolic link
+
+## GREEN
+EXEC 01;32                       # File with the executable attribute set
+
+## RED
+ORPHAN 31                        # Orphaned symbolic link
+MISSING 01;37;41                 # Missing file
+
+## MAGENTA (INTERPROCESS COMMUNICATION)
+FIFO 35                          # FIFO (named pipe)
+SOCK 35                          # Socket
+DOOR 35                          # Door
+
+## UNDERLINED (SPECIAL FLAGS)
+SETUID 04                        # File with the set-user-ID attribute set
+SETGID 04                        # File with the set-group-ID attribute set
+CAPABILITY 04                    # File with capability (executable permission)
+STICKY 04;01;34                  # Directory with sticky bit set
+
+## BLUE BACKGROUND (DEVICE / HARD DISK)
+BLK 44;30                        # Block device special file
+CHR 44;30                        # Character (serial) device special file
+
+## DISABLED
+MULTIHARDLINK 00                 # Regular file with more than one link
+STICKY_OTHER_WRITABLE 04;01;34   # Other-writable directory with...
+OTHER_WRITABLE 01;34             # or without the executable attribute set

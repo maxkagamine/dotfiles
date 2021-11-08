@@ -29,11 +29,11 @@ This applies to [Tamriel, my main machine](https://photos.app.goo.gl/GYYD6cBjdmb
 >
 > If you [enable Linux file permissions for /mnt](https://docs.microsoft.com/en-us/windows/wsl/file-permissions) and set directories and files to be respectively 755 and 644 by default as I do [here](./profiles/tamriel), programs in C:\Windows or Program Files won't be executable in Linux. For most programs, you can `chmod +x` from an elevated terminal, but to chmod PowerShell and other system programs, you'll need to first find the exe, right click, Properties &gt; Security &gt; Advanced, take ownership and give Administrators full control.
 
-## [fzf](./mods/fzf/.config/bashrc.d/fzf.sh)
+## [dircolors](./mods/dircolors)
 
-Bash integration for fzf; enables [fuzzy completion & keyboard shortcuts](https://github.com/junegunn/fzf#key-bindings-for-command-line) with fancy, syntax-highlighted previews.
+![dircolors_preview screenshot](https://i.imgur.com/Jlpe3CV.png)
 
-See also [<img src="https://raw.githubusercontent.com/vscode-icons/vscode-icons/3df43eb5a6dc932719159aa98d33d082cd1cceb0/icons/file_type_git.svg" height="15" />**git-branch-fzf**](mods/git/.local/bin/git-branch-fzf), my awesome fzf-powered interactive branch switcher with keyboard shortcuts to toggle remote branches, delete branches (including remote and even the current branch), and to [fetch the latest](mods/git/.local/bin/git-checkout-latest) of a branch before switching.
+(Psst: if you want to change your ls colors, [my file](./mods/dircolors/.config/dircolors) might be an easier starting-off point than `--print-database`. I spent the time formatting it so you don't have to.)
 
 ## [empty string is git status](./mods/empty_string_is_git_status/.config/bashrc.d/zz_empty_string_is_git_status.sh)
 
@@ -49,6 +49,12 @@ See also [<img src="https://raw.githubusercontent.com/vscode-icons/vscode-icons/
 > **Empty string!**
 
 True story. This is a trick I learned long ago: using `PROMPT_COMMAND` to compare the last history entry to that which was seen the previous time the prompt was shown, as hitting enter at an empty prompt will run the command again, but the last history number will be the same. Side effect is hitting <kbd>Ctrl+C</kbd> (instead of <kbd>Ctrl+U</kbd>) or <kbd>Alt+Shift+#</kbd> at a prompt will trigger git status, too.
+
+## [fzf](./mods/fzf/.config/bashrc.d/fzf.sh)
+
+Bash integration for fzf; enables [fuzzy completion & keyboard shortcuts](https://github.com/junegunn/fzf#key-bindings-for-command-line) with fancy, syntax-highlighted previews.
+
+See also [<img src="https://raw.githubusercontent.com/vscode-icons/vscode-icons/3df43eb5a6dc932719159aa98d33d082cd1cceb0/icons/file_type_git.svg" height="15" />**git-branch-fzf**](mods/git/.local/bin/git-branch-fzf), my awesome fzf-powered interactive branch switcher with keyboard shortcuts to toggle remote branches, delete branches (including remote and even the current branch), and to [fetch the latest](mods/git/.local/bin/git-checkout-latest) of a branch before switching.
 
 ## [nano](./mods/nano/.config/nano/nanorc)
 

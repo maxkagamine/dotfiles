@@ -8,6 +8,7 @@ rm -rf /tmp/stow*
 
 stow -R \
   bash \
+  dircolors \
   empty_string_is_git_status \
   fzf \
   git \
