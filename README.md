@@ -48,8 +48,16 @@ See also [<img src="https://raw.githubusercontent.com/vscode-icons/vscode-icons/
 > And so it became, the shortest `git status` of all:  
 > **Empty string!**
 
-This is a trick I learned long ago: using `PROMPT_COMMAND` to compare the last history entry to that which was seen the previous time the prompt was shown, as hitting enter at an empty prompt will run the command again, but the last history number will be the same. Side effect is hitting <kbd>Ctrl+C</kbd> (instead of <kbd>Ctrl+U</kbd>) or <kbd>Alt+Shift+#</kbd> at a prompt will trigger git status, too.
+True story. This is a trick I learned long ago: using `PROMPT_COMMAND` to compare the last history entry to that which was seen the previous time the prompt was shown, as hitting enter at an empty prompt will run the command again, but the last history number will be the same. Side effect is hitting <kbd>Ctrl+C</kbd> (instead of <kbd>Ctrl+U</kbd>) or <kbd>Alt+Shift+#</kbd> at a prompt will trigger git status, too.
 
 ## [nano](./mods/nano/.config/nano/nanorc)
 
 <img src="https://i.imgur.com/8sqd67K.png" height="350" />
+
+## [node](./mods/node/.config/bashrc.d/node.sh)
+
+~~Four thousand node_modules directories~~&nbsp; Just some npm aliases.
+
+## [starship](./mods/starship)
+
+[Awesome universal prompt!](https://starship.rs/) 🚀
