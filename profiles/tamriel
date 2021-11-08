@@ -41,6 +41,8 @@ sudo apt-get update && sudo apt-get install -qy \
 
 mkdir -p ~/.local/bin
 
+ln -s "$(which fdfind)" ~/.local/bin/fd
+
 wget https://github.com/BlackReloaded/wsl2-ssh-pageant/releases/latest/download/wsl2-ssh-pageant.exe \
   -O ~/.local/bin/wsl2-ssh-pageant.exe && chmod +x "$_"
 
