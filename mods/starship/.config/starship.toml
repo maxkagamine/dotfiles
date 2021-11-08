@@ -4,3 +4,6 @@ truncation_length = 4
 [directory.substitutions]
 "/mnt/c/Users/max/" = "~/"
 "/mnt/s/" = "~/"
+
+[hostname]
+style = "bold yellow"
