@@ -1,0 +1,16 @@
+#!/bin/bash
+set -eo pipefail
+
+# https://gist.github.com/maxkagamine/35db9f2611db7b1363b250fde23ab40e
+wget http://ftp.gnu.org/gnu/stow/stow-latest.tar.gz -O - | tar -xzC /tmp
+( cd /tmp/stow* && ./configure && make install )
+rm -rf /tmp/stow*
+
+stow -R \
+  bash \
+  empty_string_is_git_status \
+  fzf \
+  git \
+  nano \
+  starship \
+  unraid

@@ -2,7 +2,9 @@
 . /usr/share/doc/fzf/examples/key-bindings.bash
 . /usr/share/doc/fzf/examples/completion.bash
 
-export LESSOPEN="| /usr/share/source-highlight/src-hilite-lesspipe.sh %s"
+if command -v source-highlight &>/dev/null; then
+  export LESSOPEN="| /usr/share/source-highlight/src-hilite-lesspipe.sh %s"
+fi
 
 export FZF_COMPLETION_OPTS="--ansi --preview '( [[ -d {} ]] && ${BASH_ALIASES[ls]} -x --color=always {} || less -RX {} ) | head -200'"
 export FZF_CTRL_T_OPTS=$FZF_COMPLETION_OPTS

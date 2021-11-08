@@ -16,6 +16,7 @@ HISTSIZE=10000
 HISTTIMEFORMAT='%Y-%m-%d %T  '
 
 # General aliases
+alias cd='>/dev/null cd'
 alias clip='xsel -bi'
 alias dig='dig +noall +answer'
 alias fd='fdfind'
