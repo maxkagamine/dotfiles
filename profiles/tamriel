@@ -16,9 +16,8 @@ options = "metadata,umask=022,fmask=111"
 EOF
 
 if [[ ! -d /mnt/s ]]; then
-  echo 'S: /mnt/s drvfs metadata,umask=022,fmask=111 0 0' | \
-    sudo tee -a /etc/fstab >/dev/null && \
-    sudo mkdir /mnt/s && sudo mount -a
+  echo 'S: /mnt/s drvfs uid=1000,gid=1000,umask=022,fmask=111 0 0' | \
+    sudo tee -a /etc/fstab >/dev/null && sudo mkdir /mnt/s && sudo mount -a
 fi
 #endregion
 
