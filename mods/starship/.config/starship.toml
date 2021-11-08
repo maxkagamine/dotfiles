@@ -1,0 +1,6 @@
+[directory]
+truncation_length = 4
+
+[directory.substitutions]
+"/mnt/c/Users/max/" = "~/"
+"/mnt/s/" = "~/"
