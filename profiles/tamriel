@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+set -eo pipefail
 
 #region Passwordless sudo
 sudo EDITOR=tee visudo -f /etc/sudoers.d/wsl >/dev/null <<EOF
