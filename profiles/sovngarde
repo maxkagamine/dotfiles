@@ -1,7 +1,7 @@
 #!/bin/bash
 set -eo pipefail
 
-# https://gist.github.com/maxkagamine/35db9f2611db7b1363b250fde23ab40e
+# https://gist.github.com/maxkagamine/7e3741b883a272230eb451bdd84a8e23
 wget http://ftp.gnu.org/gnu/stow/stow-latest.tar.gz -O - | tar -xzC /tmp
 ( cd /tmp/stow* && ./configure && make install )
 rm -rf /tmp/stow*
