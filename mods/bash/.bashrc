@@ -1,6 +1,7 @@
 # shellcheck shell=bash
 
-PATH="$HOME/.local/bin:$PATH"
+[[ ":$PATH:" == *":$HOME/.local/bin:"* ]] || \
+  PATH="$HOME/.local/bin:$PATH"
 
 export DOTFILES_DIR
 DOTFILES_DIR=$(realpath -m ~/.bashrc/../../..)
