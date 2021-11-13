@@ -2,9 +2,9 @@
 
 <p align="center"><img src="doc/cross-machine awesomeness.png" /></p>
 
-Behold, [GNU Stow](https://www.gnu.org/software/stow/manual/html_node/index.html#Top): the mod manager for your Linux home directory! I figured I'd apply the "mod" concept to my dotfiles &mdash; anyone who's used Vortex or MO2 to mod games like [Skyrim](https://www.youtube.com/playlist?list=PLYooEAFUfhDfO3m_WQWkHdIB3Zh2kIXKp) will find how stow works surprisingly familiar. Mod (dot) files are organized into separate folders, and the mod manager combines them into the game (shell)'s folder using symlinks.
+Behold, [GNU Stow](https://www.gnu.org/software/stow/manual/html_node/index.html#Top): the mod manager for your Linux home directory! Anyone who's used Vortex or MO2 to mod games like [Skyrim](https://www.youtube.com/playlist?list=PLYooEAFUfhDfO3m_WQWkHdIB3Zh2kIXKp) will find how this works surprisingly familiar: mod (dot) files are organized into separate folders, and the mod manager (stow) combines them into the game (home) directory using symlinks.
 
-Also like a mod manager, we can have multiple "profiles" for different machines. Now, having written [excessively-complicated setup scripts](https://github.com/maxkagamine/dotfiles/blob/old/setup.ps1) in the past, I decided to keep things simpler this time around... each profile is just [a short bash script](./profiles/tamriel), sortof like a Dockerfile, and [./install](./install) is a mere one-liner.
+Also like a mod manager, we can have multiple "profiles" for different machines. Having written [excessively-complicated setup scripts](https://github.com/maxkagamine/dotfiles/blob/old/setup.ps1) in the past, I decided to keep things simple this time around... each profile is just [a short bash script](./profiles/tamriel), sortof like a Dockerfile, and [./install](./install) is a mere one-liner.
 
 ## <img src="https://github.com/microsoft/terminal/raw/a74c37bbcd699ce2cd90bb5d81412663a6236fcc/res/terminal/images/StoreLogo.scale-100.png" height="30" align="top" /> [bash](./mods/bash)
 
@@ -26,10 +26,6 @@ This applies to [Tamriel, my main machine](https://photos.app.goo.gl/GYYD6cBjdmb
 >    - Use Task Scheduler to run `"C:\Program Files (x86)\GnuPG\bin\gpg-connect-agent.exe" /bye` at log on. Remember to uncheck everything in Conditions. I enabled "If the task fails, restart every 1 minute" in Settings.
 > 3. Use [wsl2-ssh-pageant](https://github.com/BlackReloaded/wsl2-ssh-pageant) to connect the Linux-side SSH and GPG agents to GPG running Windows-side.
 > 4. After restarting WSL (`wsl.exe --shutdown`), you should be able to run `gpg --card-status` in Linux👍 Import your public key and test that it works with `ssh git@github.com`.
-
-> ### powershell.exe: Permission denied,<br />explorer.exe: Permission denied, ...
->
-> If you [enable Linux file permissions for /mnt](https://docs.microsoft.com/en-us/windows/wsl/file-permissions) and set directories and files to be respectively 755 and 644 by default as I do [here](./profiles/tamriel), programs in C:\Windows or Program Files won't be executable in Linux. For most programs, you can `chmod +x` from an elevated terminal, but to chmod PowerShell and other system programs, you'll need to first find the exe, right click, Properties &gt; Security &gt; Advanced, take ownership and give Administrators full control.
 
 ## &#8202;<img src="http://craftassets.unraid.net.s3.amazonaws.com/static/favicon/android-chrome-192x192.png?v=1.0" align="top" height="25" /> [unraid](./mods/unraid)
 
@@ -62,7 +58,7 @@ True story. This is a trick I learned long ago: using `PROMPT_COMMAND` to compar
 
 ## [fzf](./mods/fzf/.config/bashrc.d/fzf.sh)
 
-Bash integration for fzf; enables [fuzzy completion & keyboard shortcuts](https://github.com/junegunn/fzf#key-bindings-for-command-line) with fancy, syntax-highlighted previews.
+Bash integration for fzf; enables [keyboard shortcuts for fuzzy completion](https://github.com/junegunn/fzf#key-bindings-for-command-line) with fancy, syntax-highlighted previews.
 
 See also [<img src="https://raw.githubusercontent.com/vscode-icons/vscode-icons/3df43eb5a6dc932719159aa98d33d082cd1cceb0/icons/file_type_git.svg" height="15" />**git-branch-fzf**](mods/git/.local/bin/git-branch-fzf), my awesome fzf-powered interactive branch switcher with keyboard shortcuts to toggle remote branches, delete branches (including remote and even the current branch), and to [fetch the latest](mods/git/.local/bin/git-checkout-latest) of a branch before switching.
 
@@ -74,6 +70,6 @@ See also [<img src="https://raw.githubusercontent.com/vscode-icons/vscode-icons/
 
 ~~Thirty-nine thousand node_modules files~~&nbsp; Just some npm aliases.
 
-## [starship](./mods/starship)
+## [starship](./mods/starship/.config)
 
 [Awesome universal prompt!](https://starship.rs/) 🚀

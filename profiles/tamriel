@@ -9,12 +9,7 @@ Defaults  !secure_path
 EOF
 #endregion
 
-#region Windows filesystem mount
-sudo tee /etc/wsl.conf >/dev/null <<EOF
-[automount]
-options = "metadata,umask=022,fmask=111"
-EOF
-
+#region Network drive mount
 if [[ ! -d /mnt/s ]]; then
   echo 'S: /mnt/s drvfs uid=1000,gid=1000,umask=022,fmask=111 0 0' | \
     sudo tee -a /etc/fstab >/dev/null && sudo mkdir /mnt/s && sudo mount -a
@@ -41,7 +36,7 @@ sudo apt-get update && sudo apt-get install -qy \
 
 mkdir -p ~/.local/bin
 
-ln -s "$(which fdfind)" ~/.local/bin/fd
+ln -fs "$(which fdfind)" ~/.local/bin/fd
 
 wget https://github.com/BlackReloaded/wsl2-ssh-pageant/releases/latest/download/wsl2-ssh-pageant.exe \
   -O ~/.local/bin/wsl2-ssh-pageant.exe && chmod +x "$_"

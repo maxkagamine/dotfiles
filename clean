@@ -1,6 +1,6 @@
 #!/bin/bash
 set -e
 cd "$(dirname "${BASH_SOURCE[0]}")"
-for m in mods/*; do stow -D "$(basename "$m")"; done
-find ~ -xtype l -exec rm -v -- {} +
-find ~ -depth -type d -empty -exec rmdir -v {} \;
+find ~ -xtype l -exec rm -vi -- {} \;
+basename -a mods/* | xargs -p stow -D
+find ~/.config ~/.local -depth -type d -empty -exec rm -rvi -- {} \;

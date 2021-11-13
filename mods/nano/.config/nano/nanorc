@@ -8,6 +8,7 @@ set mouse
 set nohelp
 set numbercolor brightblack,normal
 set smarthome
+set statuscolor brightblack,normal
 set tabsize 2
 set tabstospaces
 set titlecolor brightblack,normal

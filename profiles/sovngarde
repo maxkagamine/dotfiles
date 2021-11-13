@@ -11,8 +11,6 @@ mkdir -p /usr/share/doc/fzf/examples
 
 wget "https://raw.githubusercontent.com/junegunn/fzf/$(fzf --version)/shell/key-bindings.bash" \
   -O /usr/share/doc/fzf/examples/key-bindings.bash
-wget "https://raw.githubusercontent.com/junegunn/fzf/$(fzf --version)/shell/completion.bash" \
-  -O /usr/share/doc/fzf/examples/completion.bash
 
 sh -c "$(curl -fsSL https://starship.rs/install.sh)" -- \
   -y -b ~/.local/bin >/dev/null

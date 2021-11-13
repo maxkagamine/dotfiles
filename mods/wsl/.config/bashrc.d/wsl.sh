@@ -1,23 +1,26 @@
 # shellcheck shell=bash
 
-CDPATH='.:/mnt/s:/mnt/c/Users/max:/mnt/c/Users/max/Projects'
+CDPATH='.:/home/max/Projects:/mnt/s:/mnt/c/Users/max'
 
-# shellcheck disable=SC2139
-alias .e="code '$(wslpath -w "$DOTFILES_DIR")'"
+alias .e='code "$DOTFILES_DIR"'
+
+wp() {
+  wslpath -w "${1:-.}" | sed 's/\\\\wsl$\\Ubuntu/L:/'
+}
 
 exp() {
-  explorer.exe "$(wslpath -w "${1:-.}")" || true
+  explorer.exe "$(wp "${1:-.}")" || true
 }
 
 hide() {
-  attrib.exe +h "$(wslpath -w "$1")"
+  attrib.exe +h "$(wp "$1")"
 }
 
 unhide() {
-  attrib.exe -h "$(wslpath -w "$1")"
+  attrib.exe -h "$(wp "$1")"
 }
 
 recycle() {
   local p
-  for p; do nircmdc.exe moverecyclebin "$(wslpath -w "$p")"; done
+  for p; do nircmdc.exe moverecyclebin "$(wp "$p")"; done
 }
