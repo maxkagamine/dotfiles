@@ -29,11 +29,38 @@ This applies to [Tamriel, my main machine](https://photos.app.goo.gl/GYYD6cBjdmb
 
 ## &#8202;<img src="http://craftassets.unraid.net.s3.amazonaws.com/static/favicon/android-chrome-192x192.png?v=1.0" align="top" height="25" /> [unraid](./mods/unraid)
 
-For [Sovngarde, my NAS.](https://photos.app.goo.gl/GYYD6cBjdmbnX3tf6) There isn't much here, but if you're running Unraid as well, see [**How to install GNU Stow on Unraid**](https://gist.github.com/maxkagamine/7e3741b883a272230eb451bdd84a8e23).
+For [Sovngarde, my NAS.](https://photos.app.goo.gl/GYYD6cBjdmbnX3tf6) There isn't much here (literally just a `CDPATH`), but if you're running Unraid as well, see [**How to install GNU Stow on Unraid**](https://gist.github.com/maxkagamine/7e3741b883a272230eb451bdd84a8e23). Here's my user script, set to run on array start, if it happens to be useful:
+
+<details>
+<summary><code>cat /boot/config/plugins/user.scripts/scripts/install_dotfiles/script</code></summary>
+
+```sh
+#!/bin/bash
+#description=&lpar;Re&rpar;clone & install dotfiles. Logs in /var/log/dotfiles.log.
+#argumentDescription=Branch
+#argumentDefault=master
+set -eo pipefail
+
+export PATH="/usr/local/bin:$PATH"
+
+DOTFILES_DIR=~/dotfiles
+BRANCH=${1:-master}
+
+install() {
+  [[ -d "$DOTFILES_DIR" ]] && "$DOTFILES_DIR"/clean
+  rm -rfv ~/.bashrc ~/.bash_profile "$DOTFILES_DIR"
+  git clone -b "$BRANCH" https://github.com/maxkagamine/dotfiles.git "$DOTFILES_DIR"
+  "$DOTFILES_DIR"/install
+}
+
+install 2>&1 | tee /var/log/dotfiles.log
+```
+
+</details>
 
 ---
 
-Best part about this setup is you can easily create tailored "mod lists" and get a consistent terminal experience across machines. (The [starship](https://starship.rs/) prompt is especially nice for this &mdash; did you notice the ssh in the screenshot at the top?)
+### _Best part about this setup is you can easily create tailored "mod lists" and get a consistent terminal experience across machines. (The [starship](https://starship.rs/) prompt is especially nice for this &mdash; did you notice the ssh in the screenshot at the top?)_
 
 ---
 
