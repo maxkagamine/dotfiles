@@ -1,0 +1,109 @@
+#!/bin/bash
+# TODO: Consider sending PRs to batpipe
+set -eo pipefail
+
+show_file() {
+  if command -v bat &>/dev/null; then
+    bat --color=always "$@"
+  else
+    cat "$1"
+  fi
+}
+
+show_stdin() {
+  show_file - "$@"
+}
+
+show_metadata() {
+  show_stdin - -pl INI
+}
+
+mime_type() {
+  # https://superuser.com/q/239846
+  if [[ $1 == *.mp3 ]]; then echo 'audio/mp3'
+  else file --brief --mime-type --dereference "$1"; fi
+}
+
+case $(mime_type "$1") in
+  inode/directory)
+    ls -A --color=always "$1"
+    ;;
+  application/zip|application/x-rar|application/x-7z-compressed)
+    7z l -ba "$1" | grep -Pv '^[\d-: ]{20}D' | cut -b54- | column
+    ;;
+  application/gzip)
+    if [[ $1 == *.tar.gz || $1 == *.tgz ]]; then
+      tar tfz "$1" | grep -v '/$' | column
+    else
+      gunzip -kc "$1" | show_stdin
+    fi
+    ;;
+  audio/*|video/*)
+    mediainfo --output=$'
+General;General\t%Duration/String%\t%FileSize/String%\t%File_Modified_Date_Local%\\n
+Video;Video\t%Format%\t%Width%\t%Height%\t%BitRate%\t%FrameRate%\t%colour_primaries%\\n
+Audio;Audio\t%Format%\t%Language/String%\t%BitRate%\t%Title%\\n
+Text;Subtitles\t%Format%\t%Language/String%\t%Title%\\n' "$1" | \
+      awk -F'\t' '
+        /^General/ {
+          if ($2) print "Length = " $2
+          if ($3) print "Size = " $3
+          if ($4) print "Date modified = " $4
+        }
+        /^Video/ {
+          print "\n[Video]"
+          if ($2) print "Format = " $2
+          if ($3 && $4) print "Resolution = " $3 "x" $4
+          if ($5) printf "Bitrate = %d kbps\n", $5 / 1000
+          if ($6) printf "Framerate = %.4g fps\n", $6
+          if ($7 == "BT.2020") print "Is HDR = Yes"
+        }
+        /^Audio/ {
+          print "\n[Audio]"
+          if ($2) print "Format = " ($2 == "UTF-8" ? "SRT" : $2)
+          if ($3) print "Language = " $3
+          if ($4) printf "Bitrate = %d kbps\n", $4 / 1000
+          if ($5) print "Title = " $5
+        }
+        /^Subtitles/ {
+          print "\n[Subtitles]"
+          if ($2) print "Format = " $2
+          if ($3) print "Language = " $3
+          if ($4) print "Title = " $4
+        }
+      ' | show_metadata
+    ;;
+  image/*)
+    exiftool -s \
+      -File:FileSize \
+      -File:FileModifyDate \
+      -Composite:ImageSize \
+      -EXIF:DateTimeOriginal \
+      -EXIF:Make \
+      -EXIF:Model \
+      -Composite:Aperture \
+      -Composite:ShutterSpeed \
+      -EXIF:ISO \
+      -Composite:FocalLength35efl \
+      "$1" | awk -F': ' '
+        function format_date(d) {
+          sub(":","-",d); sub(":","-",d); return d
+        }
+        /^FileSize/ { print "Size = " $2 }
+        /^ImageSize/ { print "Dimensions = " $2 }
+        /^FileModifyDate/ { print "Date modified = " format_date($2) }
+        /^DateTimeOriginal/ {
+          print "\n[EXIF]"
+          print "Date taken = " format_date($2)
+        }
+        /^Make/ { print "Camera make = " $2 }
+        /^Model/ { print "Camera model = " $2 }
+        /^Aperture/ { print "F-stop = f/" $2 }
+        /^ShutterSpeed/ { print "Shutter speed = " $2 }
+        /^ISO/ { print "ISO = " $2 }
+        /^FocalLength35efl/ { print "Focal length = " $2 ": " $3 }
+      ' | show_metadata
+    ;;
+  *)
+    show_file "$1"
+esac

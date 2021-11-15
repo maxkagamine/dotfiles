@@ -19,7 +19,7 @@ fi
 curl -fsSL https://deb.nodesource.com/setup_current.x | sudo -E bash -
 
 sudo apt-get update && sudo apt-get install -qy \
-  stow \
+  bat \
   build-essential \
   fd-find \
   ffmpeg \
@@ -27,22 +27,26 @@ sudo apt-get update && sudo apt-get install -qy \
   imagemagick \
   jq \
   libimage-exiftool-perl \
+  mediainfo \
   nodejs \
+  p7zip-full \
+  p7zip-rar \
   python-is-python3 \
   shellcheck \
-  source-highlight \
   stow \
-  tree
+  tree \
+  unzip
 
 mkdir -p ~/.local/bin
 
-ln -fs "$(which fdfind)" ~/.local/bin/fd
+ln -fs /usr/bin/batcat ~/.local/bin/bat
+ln -fs /usr/bin/fdfind ~/.local/bin/fd
 
 wget https://github.com/BlackReloaded/wsl2-ssh-pageant/releases/latest/download/wsl2-ssh-pageant.exe \
-  -O ~/.local/bin/wsl2-ssh-pageant.exe && chmod +x "$_"
+  -O ~/.local/bin/wsl2-ssh-pageant.exe; chmod +x "$_"
 
 wget https://yt-dl.org/downloads/latest/youtube-dl \
-  -O ~/.local/bin/youtube-dl && chmod +x "$_"
+  -O ~/.local/bin/youtube-dl; chmod +x "$_"
 
 sh -c "$(curl -fsSL https://starship.rs/install.sh)" -- \
   -y -b ~/.local/bin >/dev/null

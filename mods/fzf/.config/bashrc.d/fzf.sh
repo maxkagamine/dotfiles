@@ -1,12 +1,12 @@
-# shellcheck shell=bash disable=SC1091
+# shellcheck shell=bash
 
 . /usr/share/doc/fzf/examples/key-bindings.bash
 
-if command -v source-highlight &>/dev/null; then
-  export LESSOPEN="| /usr/share/source-highlight/src-hilite-lesspipe.sh %s"
-fi
+export BAT_THEME='OneHalfDark'
+export BAT_STYLE='numbers,changes'
 
-export FZF_CTRL_T_OPTS="--ansi --preview '( [[ -d {} ]] && ${BASH_ALIASES[ls]} -x --color=always {} || less -RX {} ) | head -200'"
+export FZF_CTRL_T_OPTS="--ansi --preview 'BAT_STYLE=plain batpreview {} | head -500'"
 export FZF_CTRL_T_COMMAND='fd --hidden --exclude .git --color always .'
+
 export FZF_ALT_C_OPTS=$FZF_CTRL_T_OPTS
 export FZF_ALT_C_COMMAND="$FZF_CTRL_T_COMMAND --type d"
