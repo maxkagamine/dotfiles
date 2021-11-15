@@ -58,9 +58,9 @@ True story. This is a trick I learned long ago: using `PROMPT_COMMAND` to compar
 
 ## [fzf](./mods/fzf/.config/bashrc.d/fzf.sh)
 
-Bash integration for fzf; enables [keyboard shortcuts for fuzzy completion](https://github.com/junegunn/fzf#key-bindings-for-command-line) with fancy, syntax-highlighted previews.
+Bash integration for fzf; enables [keyboard shortcuts for fuzzy completion](https://github.com/junegunn/fzf#key-bindings-for-command-line) with fancy, syntax-highlighted previews powered by [bat](https://github.com/sharkdp/bat) + a custom [🦇**batview**](mods/fzf/.local/bin/batview) script that shows archive listings & audio/video/image metadata (loosely inspired by [lesspipe](https://github.com/wofr06/lesspipe) and [batpipe](https://github.com/eth-p/bat-extras)).
 
-See also [<img src="https://raw.githubusercontent.com/vscode-icons/vscode-icons/3df43eb5a6dc932719159aa98d33d082cd1cceb0/icons/file_type_git.svg" height="15" />**git-branch-fzf**](mods/git/.local/bin/git-branch-fzf), my awesome fzf-powered interactive branch switcher with keyboard shortcuts to toggle remote branches, delete branches (including remote and even the current branch), and to [fetch the latest](mods/git/.local/bin/git-checkout-latest) of a branch before switching.
+See also [<img src="https://raw.githubusercontent.com/vscode-icons/vscode-icons/3df43eb5a6dc932719159aa98d33d082cd1cceb0/icons/file_type_git.svg" height="15" />**git-branch-fzf**](mods/git/.local/bin/git-branch-fzf), my awesome fzf-powered interactive branch switcher with keyboard shortcuts to toggle remote branches, delete branches (including remote and even the current branch!), and to [fetch the latest](mods/git/.local/bin/git-checkout-latest) of a branch before switching.
 
 ## [nano](./mods/nano/.config/nano/nanorc)
 
