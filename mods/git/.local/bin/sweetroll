@@ -41,8 +41,9 @@ Usage: sweetroll [exit code]
 Without options, prints a random quote appropriate for the exit code (if any).
 Sweetroll exits with whatever exit code is given.
 
-With --sfx, plays the specified mp3 from ~/sfx. Available sounds:
-$(find "$SFX_DIR" -name '*.mp3' -exec printf '  ' \; -exec basename {} .mp3 \;)
+With --sfx, plays the specified mp3 from ${DATA_DIR/$HOME/\~}.
+Available sounds:
+$(basename -s .mp3 "$DATA_DIR"/*.mp3 | sed 's/^/  /')
 
 With --stat, increments the stat identified by <name> and plays the levelup
 sound effect on certain multiples. <name> must be a valid JSON property name.
