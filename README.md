@@ -4,7 +4,7 @@
 
 Behold, [GNU Stow](https://www.gnu.org/software/stow/manual/html_node/index.html#Top): the mod manager for your Linux home directory! Anyone who's used Vortex or MO2 to mod games like [Skyrim](https://www.youtube.com/playlist?list=PLYooEAFUfhDfO3m_WQWkHdIB3Zh2kIXKp) will find how this works surprisingly familiar: mod (dot) files are organized into separate folders, and the mod manager (stow) combines them into the game (home) directory using symlinks.
 
-Also like a mod manager, we can have multiple "profiles" for different machines. Having written [excessively-complicated setup scripts](https://github.com/maxkagamine/dotfiles/blob/old/setup.ps1) in the past, I decided to keep things simple this time around... each profile is just [a short bash script](./profiles/tamriel), sortof like a Dockerfile, and [./install](./install) is a mere one-liner.
+Continuing with the mod manager theme, different machines can have a different "profile" or mod list. Having written [excessively-complicated setup scripts](https://github.com/maxkagamine/dotfiles/blob/old/setup.ps1) in the past, I decided to keep things simple this time around &mdash; no [complex framework](https://alexpearce.me/2021/07/managing-dotfiles-with-nix/), no [YAML files](https://github.com/anishathalye/dotbot) &mdash; each profile is just [a short bash script](./profiles/tamriel), sortof like a Dockerfile.
 
 ## <img src="https://github.com/microsoft/terminal/raw/a74c37bbcd699ce2cd90bb5d81412663a6236fcc/res/terminal/images/StoreLogo.scale-100.png" height="30" align="top" /> [bash](./mods/bash)
 
@@ -47,10 +47,10 @@ DOTFILES_DIR=~/dotfiles
 BRANCH=${1:-master}
 
 install() {
-  [[ -d "$DOTFILES_DIR" ]] && "$DOTFILES_DIR"/clean
+  [[ -d "$DOTFILES_DIR" ]] && make -C "$DOTFILES_DIR" clean
   rm -rfv ~/.bashrc ~/.bash_profile "$DOTFILES_DIR"
   git clone -b "$BRANCH" https://github.com/maxkagamine/dotfiles.git "$DOTFILES_DIR"
-  "$DOTFILES_DIR"/install
+  cd "$DOTFILES_DIR" && make
 }
 
 install 2>&1 | tee /var/log/dotfiles.log

@@ -1,6 +1,0 @@
-#!/bin/bash
-set -e
-cd "$(dirname "${BASH_SOURCE[0]}")"
-find ~ -xtype l -exec rm -vi -- {} \;
-basename -a mods/* | xargs -p stow -D
-find ~/.config ~/.local -depth -type d -empty -exec rm -rvi -- {} \;
