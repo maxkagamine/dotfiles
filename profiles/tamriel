@@ -18,12 +18,13 @@ fi
 
 curl -fsSL https://deb.nodesource.com/setup_current.x | sudo -E bash -
 
-sudo apt-get update && sudo apt-get install -qy \
+sudo apt-get install -qy \
   bat \
   build-essential \
   fd-find \
   ffmpeg \
   fzf \
+  gifsicle \
   imagemagick \
   jq \
   libimage-exiftool-perl \
@@ -48,8 +49,14 @@ wget https://github.com/BlackReloaded/wsl2-ssh-pageant/releases/latest/download/
 wget https://yt-dl.org/downloads/latest/youtube-dl \
   -O ~/.local/bin/youtube-dl; chmod +x "$_"
 
-sh -c "$(curl -fsSL https://starship.rs/install.sh)" -- \
+curl -fsSL https://starship.rs/install.sh | sh -s -- \
   -y -b ~/.local/bin >/dev/null
+
+curl -fsSL https://api.github.com/repos/ImageOptim/gifski/releases/latest | \
+  grep -Po '(?<="browser_download_url": ").*amd64.deb' | \
+  wget -i - -O /tmp/gifski.deb
+sudo apt install /tmp/gifski.deb
+rm /tmp/gifski.deb
 
 stow -R \
   bash \
