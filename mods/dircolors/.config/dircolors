@@ -35,7 +35,8 @@ DOOR 35                          # Door
 ## UNDERLINED (SPECIAL FLAGS)
 SETUID 04                        # File with the set-user-ID attribute set
 SETGID 04                        # File with the set-group-ID attribute set
-CAPABILITY 04                    # File with capability (executable permission)
+CAPABILITY 04                    # Executable with specific root permissions,
+                                 # see capabilities(7)
 STICKY 04;01;34                  # Directory with sticky bit set
 
 ## BLUE BACKGROUND (DEVICE / HARD DISK)
