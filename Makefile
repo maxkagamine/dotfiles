@@ -7,9 +7,9 @@ install:
 	./profiles/${profile}
 
 clean:
-	find ~ -xtype l -exec rm -vi -- {} \;
-	basename -a mods/* | xargs -p stow -D
-	find ~/.config ~/.local -depth -type d -empty -exec rm -rvi -- {} \;
+	find ~ -xtype l -exec rm -v -- {} +
+	basename -a mods/* | xargs stow -D
+	find ~/.config ~/.local -depth -type d -empty -exec rmdir -v -- {} \;
 
 test:
 	-fd -HE .git -t f '^\.?\w+(\.sh)?$$' -0 | \
