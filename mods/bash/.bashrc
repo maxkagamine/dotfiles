@@ -24,7 +24,7 @@ alias ffmpeg='ffmpeg -hide_banner'
 alias ffprobe='ffprobe -hide_banner'
 alias grep='grep --color=auto'
 alias less='less -FRX'
-alias ls='ls -Ah --color=auto --group-directories-first'
+alias ls='ls -Ahv --color=auto --group-directories-first'
 alias tree='tree --dirsfirst -aCI ".git|node_modules"'
 alias unclip='xsel -bo'
 
