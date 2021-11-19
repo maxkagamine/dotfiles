@@ -42,6 +42,7 @@ For [Sovngarde, my NAS.](https://photos.app.goo.gl/GYYD6cBjdmbnX3tf6) There isn'
 set -eo pipefail
 
 export PATH="/usr/local/bin:$PATH"
+export HOME=/root
 
 DOTFILES_DIR=~/dotfiles
 BRANCH=${1:-master}
@@ -53,7 +54,7 @@ install() {
   cd "$DOTFILES_DIR" && make
 }
 
-install 2>&1 | tee /var/log/dotfiles.log
+install 2>&1 | tee >(awk '{print strftime("%F %T"),$0}' > /var/log/dotfiles.log)
 ```
 
 </details>
