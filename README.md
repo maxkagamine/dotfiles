@@ -36,9 +36,11 @@ For [Sovngarde, my NAS.](https://photos.app.goo.gl/GYYD6cBjdmbnX3tf6) There isn'
 
 ```sh
 #!/bin/bash
-#description=&lpar;Re&rpar;clone & install dotfiles. Logs in /var/log/dotfiles.log.
+#name=Install dotfiles
+#description=&lpar;Re&rpar;clone & install dotfiles.
 #argumentDescription=Branch
 #argumentDefault=master
+#clearLog=true
 set -eo pipefail
 
 export PATH="/usr/local/bin:$PATH"
@@ -47,14 +49,16 @@ export HOME=/root
 DOTFILES_DIR=~/dotfiles
 BRANCH=${1:-master}
 
-install() {
-  [[ -d "$DOTFILES_DIR" ]] && make -C "$DOTFILES_DIR" clean
-  rm -rfv ~/.bashrc ~/.bash_profile "$DOTFILES_DIR"
-  git clone -b "$BRANCH" https://github.com/maxkagamine/dotfiles.git "$DOTFILES_DIR"
-  cd "$DOTFILES_DIR" && make
-}
+# Nuke existing dotfiles
+[[ -d "$DOTFILES_DIR" ]] && make -C "$DOTFILES_DIR" clean
+rm -rfv ~/.bashrc ~/.bash_profile "$DOTFILES_DIR"
 
-install 2>&1 | tee >(awk '{print strftime("%F %T"),$0}' > /var/log/dotfiles.log)
+# Clone repo
+git clone -b "$BRANCH" https://github.com/maxkagamine/dotfiles.git "$DOTFILES_DIR"
+
+# Install
+cd "$DOTFILES_DIR"
+make
 ```
 
 </details>
