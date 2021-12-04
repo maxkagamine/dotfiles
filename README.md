@@ -63,6 +63,11 @@ make
 
 </details>
 
+Also take a look at:
+
+- [User script to create backups of the flash drive and appdata on a schedule](https://gist.github.com/maxkagamine/0fda138ff67e4ad9fcad692fe852a168)
+- [Guide to running nginx on Unraid with a wildcard cert, using the official nginx and certbot Docker images](https://gist.github.com/maxkagamine/5b6c34db6045d6413db3b333d6d2bae2)
+
 ---
 
 ### _Best part about this setup is you can easily create tailored "mod lists" and get a consistent terminal experience across machines. (The [starship](https://starship.rs/) prompt is especially nice for this &mdash; did you notice the ssh in the screenshot at the top?)_
