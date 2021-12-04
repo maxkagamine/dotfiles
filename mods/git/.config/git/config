@@ -31,6 +31,8 @@
   cmd = code --diff --wait $LOCAL $REMOTE
 [fetch]
   prune = true
+[init]
+  defaultBranch = master
 [log]
   showSignature = true
 [merge]
