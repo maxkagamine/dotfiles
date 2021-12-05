@@ -17,6 +17,7 @@ HISTSIZE=10000
 HISTTIMEFORMAT='%Y-%m-%d %T  '
 
 # General aliases
+alias .r='. ~/.bashrc'
 alias cd='>/dev/null cd'
 alias clip='xsel -bi'
 alias dig='dig +noall +answer'
@@ -24,21 +25,10 @@ alias ffmpeg='ffmpeg -hide_banner'
 alias ffprobe='ffprobe -hide_banner'
 alias grep='grep --color=auto'
 alias less='less -FRX'
-alias ls='ls -Ahv --color=auto --group-directories-first'
+alias ll='ls -Al'
+alias ls='ls -hv --color=auto --group-directories-first'
 alias tree='tree --dirsfirst -aCI ".git|node_modules"'
 alias unclip='xsel -bo'
-
-# Reload bashrc
-alias .r='. ~/.bashrc'
-
-# Responsive ls
-function ls {
-  if (( COLUMNS >= 65 )); then
-    command ls -l "$@"
-  else
-    command ls "$@"
-  fi
-}
 
 # General-use functions
 mkcd() {
