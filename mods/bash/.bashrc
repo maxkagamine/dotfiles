@@ -43,6 +43,10 @@ wtfismyip() {
   curl -Ss https://wtfismyip.com/text
 }
 
+wherethehellami() {
+  curl -Ss ipinfo.io/"$1" | jq -r '[.city,.region,.country]|join(", ")'
+}
+
 # Load mods
 for mod in ~/.config/bashrc.d/*.sh; do
   # shellcheck disable=SC1090
