@@ -18,6 +18,7 @@ sh -c "$(curl -fsSL https://starship.rs/install.sh)" -- \
 stow -R \
   bash \
   dircolors \
+  docker \
   empty_string_is_git_status \
   fzf \
   git \
