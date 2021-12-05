@@ -37,6 +37,7 @@ di() {
   if (( $# > 0 )); then
     docker image "$@"
   else
-    docker image ls
+    docker image ls --format '{{.ID}} {{.Repository}}:{{.Tag}}'| \
+      perl -pe 's/:(latest)?$//; s/(?<=[ \/])[^:\/]+(?!.*\/)/\e[32m$&\e[m/'
   fi
 }
