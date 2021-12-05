@@ -78,6 +78,12 @@ Also take a look at:
 
 (Psst: if you want to change your ls colors, [my file](./mods/dircolors/.config/dircolors) might be an easier starting-off point than `--print-database`. I spent the time formatting it so you don't have to.)
 
+## [docker](./mods/docker/.config/bashrc.d/docker.sh)
+
+Better `docker ps` / `docker container ls` output, inspired by [docker-pretty-ps](https://github.com/politeauthority/docker-pretty-ps):
+
+<img src="doc/better%20docker%20ps.png" width="500" />
+
 ## [empty string is git status](./mods/empty_string_is_git_status/.config/bashrc.d/zz_empty_string_is_git_status.sh)
 
 > <i><ruby>Mukashi mukashi <rp>(</rp><rt>Once upon a time</rt><rp>)</rp>...</i>  
