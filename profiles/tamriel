@@ -30,8 +30,6 @@ sudo apt-get install -qy \
   libimage-exiftool-perl \
   mediainfo \
   nodejs \
-  p7zip-full \
-  p7zip-rar \
   python-is-python3 \
   shellcheck \
   stow \
@@ -60,6 +58,7 @@ rm /tmp/gifski.deb
 
 stow -R \
   bash \
+  bat \
   dircolors \
   docker \
   fzf \
