@@ -62,7 +62,6 @@ stow -R \
   bash \
   dircolors \
   docker \
-  empty_string_is_git_status \
   fzf \
   git \
   nano \

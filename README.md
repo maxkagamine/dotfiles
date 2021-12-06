@@ -14,6 +14,21 @@ Applies the convention of loading configuration files from a directory to bashrc
 
 [Git aliases](./mods/git/.config/bashrc.d/git.bashrc) + my gg function that I use so much [I wrote a blog post about it](https://kagamine.dev/en/gg-faster-git-commits/), and of course what would be a _Max Kagamine_ system without a myriad of [Skyrim references](https://kagamine.dev/en/fus-ro-dah/) (brace yourself).
 
+### Also, [empty string is git status](./mods/git/.config/bashrc.d/zz_empty_string_is_git_status.sh)
+
+> <i><ruby>Mukashi mukashi <rp>(</rp><rt>Once upon a time</rt><rp>)</rp>...</i>  
+> “`git status` is too long,” Max thought as he sat at his desk.  
+> So with the magic of `git config --global`, it became `git s`.  
+> ...But that was too long.  
+> So he aliased it to `gs` in his bashrc; just two letters, see?  
+> But these two, too, were too long!  
+> So he dropped the 's', just `g`, now, short as can be.  
+> But even one letter 'twas one letter too long!  
+> And so it became, the shortest `git status` of all:  
+> **Empty string!**
+
+True story. This is a trick I learned a long time ago: using `PROMPT_COMMAND` to compare the last history entry to that which was seen the previous time the prompt was shown, as hitting enter at an empty prompt will run the command again, but the last history number will be the same. Side effect is hitting <kbd>Ctrl+C</kbd> (instead of <kbd>Ctrl+U</kbd>) or <kbd>Alt+Shift+#</kbd> at a prompt will trigger git status, too.
+
 ## &#8201;<img src="https://github.com/devicons/devicon/raw/2ae2a900d2f041da66e950e4d48052658d850630/icons/windows8/windows8-original.svg" height="22" />&#8202; [wsl](./mods/wsl)
 
 This applies to [Tamriel, my main machine](https://photos.app.goo.gl/GYYD6cBjdmbnX3tf6) running the [Windows Subsystem for Linux](https://docs.microsoft.com/en-us/windows/wsl/), because I can't computer without a command line but Windows is life (at least until Bethesda releases _Skyrim: Chrome OS Edition_).
@@ -83,21 +98,6 @@ Also take a look at:
 Better `docker ps` / `docker container ls` output, inspired by [docker-pretty-ps](https://github.com/politeauthority/docker-pretty-ps):
 
 <img src="doc/better%20docker%20ps.png" width="500" />
-
-## [empty string is git status](./mods/empty_string_is_git_status/.config/bashrc.d/zz_empty_string_is_git_status.sh)
-
-> <i><ruby>Mukashi mukashi <rp>(</rp><rt>Once upon a time</rt><rp>)</rp>...</i>  
-> “`git status` is too long,” Max thought as he sat at his desk.  
-> So with the magic of `git config --global`, it became `git s`.  
-> ...But that was too long.  
-> So he aliased it to `gs` in his bashrc; just two letters, see?  
-> But these two, too, were too long!  
-> So he dropped the 's', just `g`, now, short as can be.  
-> But even one letter 'twas one letter too long!  
-> And so it became, the shortest `git status` of all:  
-> **Empty string!**
-
-True story. This is a trick I learned long ago: using `PROMPT_COMMAND` to compare the last history entry to that which was seen the previous time the prompt was shown, as hitting enter at an empty prompt will run the command again, but the last history number will be the same. Side effect is hitting <kbd>Ctrl+C</kbd> (instead of <kbd>Ctrl+U</kbd>) or <kbd>Alt+Shift+#</kbd> at a prompt will trigger git status, too.
 
 ## [fzf](./mods/fzf/.config/bashrc.d/fzf.sh)
 
