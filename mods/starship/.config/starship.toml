@@ -10,3 +10,6 @@ style = "bold yellow"
 
 [nodejs]
 disabled = true
+
+[localip]
+disabled = true
