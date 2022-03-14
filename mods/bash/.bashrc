@@ -28,8 +28,8 @@ alias less='less -FRX'
 alias ll='ls -Al'
 alias ls='ls -hv --color=auto --group-directories-first'
 alias tree='tree --dirsfirst -aCI ".git|node_modules"'
-alias unclip='xsel -bo'
 alias tsv="column -ts $'\t' -W0"
+alias unclip='xsel -bo'
 
 # General-use functions
 mkcd() {
@@ -57,7 +57,7 @@ Usage: append_crc32 [-n] <file>...
 Puts (or updates) a file's crc32 hash in its filename.
 -n  Dry run.
 EOF
-      exit 1
+      return 1
     fi
     if [[ $1 == '-n' ]]; then
       dry_run=1
@@ -73,6 +73,28 @@ EOF
       fi
     done
   )
+}
+
+weigh() {
+  if [[ $1 =~ ^(--help|-h)$ ]]; then
+    cat >&2 <<EOF
+Usage: weigh [-z] [<file>...]
+Shows total size of files or stdin, gzipped if -z.
+EOF
+    return 1
+  fi
+  local bytes total=0 gz=
+  [[ $1 == '-z' ]] && { gz=1; shift; }
+  [[ $# == 0 ]] && set -- -
+  for f; do
+    if [[ $gz ]]; then
+      bytes=$(gzip -c "$f" | wc -c)
+    else
+      bytes=$(wc -c "$f" | cut -d' ' -f1)
+    fi
+    total=$((total + bytes))
+  done
+  numfmt --to=iec-i --suffix=B "$total" | sed 's/[a-z]/ \0/i'
 }
 
 # Load mods
