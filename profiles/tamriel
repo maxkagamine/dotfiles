@@ -47,8 +47,8 @@ ln -fs /usr/bin/fdfind ~/.local/bin/fd
 wget https://github.com/BlackReloaded/wsl2-ssh-pageant/releases/latest/download/wsl2-ssh-pageant.exe \
   -O ~/.local/bin/wsl2-ssh-pageant.exe; chmod +x "$_"
 
-wget https://yt-dl.org/downloads/latest/youtube-dl \
-  -O ~/.local/bin/youtube-dl; chmod +x "$_"
+wget https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp \
+  -O ~/.local/bin/yt-dlp; chmod +x "$_"
 
 curl -fsSL https://starship.rs/install.sh | sh -s -- \
   -y -b ~/.local/bin >/dev/null
@@ -70,4 +70,4 @@ stow -R \
   node \
   starship \
   wsl \
-  youtube_dl
+  yt_dlp
