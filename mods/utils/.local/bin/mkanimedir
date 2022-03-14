@@ -17,6 +17,9 @@ Usage: mkanimedir <mal link> [<dir>|<files...>]
 
 Creates (or renames) a directory with the anime name and image (as a hidden
 folder.jpg) from MAL, moving any given files into it.
+
+Example:
+  mkanimedir https://myanimelist.net/anime/6547/Angel_Beats
 EOF
   exit 1
 fi
