@@ -4,7 +4,7 @@
 
 Behold, [GNU Stow](https://www.gnu.org/software/stow/manual/html_node/index.html#Top): the mod manager for your Linux home directory! Anyone who's used Vortex or MO2 to mod games like [Skyrim](https://www.youtube.com/playlist?list=PLYooEAFUfhDfO3m_WQWkHdIB3Zh2kIXKp) will find how this works surprisingly familiar: mod (dot) files are organized into separate folders, and the mod manager (stow) combines them into the game (home) directory using symlinks.
 
-Continuing with the mod manager theme, different machines can have a different "profile" or mod list. Having written [excessively-complicated setup scripts](https://github.com/maxkagamine/dotfiles/blob/old/setup.ps1) in the past, I decided to keep things simple this time around &mdash; no [complex framework](https://alexpearce.me/2021/07/managing-dotfiles-with-nix/), no [YAML files](https://github.com/anishathalye/dotbot) &mdash; each profile is just [a short bash script](profiles/tamriel), sortof like a Dockerfile.
+Continuing with the mod manager theme, different machines can have a different "profile" or mod list. Having written [excessively-complicated setup scripts](https://github.com/maxkagamine/dotfiles/blob/old/setup.ps1) in the past, I decided to keep things simple this time around &mdash; no [complex framework](https://alexpearce.me/2021/07/managing-dotfiles-with-nix/), no [YAML files](https://github.com/anishathalye/dotbot) &mdash; each profile is just [a plain bash script](profiles/tamriel), sortof like a Dockerfile.
 
 ## <img src="https://github.com/microsoft/terminal/raw/a74c37bbcd699ce2cd90bb5d81412663a6236fcc/res/terminal/images/StoreLogo.scale-100.png" height="30" align="top" /> [bash](mods/bash)
 
@@ -31,7 +31,7 @@ True story. This is a trick I learned a long time ago: using `PROMPT_COMMAND` to
 
 Also, check out [<img src="https://raw.githubusercontent.com/vscode-icons/vscode-icons/3df43eb5a6dc932719159aa98d33d082cd1cceb0/icons/file_type_git.svg" height="15" />**git-branch-fzf**](mods/git/.local/bin/git-branch-fzf), my awesome [fzf](https://github.com/junegunn/fzf)-powered interactive branch switcher with keyboard shortcuts to toggle remote branches, delete branches (including remote and even the current branch!), and to [fetch the latest](mods/git/.local/bin/git-checkout-latest) of a branch before switching.
 
-## &#8201;<img src="https://github.com/devicons/devicon/raw/2ae2a900d2f041da66e950e4d48052658d850630/icons/windows8/windows8-original.svg" height="22" />&#8202; [wsl](mods/wsl)
+## <img src="https://github.com/devicons/devicon/raw/2ae2a900d2f041da66e950e4d48052658d850630/icons/windows8/windows8-original.svg" height="22" />&hairsp; [wsl](mods/wsl)
 
 This applies to [Tamriel, my main machine](https://photos.app.goo.gl/GYYD6cBjdmbnX3tf6) running the [Windows Subsystem for Linux](https://docs.microsoft.com/en-us/windows/wsl/), because I can't computer without a command line but Windows is life (at least until Bethesda releases _Skyrim: Chrome OS Edition_).
 
@@ -44,7 +44,7 @@ This applies to [Tamriel, my main machine](https://photos.app.goo.gl/GYYD6cBjdmb
 > 3. Use [wsl2-ssh-pageant](https://github.com/BlackReloaded/wsl2-ssh-pageant) to connect the Linux-side SSH and GPG agents to GPG running Windows-side.
 > 4. After restarting WSL (`wsl.exe --shutdown`), you should be able to run `gpg --card-status` in Linux👍 Import your public key and test that it works with `ssh git@github.com`.
 
-## &#8202;<img src="http://craftassets.unraid.net.s3.amazonaws.com/static/favicon/android-chrome-192x192.png?v=1.0" align="top" height="25" /> [unraid](mods/unraid)
+## <img src="http://craftassets.unraid.net.s3.amazonaws.com/static/favicon/android-chrome-192x192.png?v=1.0" align="top" height="25" />&hairsp; [unraid](mods/unraid)
 
 For [Sovngarde, my NAS.](https://photos.app.goo.gl/GYYD6cBjdmbnX3tf6) There isn't much here (literally just a `CDPATH`), but if you're running Unraid as well, see [**How to install GNU Stow on Unraid**](https://gist.github.com/maxkagamine/7e3741b883a272230eb451bdd84a8e23). Here's my user script, set to run on array start, if it happens to be useful:
 
@@ -85,7 +85,7 @@ Also take a look at:
 - [User script to create backups of the flash drive and appdata on a schedule](https://gist.github.com/maxkagamine/0fda138ff67e4ad9fcad692fe852a168)
 - [Guide to running nginx on Unraid with a wildcard cert, using the official nginx and certbot Docker images](https://gist.github.com/maxkagamine/5b6c34db6045d6413db3b333d6d2bae2)
 
-## ⚙ [utils](mods/utils/.local/bin)
+## ⚙&hairsp;[utils](mods/utils/.local/bin)
 
 Miscellaneous utilities:
 
@@ -98,12 +98,6 @@ Miscellaneous utilities:
   <img src="doc/mkv-ls.png" width="500" />
 
 - [**weigh**](mods/utils/.local/bin/weigh) — Shows the total size of files, directories, or stdin (optionally gzipped).
-
----
-
-### _Best part about this setup is you can easily create tailored "mod lists" and get a consistent terminal experience across machines. (The [starship](https://starship.rs/) prompt is especially nice for this &mdash; did you notice the ssh in the screenshot at the top?)_
-
----
 
 ## [bat](mods/bat/.config/bashrc.d/bat.sh)
 
@@ -123,7 +117,7 @@ Fancy [keyboard shortcuts](https://github.com/junegunn/fzf#key-bindings-for-comm
 
 ## [nano](mods/nano/.config/nano/nanorc)
 
-<img src="https://i.imgur.com/8sqd67K.png" height="375" />
+<img src="doc/nano.png" height="375" />
 
 ## [node](mods/node/.config/bashrc.d/node.sh)
 

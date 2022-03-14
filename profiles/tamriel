@@ -88,4 +88,4 @@ stow -R \
   starship \
   utils \
   wsl \
-  yt_dlp
+  yt-dlp
