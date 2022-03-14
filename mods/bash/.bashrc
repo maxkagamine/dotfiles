@@ -48,38 +48,6 @@ wherethehellami() {
   curl -Ss ipinfo.io/"$1" | jq -r '[.city,.region,.country]|join(", ")'
 }
 
-weigh() {
-  if [[ $1 =~ ^(--help|-h)$ ]]; then
-    cat >&2 <<EOF
-Usage: weigh [-z] [<file|directory>...]
-Shows total size of files or stdin, gzipped if -z.
-EOF
-    return 1
-  fi
-  local p f gz=
-  [[ $1 == '-z' ]] && { gz=1; shift; }
-  [[ $# == 0 ]] && set -- -
-  exec 5<&0
-  for p; do
-    if [[ -d "$p" ]]; then
-      find "$p" -type f
-    else
-      echo "$p"
-    fi
-  done | while read -r f; do
-    [[ $f != - ]] && printf '\e[1;30m%s\e[m' "${f:0:$((COLUMNS-1))}" >&2
-    if [[ $gz ]]; then
-      gzip -c "$f" <&5 | wc -c
-    else
-      wc -c "$f" <&5 | cut -d' ' -f1
-    fi
-    [[ $f != - ]] && printf '\r\e[K' >&2
-  done | \
-    paste -sd+ | bc | \
-    numfmt --to=iec-i --suffix=B | sed 's/[a-z]/ \0/i'
-  exec 5<&-
-}
-
 # Load mods
 for mod in ~/.config/bashrc.d/*.sh; do
   # shellcheck disable=SC1090
