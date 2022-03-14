@@ -4,23 +4,23 @@ CDPATH='.:/home/max/Projects:/mnt/s:/mnt/c/Users/max'
 
 alias .e='code "$DOTFILES_DIR"'
 
-wp() {
-  wslpath -w "${1:-.}" | sed 's/\\\\wsl$\\Ubuntu/L:/'
+w() {
+  [[ $# == 0 || ( $# == 1 && ! $1 ) ]] && set .
+  local p; for p; do wslpath -w "$p"; done
 }
 
 exp() {
-  explorer.exe "$(wp "${1:-.}")" || true
+  explorer.exe "$(w "$1")" || true
 }
 
 hide() {
-  attrib.exe +h "$(wp "$1")"
+  w "$@" | xargs -d '\n' -L 1 attrib.exe +h
 }
 
 unhide() {
-  attrib.exe -h "$(wp "$1")"
+  w "$@" | xargs -d '\n' -L 1 attrib.exe -h
 }
 
 recycle() {
-  local p
-  for p; do nircmdc.exe moverecyclebin "$(wp "$p")"; done
+  w "$@" | xargs -d '\n' -L 1 nircmdc.exe moverecyclebin
 }
