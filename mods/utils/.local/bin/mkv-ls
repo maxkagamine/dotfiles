@@ -1,0 +1,83 @@
+#!/bin/bash
+set -eo pipefail
+
+throw() {
+  printf '%s: %s\n' "${0##*/}" "$1" >&2
+  return 1
+}
+
+if [[ $# == 0 || $1 =~ ^(--help|-h)$ ]]; then
+  cat >&2 <<'EOF'
+Usage: mkv-ls <file...>
+
+Lists the tracks in an mkv for muxing with mkvmerge or mkv-batch, including
+track name, language, and whether it's the default track. (`mkvmerge -i` does
+not show this, and `mkvinfo` prints too much.)
+
+If multiple files given, mkv-ls will group identical track listings, displaying
+each group's filenames in an escaped format that can be passed to mkv-batch.
+
+Note: Video title is not shown when grouping.
+EOF
+  exit 1
+fi
+
+jq_track_name='.properties.track_name // ""'
+(( $# > 1 )) && jq_track_name='if .type == "video" then "" else '"$jq_track_name"' end'
+
+list_tracks() {
+  [[ -f "$1" ]] || throw "'$1' is not a file"
+
+  mkvmerge -J "$1" | \
+    jq -r '
+      if .tracks | type != "array" then
+        "\"\(.file_name)\" is not an mkv\n" | halt_error
+      else
+        .tracks[] | (
+          (.id | tostring) + "\t" +
+          .type + "\t" +
+          .codec + "\t" +
+          .properties.language + "\t" +
+          (if .properties.default_track then "✓" else "" end) + "\t" +
+          ('"$jq_track_name"')
+        )
+      end
+    ' | column -ts $'\t' -N 'TID,Type,Codec,Lang,Def,Name'
+}
+
+if (( $# == 1 )); then
+  list_tracks "$1"
+else
+  grouped_filenames=()
+  grouped_tracks=()
+
+  for f; do
+    track_list=$(list_tracks "$f")
+    # underlined_name=$'\e[4m'"$(basename "$f")"$'\e[m'
+    escaped_name=$(printf '%q' "$f")
+
+    # Look for identical track list
+    found=
+    for i in "${!grouped_tracks[@]}"; do
+      if [[ ${grouped_tracks[$i]} == "$track_list" ]]; then
+        # Add file name to group
+        grouped_filenames[$i]="${grouped_filenames[$i]} $escaped_name"
+        found=1
+      fi
+    done
+
+    # Add new group if none found
+    if [[ ! $found ]]; then
+      grouped_filenames+=("$escaped_name")
+      grouped_tracks+=("$track_list")
+    fi
+  done
+
+  # Print groups
+  for i in "${!grouped_tracks[@]}"; do
+    (( i > 0 )) && echo
+    #column -s $'\n' <<<"${grouped_filenames[$i]}"
+    printf '\e[30;1m%s\e[m\n' "${grouped_filenames[$i]}"
+    echo "${grouped_tracks[$i]}"
+  done
+fi
