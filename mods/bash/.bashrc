@@ -29,6 +29,7 @@ alias ll='ls -Al'
 alias ls='ls -hv --color=auto --group-directories-first'
 alias tree='tree --dirsfirst -aCI ".git|node_modules"'
 alias unclip='xsel -bo'
+alias tsv="column -ts $'\t' -W0"
 
 # General-use functions
 mkcd() {
