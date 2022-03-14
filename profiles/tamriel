@@ -69,5 +69,6 @@ stow -R \
   nano \
   node \
   starship \
+  utils \
   wsl \
   youtube_dl
