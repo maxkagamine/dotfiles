@@ -16,7 +16,7 @@ fi
 
 list_tracks() {
   mkvmerge -J "$1" | \
-    jq -r '.tracks[] | "\(.id)\t\(.type)\t\(.codec)\t\(.properties.language)\t\(if .properties.default_track then "✅" else "" end)\t\(.properties.track_name)"' | \
+    jq -r '.tracks[] | "\(.id)\t\(.type)\t\(.codec)\t\(.properties.language)\t\(if .properties.default_track then "✅" else "" end)\t\(.properties.track_nam // "")"' | \
     column -ts $'\t' -N 'TID,Type,Codec,Lang,Def,Name'
 }
 
