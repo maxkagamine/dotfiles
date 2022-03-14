@@ -27,7 +27,7 @@ Oh and _[empty string is git status](mods/git/.config/bashrc.d/zz_empty_string_i
 > And so it became, the shortest `git status` of all:  
 > **Empty string!**
 
-True story. This is a trick I learned a long time ago: using `PROMPT_COMMAND` to compare the last history entry to that which was seen the previous time the prompt was shown, as hitting enter at an empty prompt will run the command again, but the last history number will be the same. Side effect is hitting <kbd>Ctrl+C</kbd> (instead of <kbd>Ctrl+U</kbd>) or <kbd>Alt+Shift+#</kbd> at a prompt will trigger git status, too.
+True story. This is a trick I learned a long time ago: using `PROMPT_COMMAND` to compare the last history entry to that which was seen the previous time the prompt was shown, as hitting enter at an empty prompt will run the command again, but the last history number will be the same. Side effect is hitting <kbd>Ctrl+C</kbd> (but not <kbd>Ctrl+U</kbd> or <kbd>Alt+Shift+#</kbd>) at a prompt will trigger git status, too.
 
 Also, check out [<img src="https://raw.githubusercontent.com/vscode-icons/vscode-icons/3df43eb5a6dc932719159aa98d33d082cd1cceb0/icons/file_type_git.svg" height="15" />**git-branch-fzf**](mods/git/.local/bin/git-branch-fzf), my awesome [fzf](https://github.com/junegunn/fzf)-powered interactive branch switcher with keyboard shortcuts to toggle remote branches, delete branches (including remote and even the current branch!), and to [fetch the latest](mods/git/.local/bin/git-checkout-latest) of a branch before switching.
 
@@ -85,6 +85,13 @@ Also take a look at:
 - [User script to create backups of the flash drive and appdata on a schedule](https://gist.github.com/maxkagamine/0fda138ff67e4ad9fcad692fe852a168)
 - [Guide to running nginx on Unraid with a wildcard cert, using the official nginx and certbot Docker images](https://gist.github.com/maxkagamine/5b6c34db6045d6413db3b333d6d2bae2)
 
+## ⚙ [utils](mods/utils/.local/bin)
+
+Miscellaneous utilities:
+
+- [**append_crc32**](mods/utils/.local/bin/append_crc32) — Adds (or updates) a file's crc32 hash to its filename.
+- [**weigh**](mods/utils/.local/bin/weigh) — Shows the total size of files, directories, or stdin (optionally gzipped).
+
 ---
 
 ### _Best part about this setup is you can easily create tailored "mod lists" and get a consistent terminal experience across machines. (The [starship](https://starship.rs/) prompt is especially nice for this &mdash; did you notice the ssh in the screenshot at the top?)_
@@ -116,8 +123,6 @@ Fancy [keyboard shortcuts](https://github.com/junegunn/fzf#key-bindings-for-comm
 ~~Over nine thousand node_modules files~~&ensp;Just some npm aliases.
 
 ## [starship](mods/starship/.config)
-
-[Awesome universal prompt](https://starship.rs/) 🚀
 
 ## [youtube-dl](mods/youtube_dl/.config)
 
