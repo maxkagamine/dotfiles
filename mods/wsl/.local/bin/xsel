@@ -35,6 +35,6 @@ case $mode in
     powershell.exe -noprofile -command '$input | Set-Clipboard'
     ;;
   paste)
-    powershell.exe -noprofile -command 'Get-Clipboard'
+    powershell.exe -noprofile -command 'Get-Clipboard' | tr -d $'\r'
     ;;
 esac
