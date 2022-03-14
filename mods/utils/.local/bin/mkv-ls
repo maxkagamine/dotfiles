@@ -1,6 +1,11 @@
 #!/bin/bash
 set -eo pipefail
 
+throw() {
+  printf '%s: %s\n' "${0##*/}" "$1" >&2
+  return 1
+}
+
 if [[ $# == 0 || $1 =~ ^(--help|-h)$ ]]; then
   cat >&2 <<'EOF'
 Usage: mkv-ls <file...>
@@ -16,9 +21,23 @@ EOF
 fi
 
 list_tracks() {
+  [[ -f "$1" ]] || throw "'$1' is not a file"
+
   mkvmerge -J "$1" | \
-    jq -r '.tracks[] | "\(.id)\t\(.type)\t\(.codec)\t\(.properties.language)\t\(if .properties.default_track then "✅" else "" end)\t\(.properties.track_nam // "")"' | \
-    column -ts $'\t' -N 'TID,Type,Codec,Lang,Def,Name'
+    jq -r '
+      if .tracks | type != "array" then
+        "\"\(.file_name)\" is not an mkv\n" | halt_error
+      else
+        .tracks[] | (
+          (.id | tostring) + "\t" +
+          .type + "\t" +
+          .codec + "\t" +
+          .properties.language + "\t" +
+          (if .properties.default_track then "✓" else "" end) + "\t" +
+          (.properties.track_name // "")
+        )
+      end
+    ' | column -ts $'\t' -N 'TID,Type,Codec,Lang,Def,Name'
 }
 
 if (( $# == 1 )); then
