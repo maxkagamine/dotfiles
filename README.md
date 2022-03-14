@@ -90,6 +90,12 @@ Also take a look at:
 Miscellaneous utilities:
 
 - [**append_crc32**](mods/utils/.local/bin/append_crc32) — Adds (or updates) a file's crc32 hash to its filename.
+- [**mkv-ls**](mods/utils/.local/bin/mkv-ls) & [**mkv-batch**](mods/utils/.local/bin/mkv-batch) — Tools for batch mkv remuxing using mkvtoolnix. `mkv-ls` shows tracks in a table similar to the GUI but groups identical track listings for batch processing with `mkv-batch`.
+  
+  For example, if I wanted to remove the English audio and Signs & Songs tracks:
+  
+  <img src="doc/mkv-ls.png" width="500" />
+
 - [**weigh**](mods/utils/.local/bin/weigh) — Shows the total size of files, directories, or stdin (optionally gzipped).
 
 ---

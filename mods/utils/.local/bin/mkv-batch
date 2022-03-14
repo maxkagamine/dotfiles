@@ -18,7 +18,7 @@ Likely options:
 
   -a, --audio-tracks [!]TID1,TID2,...     \
   -d, --video-tracks [!]TID1,TID2,...      | Can use lang codes instead.
-  -s, --subtitle-tracks [!]TID1,TID2,...  /
+  -s, --subtitle-tracks [!]TID1,TID2,...  /  Remember to quote/escape the '!'
   --track-order 0:TID1,0:TID2,...
   --default-track TID
 EOF
