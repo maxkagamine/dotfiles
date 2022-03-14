@@ -90,6 +90,7 @@ Also take a look at:
 Miscellaneous utilities:
 
 - [**append_crc32**](mods/utils/.local/bin/append_crc32) — Adds (or updates) a file's crc32 hash to its filename.
+- [**mkanimedir**](mods/utils/.local/bin/mkanimedir) — Turns a MAL link and a bunch of episodes into a nice folder.
 - [**mkv-ls**](mods/utils/.local/bin/mkv-ls) & [**mkv-batch**](mods/utils/.local/bin/mkv-batch) — Tools for batch mkv remuxing using mkvtoolnix. `mkv-ls` shows tracks in a table similar to the GUI but groups identical track listings for batch processing with `mkv-batch`.
   
   For example, if I wanted to remove the English audio and Signs & Songs tracks:
