@@ -8,7 +8,7 @@ install:
 
 clean:
 	find ~ -xtype l -exec rm -v -- {} +
-	basename -a mods/* | xargs stow -D
+	basename -a mods/* | xargs -L1 stow -D
 	find ~/.config ~/.local -depth -type d -empty -exec rmdir -v -- {} \;
 
 test:
