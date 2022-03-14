@@ -48,6 +48,33 @@ wherethehellami() {
   curl -Ss ipinfo.io/"$1" | jq -r '[.city,.region,.country]|join(", ")'
 }
 
+append_crc32() {
+  (
+    set -eo pipefail
+    if [[ $# == 0 || $1 =~ ^(--help|-h)$ ]]; then
+      cat >&2 <<EOF
+Usage: append_crc32 [-n] <file>...
+Puts (or updates) a file's crc32 hash in its filename.
+-n  Dry run.
+EOF
+      exit 1
+    fi
+    if [[ $1 == '-n' ]]; then
+      dry_run=1
+      shift
+    fi
+    for f; do
+      crc=$(crc32 "$f" | cut -f1)
+      name=$(perl -pe 's/^(.*?)( ?\[[0-9a-f]{8}\])?(\.[^\.]+)?$/\1 ['"$crc"']\3/' <<<"$f")
+      if [[ $dry_run ]]; then
+        [[ $f != "$name" ]] && echo "$f -> $name"
+      else
+        mv -nv "$f" "$name"
+      fi
+    done
+  )
+}
+
 # Load mods
 for mod in ~/.config/bashrc.d/*.sh; do
   # shellcheck disable=SC1090
