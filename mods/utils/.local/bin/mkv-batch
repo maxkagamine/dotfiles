@@ -1,0 +1,50 @@
+#!/bin/bash
+set -eo pipefail
+
+throw() {
+  printf '%s: %s\n' "${0##*/}" "$1" >&2
+  return 1
+}
+
+if [[ $# == 0 || $1 =~ ^(--help|-h)$ ]]; then
+  cat >&2 <<'EOF'
+Usage: mkv-batch <file...> <mkvmerge opts>
+
+Runs mkvmerge on each file, placing output in muxed/. Arguments up until one
+beginning with a dash are interpreted as input files; all others are passed to
+mkvmerge.
+
+Likely options:
+
+  -a, --audio-tracks [!]TID1,TID2,...     \
+  -d, --video-tracks [!]TID1,TID2,...      | Can use lang codes instead.
+  -s, --subtitle-tracks [!]TID1,TID2,...  /
+  --track-order 0:TID1,0:TID2,...
+  --default-track TID
+EOF
+  exit 1
+fi
+
+files=()
+opts=()
+while (( $# > 0 )); do
+  if [[ $1 == -* ]]; then
+    opts=("$@")
+    break
+  else
+    files+=("$1")
+    shift
+  fi
+done
+if (( ${#files[@]} == 0 )); then
+  throw 'no input files given'
+fi
+if (( ${#opts[@]} == 0 )); then
+  throw 'no mkvmerge opts given'
+fi
+
+mkdir -p muxed
+
+for f in "${files[@]}"; do
+  mkvmerge "${opts[@]}" "$f" -o "muxed/$(basename "$f")"
+done

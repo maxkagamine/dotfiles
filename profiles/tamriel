@@ -40,6 +40,7 @@ sudo apt-get install -qy \
   jq \
   libimage-exiftool-perl \
   mediainfo \
+  mkvtoolnix \
   nodejs \
   p7zip-rar \
   protobuf-compiler \
