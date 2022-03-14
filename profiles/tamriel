@@ -16,6 +16,17 @@ if [[ ! -d /mnt/s ]]; then
 fi
 #endregion
 
+#region Auto-update packages
+sudo tee /etc/cron.weekly/auto-update >/dev/null <<EOF
+#!/bin/bash
+if ! apt-get update && apt-get upgrade -y && apt-get autoclean; then
+  notify-send 'auto-update failed'
+fi
+EOF
+sudo chmod +x /etc/cron.weekly/auto-update
+touch ~/.hushlogin
+#endregion
+
 curl -fsSL https://deb.nodesource.com/setup_current.x | sudo -E bash -
 
 sudo apt-get install -qy \
@@ -58,6 +69,11 @@ curl -fsSL https://api.github.com/repos/ImageOptim/gifski/releases/latest | \
   wget -i - -O /tmp/gifski.deb
 sudo apt install /tmp/gifski.deb
 rm /tmp/gifski.deb
+
+wget https://github.com/stuartleeks/wsl-notify-send/releases/latest/download/wsl-notify-send_windows_amd64.zip \
+  -O /tmp/wsl-notify-send.zip
+unzip -o /tmp/wsl-notify-send.zip wsl-notify-send.exe -d ~/.local/bin
+rm /tmp/wsl-notify-send.zip
 
 stow -R \
   bash \
