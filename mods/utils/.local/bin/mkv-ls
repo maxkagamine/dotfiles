@@ -16,9 +16,14 @@ not show this, and `mkvinfo` prints too much.)
 
 If multiple files given, mkv-ls will group identical track listings, displaying
 each group's filenames in an escaped format that can be passed to mkv-batch.
+
+Note: Video title is not shown when grouping.
 EOF
   exit 1
 fi
+
+jq_track_name='.properties.track_name // ""'
+(( $# > 1 )) && jq_track_name='if .type == "video" then "" else '"$jq_track_name"' end'
 
 list_tracks() {
   [[ -f "$1" ]] || throw "'$1' is not a file"
@@ -34,7 +39,7 @@ list_tracks() {
           .codec + "\t" +
           .properties.language + "\t" +
           (if .properties.default_track then "✓" else "" end) + "\t" +
-          (.properties.track_name // "")
+          ('"$jq_track_name"')
         )
       end
     ' | column -ts $'\t' -N 'TID,Type,Codec,Lang,Def,Name'
