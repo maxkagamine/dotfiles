@@ -23,4 +23,5 @@ stow -R \
   git \
   nano \
   starship \
-  unraid
+  unraid \
+  utils
