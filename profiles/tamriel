@@ -85,5 +85,6 @@ stow -R \
   nano \
   node \
   starship \
+  utils \
   wsl \
   yt_dlp

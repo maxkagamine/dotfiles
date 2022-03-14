@@ -1,0 +1,85 @@
+#!/bin/bash
+set -eo pipefail
+
+throw() {
+  printf '%s: %s\n' "${0##*/}" "$1" >&2
+  return 1
+}
+
+if [[ $1 =~ ^(--help|-h)$ ]]; then
+  cat >&2 <<EOF
+Usage: weigh [-z] [--si] [<file|directory>...]
+
+Shows the total size of files, directories, or stdin (gzipped if -z).
+
+  -z    Show the gzipped size.
+  --si  Use SI units (1000 B = 1 KB) instead of KiB etc.
+EOF
+  exit 1
+fi
+
+gz=
+to_fmt='iec-i' # KiB etc.
+paths=()
+while (( $# > 0 )); do
+  case $1 in
+    --)
+      shift
+      paths+=("$@")
+      break
+      ;;
+    -z)
+      gz=1
+      ;;
+    --si)
+      to_fmt='si'
+      ;;
+    -*)
+      throw "unknown option: $1"
+      ;;
+    *)
+      paths+=("$1")
+      ;;
+  esac
+  shift
+done
+
+if [[ ${#paths[@]} == 0 ]]; then
+  # Read stdin if no paths given
+  paths=(-)
+fi
+
+# Since stdin in the while is the preceding for loop, save stdin as file
+# descriptor 5 so gzip/wc can access it if needed
+exec 5<&0
+
+# Loop over paths, expanding directories recursively using find
+for p in "${paths[@]}"; do
+  if [[ -d "$p" ]]; then
+    find "$p" -type f
+  else
+    echo "$p"
+  fi
+done | while read -r f; do
+  # Show current file being weighed on stderr
+  # Note: some terminals handle rapid line changing better than others
+  if [[ $f != - ]]; then
+    printf '\e[1;30m%s\e[m' "${f:0:$((COLUMNS-1))}" >&2
+  fi
+
+  # Weigh the file, writing to stdout which is being totaled
+  if [[ $gz ]]; then
+    gzip -c "$f" <&5 | wc -c
+  else
+    wc -c "$f" <&5 | cut -d' ' -f1
+  fi
+
+  # Clear the status line
+  if [[ $f != - ]]; then
+    printf '\r\e[K' >&2
+  fi
+done |
+  paste -sd+ | # Join lines with a plus sign
+  bc | # Do math
+  numfmt --to=$to_fmt --suffix=B | # Format bytes
+  sed 's/[a-z]/ \0/i' # Add a space before the unit
