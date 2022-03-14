@@ -1,2 +1,0 @@
--o '%(title)s [%(extractor)s %(id)s].%(ext)s'
--f 'bestvideo[fps=60]+bestaudio/bestvideo+bestaudio/best'

@@ -124,6 +124,6 @@ Fancy [keyboard shortcuts](https://github.com/junegunn/fzf#key-bindings-for-comm
 
 ## [starship](mods/starship/.config)
 
-## [youtube-dl](mods/youtube_dl/.config)
+## [yt-dlp](mods/yt-dlp/.config) (youtube-dl successor)
 
 Because nothing on the Internet is guaranteed to be there tomorrow.

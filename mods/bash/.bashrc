@@ -16,6 +16,17 @@ bind 'set colored-stats on'
 HISTSIZE=10000
 HISTTIMEFORMAT='%Y-%m-%d %T  '
 
+# cd to clipboard (bind nonsense courtesy of fzf's key-bindings.bash)
+# shellcheck disable=SC2016
+bind -m emacs-standard '"\ev": " \C-b\C-k \C-u`__cd_to_clipboard`\e\C-e\er\C-m\C-y\C-h\e \C-y\ey\C-x\C-x\C-d"'
+__cd_to_clipboard() {
+  local p; p=$(unclip) || return 1
+  if [[ $p == *:\\* ]] && command -v wslpath &>/dev/null; then
+    p=$(wslpath "$p") || return 1
+  fi
+  printf 'cd %q' "$p"
+}
+
 # General aliases
 alias .r='. ~/.bashrc'
 alias cd='>/dev/null cd'
