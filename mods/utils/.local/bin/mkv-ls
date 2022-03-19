@@ -1,14 +1,15 @@
 #!/bin/bash
 set -eo pipefail
+shopt -s nullglob
 
 throw() {
   printf '%s: %s\n' "${0##*/}" "$1" >&2
   return 1
 }
 
-if [[ $# == 0 || $1 =~ ^(--help|-h)$ ]]; then
+if [[ $1 =~ ^(--help|-h)$ ]]; then
   cat >&2 <<'EOF'
-Usage: mkv-ls <file...>
+Usage: mkv-ls [<path...>]
 
 Lists the tracks in an mkv for muxing with mkvmerge or mkv-batch, including
 track name, language, and whether it's the default track. (`mkvmerge -i` does
@@ -17,16 +18,35 @@ not show this, and `mkvinfo` prints too much.)
 If multiple files given, mkv-ls will group identical track listings, displaying
 each group's filenames in an escaped format that can be passed to mkv-batch.
 
+Directories are expanded to contained *.mkv files (non-recursive). If no paths
+are given, the current directory is used (equivalent to `mkv-ls *.mkv`).
+
 Note: Video title is not shown when grouping.
 EOF
   exit 1
 fi
 
-jq_track_name='.properties.track_name // ""'
-(( $# > 1 )) && jq_track_name='if .type == "video" then "" else '"$jq_track_name"' end'
+paths=()
+while (( $# > 0 )); do
+  if [[ -f "$1" ]]; then
+    paths+=("$1")
+  elif [[ -d "$1" ]]; then
+    paths+=("$1"/*.mkv)
+  else
+    throw "'$1' does not exist"
+  fi
+  shift
+done
+if (( ${#paths[@]} == 0 )); then
+  paths=(*.mkv)
+fi
 
 list_tracks() {
-  [[ -f "$1" ]] || throw "'$1' is not a file"
+  jq_track_name='.properties.track_name // ""'
+  if (( ${#paths[@]} > 1 )); then
+    # Hide video title when grouping since it may contain episode number, etc.
+    jq_track_name='if .type == "video" then "" else '"$jq_track_name"' end'
+  fi
 
   mkvmerge -J "$1" | \
     jq -r '
@@ -45,13 +65,13 @@ list_tracks() {
     ' | column -ts $'\t' -N 'TID,Type,Codec,Lang,Def,Name'
 }
 
-if (( $# == 1 )); then
-  list_tracks "$1"
+if (( ${#paths[@]} == 1 )); then
+  list_tracks "${paths[0]}"
 else
   grouped_filenames=()
   grouped_tracks=()
 
-  for f; do
+  for f in "${paths[@]}"; do
     track_list=$(list_tracks "$f")
     # underlined_name=$'\e[4m'"$(basename "$f")"$'\e[m'
     escaped_name=$(printf '%q' "$f")
