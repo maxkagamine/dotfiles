@@ -13,3 +13,6 @@ disabled = true
 
 [localip]
 disabled = true
+
+[gcloud]
+disabled = true
