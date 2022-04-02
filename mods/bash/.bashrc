@@ -15,6 +15,7 @@ bind 'set completion-ignore-case on'
 bind 'set colored-stats on'
 HISTSIZE=10000
 HISTTIMEFORMAT='%Y-%m-%d %T  '
+export LESS='-FRX --mouse --wheel-lines 2'
 
 # cd to clipboard (bind nonsense courtesy of fzf's key-bindings.bash)
 # shellcheck disable=SC2016
@@ -35,7 +36,6 @@ alias dig='dig +noall +answer'
 alias ffmpeg='ffmpeg -hide_banner'
 alias ffprobe='ffprobe -hide_banner'
 alias grep='grep --color=auto'
-alias less='less -FRX'
 alias ll='ls -Al'
 alias ls='ls -hv --color=auto --group-directories-first'
 alias tree='tree --dirsfirst -aCI ".git|node_modules"'
