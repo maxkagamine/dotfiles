@@ -1,0 +1,34 @@
+#!/bin/bash
+set -eo pipefail
+
+recycle() {
+  if [[ ! -f "$1" ]]; then
+    return
+  elif command -v nircmdc.exe &>/dev/null; then
+    printf 'recycled %s\n' "$1"
+    nircmdc.exe moverecyclebin "$(wslpath -w "$1")"
+  else
+    rm -v "$1"
+  fi
+}
+
+if [[ ! -d muxed ]]; then
+  echo 'No "muxed" directory from mkv-batch here' >&2
+  exit 1
+fi
+
+mkv-ls muxed
+
+echo
+read -rp 'Accept changes? [Yn] ' yn
+if [[ $yn == 'n' ]]; then
+  exit
+fi
+echo
+
+for f in muxed/*.mkv; do
+  recycle "$(basename "$f")"
+  mv -v "$f" .
+done
+
+rmdir -v muxed
