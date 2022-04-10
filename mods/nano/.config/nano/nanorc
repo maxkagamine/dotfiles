@@ -3,8 +3,8 @@
 set autoindent
 set boldtext
 set linenumbers
-# set minibar # v5.5 (Jan 2021)
-set mouse
+set minibar # v5.5 (Jan 2021)
+# set mouse
 set nohelp
 set numbercolor brightblack,normal
 set smarthome
