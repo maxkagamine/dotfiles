@@ -59,10 +59,11 @@ list_tracks() {
           .codec + "\t" +
           .properties.language + "\t" +
           (if .properties.default_track then "✓" else "" end) + "\t" +
+          (if .properties.forced_track then "✓" else "" end) + "\t" +
           ('"$jq_track_name"')
         )
       end
-    ' | column -ts $'\t' -N 'TID,Type,Codec,Lang,Def,Name'
+    ' | column -ts $'\t' -N 'TID,Type,Codec,Lang,Def,For,Name'
 }
 
 if (( ${#paths[@]} == 1 )); then
