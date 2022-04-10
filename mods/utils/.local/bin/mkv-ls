@@ -72,8 +72,9 @@ else
   grouped_tracks=()
 
   for f in "${paths[@]}"; do
+    printf '\e[30;1m%s\e[m' "$f"
+
     track_list=$(list_tracks "$f")
-    # underlined_name=$'\e[4m'"$(basename "$f")"$'\e[m'
     escaped_name=$(printf '%q' "$f")
 
     # Look for identical track list
@@ -91,12 +92,13 @@ else
       grouped_filenames+=("$escaped_name")
       grouped_tracks+=("$track_list")
     fi
+
+    printf '\r\e[K'
   done
 
   # Print groups
   for i in "${!grouped_tracks[@]}"; do
     (( i > 0 )) && echo
-    #column -s $'\n' <<<"${grouped_filenames[$i]}"
     printf '\e[30;1m%s\e[m\n' "${grouped_filenames[$i]}"
     echo "${grouped_tracks[$i]}"
   done
