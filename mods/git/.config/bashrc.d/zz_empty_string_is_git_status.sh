@@ -3,6 +3,8 @@
 # Alias empty string to `git status` when in git repo.
 # HISTCONTROL must not have ignoredups or ignoreboth.
 
+unset HISTCONTROL
+
 _ps1_empty_string_alias() {
   "$@"
 
