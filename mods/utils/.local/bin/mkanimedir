@@ -68,18 +68,21 @@ if [[ ! $title || $title == 'null' ]]; then
 fi
 
 # Create or rename directory
-dir=$(sanitize_filename "$title")
+base=$(dirname "$existing_dir") # . if empty
+dir=$base/$(sanitize_filename "$title")
 
-if [[ -e $dir ]]; then
-  throw "a file/directory named '$dir' already exists"
-fi
+if [[ ! $existing_dir -ef "$dir" ]]; then
+  if [[ -e $dir ]]; then
+    throw "a file/directory named '$dir' already exists"
+  fi
 
-if [[ $existing_dir ]]; then
-  mv "$existing_dir" "$dir"
-  echo "Renamed '$existing_dir' to '$dir'"
-else
-  mkdir "$dir"
-  echo "Created '$dir'"
+  if [[ $existing_dir ]]; then
+    mv "$existing_dir" "$dir"
+    echo "Renamed '$existing_dir' to '$dir'"
+  else
+    mkdir "$dir"
+    echo "Created '$dir'"
+  fi
 fi
 
 # Download image
