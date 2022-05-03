@@ -11,12 +11,18 @@ sanitize_filename() {
   perl -pe 's/[<>:"\/\\|?*]/ /g; s/ +/ /g; s/^ +|[ \.]+$//g' <<<"$1"
 }
 
+html_unescape() {
+  python3 -c 'import html,sys;print(html.unescape(sys.stdin.read()),end="")'
+}
+
 if [[ $# == 0 || $1 =~ ^(--help|-h)$ ]]; then
   cat >&2 <<EOF
-Usage: mkanimedir <mal link> [<dir>|<files...>]
+Usage: mkanimedir <mal link> [<nyaa link>] [<dir>|<files...>]
 
 Creates (or renames) a directory with the anime name and image (as a hidden
 folder.jpg) from MAL, moving any given files into it.
+
+If given a nyaa URL, will create a readme.md as well.
 
 Example:
   mkanimedir https://myanimelist.net/anime/6547/Angel_Beats
@@ -26,6 +32,7 @@ fi
 
 # Parse options
 mal_id=
+nyaa_id=
 existing_dir=
 files=()
 while (( $# > 0 )); do
@@ -38,6 +45,12 @@ while (( $# > 0 )); do
         throw 'unrecognized mal url'
       fi
       mal_id=${BASH_REMATCH[1]}
+      ;;
+    https://nyaa.si/*)
+      if [[ ! $1 =~ ^https://nyaa.si/view/([[:digit:]]+) ]]; then
+        throw 'unrecognized nyaa url'
+      fi
+      nyaa_id=${BASH_REMATCH[1]}
       ;;
     *)
       if [[ -d $1 ]]; then
@@ -56,7 +69,7 @@ while (( $# > 0 )); do
 done
 
 # Get mal info
-if ! json=$(curl -sSL https://api.jikan.moe/v4/anime/"$mal_id"); then
+if ! json=$(curl -sSL "https://api.jikan.moe/v4/anime/$mal_id"); then
   throw 'failed to get mal data from jikan.moe'
 fi
 
@@ -65,6 +78,19 @@ image=$(jq -r .data.images.jpg.large_image_url <<<"$json")
 
 if [[ ! $title || $title == 'null' ]]; then
   throw 'unexpected response from jikan.moe'
+fi
+
+# Get nyaa info
+if [[ $nyaa_id ]]; then
+  nyaa_url="https://nyaa.si/view/$nyaa_id"
+  if ! nyaa_html=$(curl -sS "$nyaa_url"); then
+    throw 'failed to fetch nyaa url'
+  fi
+  if ! nyaa_desc=$(grep -Pzo '(?s)(?<=id="torrent-description">).*?(?=</div>)' <<<"$nyaa_html" | tr -d '\0' | html_unescape) ||
+     ! nyaa_hash=$(grep -Po '(?<=<kbd>)[0-9a-f]{40}(?=</kbd>)' <<<"$nyaa_html") ||
+     ! nyaa_title=$(grep -Po '(?<=<title>).*(?= :: Nyaa</title>)' <<<"$nyaa_html" | html_unescape); then
+     throw 'failed to parse nyaa html'
+  fi
 fi
 
 # Create or rename directory
@@ -81,7 +107,7 @@ if [[ ! $existing_dir -ef "$dir" ]]; then
     echo "Renamed '$existing_dir' to '$dir'"
   else
     mkdir "$dir"
-    echo "Created '$dir'"
+    echo "Created $dir"
   fi
 fi
 
@@ -99,6 +125,20 @@ if [[ $image && $image != 'null' ]]; then
   fi
 else
   echo "No folder.jpg was created, as the api did not return an image" >&2
+fi
+
+# Create readme
+if [[ $nyaa_id ]]; then
+  cat >"$dir/readme.md" <<EOF
+# $nyaa_title
+
+[\`$nyaa_hash\`]($nyaa_url)
+
+## Source description
+
+$nyaa_desc
+EOF
+  echo "Created readme.md"
 fi
 
 # Move files into directory
