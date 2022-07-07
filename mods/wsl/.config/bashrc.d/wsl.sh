@@ -1,12 +1,14 @@
 # shellcheck shell=bash
 
-CDPATH='.:/home/max/Projects:/mnt/s:/mnt/c/Users/max'
+CDPATH='.:~:~/Projects:/mnt/s:/mnt/c/Users/max'
 
 alias .e='code "$DOTFILES_DIR"'
 
 w() {
   [[ $# == 0 || ( $# == 1 && ! $1 ) ]] && set .
-  local p; for p; do wslpath -w "$p"; done
+  local p; for p; do
+    wslpath -w "$p" | sed 's/^\\\\wsl$\\Ubuntu\\/L:\\/'
+  done
 }
 
 exp() {
