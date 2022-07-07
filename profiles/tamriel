@@ -43,7 +43,6 @@ sudo apt-get install -qy \
   fzf \
   gifsicle \
   google-cloud-cli \
-  imagemagick \
   jq \
   libimage-exiftool-perl \
   mediainfo \
@@ -62,6 +61,8 @@ mkdir -p ~/.local/bin
 
 ln -fs /usr/bin/batcat ~/.local/bin/bat
 ln -fs /usr/bin/fdfind ~/.local/bin/fd
+
+curl -sSL https://dist.1-2.dev/imei.sh | sudo bash - # ImageMagick 7 (https://softcreatr.github.io/imei/)
 
 wget https://github.com/BlackReloaded/wsl2-ssh-pageant/releases/latest/download/wsl2-ssh-pageant.exe \
   -O ~/.local/bin/wsl2-ssh-pageant.exe; chmod +x "$_"
