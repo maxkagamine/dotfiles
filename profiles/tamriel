@@ -10,9 +10,10 @@ EOF
 #endregion
 
 #region Network drive mount
-if [[ ! -d /mnt/s ]]; then
-  echo 'S: /mnt/s drvfs uid=1000,gid=1000,umask=022,fmask=111 0 0' | \
-    sudo tee -a /etc/fstab >/dev/null && sudo mkdir /mnt/s && sudo mount -a
+if ! grep -q /mnt/s /etc/fstab; then
+  sudo tee -a /etc/fstab >/dev/null <<<'S: /mnt/s drvfs defaults 0 0'
+  sudo mkdir /mnt/s
+  sudo mount -a
 fi
 #endregion
 
