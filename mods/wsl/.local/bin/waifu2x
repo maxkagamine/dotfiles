@@ -1,0 +1,83 @@
+#!/bin/bash
+set -eo pipefail
+
+# Leaving the program here for now
+PATH="/mnt/c/Users/max/Downloads/_SOFTWARE/waifu2x-ncnn-vulkan:$PATH"
+
+if [[ $# == 0 || $1 =~ ^(--help|-h)$ ]]; then
+  cat >&2 <<EOF
+Usage: waifu2x [-s <scale>] [-n <denoise>] <image...>
+
+Upscales each image using the Windows waifu2x-ncnn-vulkan binary, which uses
+the GPU. Output file is placed in the same directory with the scale (and, if
+not default, denoise level) appended to the filename.
+
+Options passed to waifu2x:
+
+  -s <scale>      upscale ratio (1/2/4/8/16/32, default=2)
+  -n <denoise>    denoise level (-1/0/1/2/3, default=0)
+EOF
+  exit 1
+fi
+
+throw() {
+  printf '%s: %s\n' "${0##*/}" "$1" >&2
+  return 1
+}
+
+scale=2
+denoise=0
+paths=()
+while (( $# > 0 )); do
+  case $1 in
+    --)
+      shift
+      paths+=("$@")
+      break
+      ;;
+    # scale
+    -s)
+      shift
+      scale=$1
+      ;;
+    -s*)
+      scale=${1#-s}
+      ;;
+    # denoise
+    -n)
+      shift
+      denoise=$1
+      ;;
+    -n*)
+      denoise=${1#-n}
+      ;;
+    -*)
+      throw "unknown option: $1"
+      ;;
+    *)
+      paths+=("$1")
+      ;;
+  esac
+  shift
+done
+
+for input in "${paths[@]}"; do
+
+  upscale_info="[${scale}x"
+  if [[ $denoise != 0 ]]; then
+    upscale_info+=", denoise ${denoise}"
+  fi
+  upscale_info+=']'
+
+  input_win=$(wslpath -w "$input")
+
+  output="${input%.*} ${upscale_info}.${input##*.}"
+  output_win="$(wslpath -w "$(dirname "$input")")\\$(basename "$output")"
+
+  waifu2x-ncnn-vulkan.exe \
+    -s "$scale" \
+    -n "$denoise" \
+    -i "$input_win" \
+    -o "$output_win"
+
+done
