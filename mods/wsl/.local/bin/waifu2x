@@ -1,12 +1,14 @@
 #!/bin/bash
 set -eo pipefail
 
+AUTO_HEIGHT=2160
+
 # Leaving the program here for now
 PATH="/mnt/c/Users/max/Downloads/_SOFTWARE/waifu2x-ncnn-vulkan:$PATH"
 
 if [[ $# == 0 || $1 =~ ^(--help|-h)$ ]]; then
   cat >&2 <<EOF
-Usage: waifu2x [-s <scale>] [-n <denoise>] <image...>
+Usage: waifu2x [--auto] [-s <scale>] [-n <denoise>] <image...>
 
 Upscales each image using the Windows waifu2x-ncnn-vulkan binary, which uses
 the GPU. Output file is placed in the same directory with the scale (and, if
@@ -16,6 +18,10 @@ Options passed to waifu2x:
 
   -s <scale>      upscale ratio (1/2/4/8/16/32, default=2)
   -n <denoise>    denoise level (-1/0/1/2/3, default=0)
+
+Additional options:
+
+  --auto          upscales to ${AUTO_HEIGHT}p or better
 EOF
   exit 1
 fi
@@ -23,6 +29,13 @@ fi
 throw() {
   printf '%s: %s\n' "${0##*/}" "$1" >&2
   return 1
+}
+
+run() {
+  printf '\n> '
+  printf '%q ' "$@"
+  printf '\n\n'
+  "$@"
 }
 
 scale=2
@@ -42,6 +55,9 @@ while (( $# > 0 )); do
       ;;
     -s*)
       scale=${1#-s}
+      ;;
+    --auto)
+      scale=auto
       ;;
     # denoise
     -n)
@@ -63,7 +79,24 @@ done
 
 for input in "${paths[@]}"; do
 
-  upscale_info="[${scale}x"
+  image_scale=$scale
+  if [[ $scale == 'auto' ]]; then
+    image_height=$(identify -format '%h' "$input")
+    minimum_scale=$(( (AUTO_HEIGHT + image_height - 1) / image_height ))
+    if (( minimum_scale > 16 )); then
+      image_scale=32
+    elif (( minimum_scale > 8 )); then
+      image_scale=16
+    elif (( minimum_scale > 4 )); then
+      image_scale=8
+    elif (( minimum_scale > 2 )); then
+      image_scale=4
+    else
+      image_scale=2
+    fi
+  fi
+
+  upscale_info="[${image_scale}x"
   if [[ $denoise != 0 ]]; then
     upscale_info+=", denoise ${denoise}"
   fi
@@ -74,8 +107,8 @@ for input in "${paths[@]}"; do
   output="${input%.*} ${upscale_info}.${input##*.}"
   output_win="$(wslpath -w "$(dirname "$input")")\\$(basename "$output")"
 
-  waifu2x-ncnn-vulkan.exe \
-    -s "$scale" \
+  run waifu2x-ncnn-vulkan.exe \
+    -s "$image_scale" \
     -n "$denoise" \
     -i "$input_win" \
     -o "$output_win"

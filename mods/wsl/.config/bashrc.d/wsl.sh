@@ -5,6 +5,7 @@ CDPATH='.:~:~/Projects:/mnt/s:/mnt/c/Users/max'
 alias .e='code "$DOTFILES_DIR"'
 alias 2x='waifu2x'
 alias 4x='waifu2x -s 4'
+alias xx='waifu2x --auto'
 
 w() {
   [[ $# == 0 || ( $# == 1 && ! $1 ) ]] && set .
