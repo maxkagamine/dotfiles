@@ -1,6 +1,6 @@
 # shellcheck shell=bash
 
-CDPATH='.:~:~/Projects:/mnt/s:/mnt/c/Users/max'
+CDPATH='.:~:~/Projects:/mnt/c/Users/max/Projects:/mnt/s:/mnt/c/Users/max'
 
 alias .e='code "$DOTFILES_DIR"'
 alias 2x='waifu2x'
