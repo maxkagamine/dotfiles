@@ -23,5 +23,6 @@ stow -R \
   git \
   nano \
   starship \
+  sweetroll \
   unraid \
   utils

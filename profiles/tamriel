@@ -94,6 +94,7 @@ stow -R \
   nano \
   node \
   starship \
+  sweetroll \
   utils \
   wsl \
   yt-dlp

@@ -42,16 +42,16 @@ gg() {
     # Only some changes staged
     echo 'Committing only staged changes.'
   fi
-  git commit "${opts[@]}"
+  git commit "${opts[@]}" && sweetroll skill Committing
 }
 
 fus() {
   # https://kagamine.dev/en/fus-ro-dah/
   if [[ $* =~ ^ro\ dah ]]; then
-    git nuke && sweetroll --sfx fusrodah
+    git nuke && sweetroll play fusrodah
   else
     ( cd "$(git rev-parse --show-toplevel)" && # git clean operates in current dir
-      git reset --hard && git clean -fd && sweetroll --sfx fus )
+      git reset --hard && git clean -fd && sweetroll play fus )
   fi
   sweetroll $?
 }

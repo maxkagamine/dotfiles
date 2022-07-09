@@ -100,7 +100,11 @@ Miscellaneous utilities:
 - [**waifu2x**](mods/utils/.local/bin/waifu2x) - Convenient wrapper for [waifu2x-ncnn-vulkan](https://github.com/nihui/waifu2x-ncnn-vulkan)
 - [**weigh**](mods/utils/.local/bin/weigh) — Shows the total size of files, directories, or stdin (optionally gzipped).
 
-## [bat](mods/bat/.config/bashrc.d/bat.sh)
+## <img src="https://images.uesp.net/9/93/SR-icon-food-SweetRoll.png" height="23" valign="middle" /> &hairsp;[sweetroll](mods/sweetroll/.local/bin/sweetroll)
+
+_I need to ask you to stop. That... committing... is making people nervous._
+
+In case you missed it: [**Nuke a git repo with unrelenting force: the FUS RO DAH command**](https://kagamine.dev/en/fus-ro-dah/)
 
 ## [dircolors](mods/dircolors)
 
@@ -126,6 +130,10 @@ Fancy [keyboard shortcuts](https://github.com/junegunn/fzf#key-bindings-for-comm
 
 ## [starship](mods/starship/.config)
 
-## [yt-dlp](mods/yt-dlp/.config) (youtube-dl successor)
+🚀
+
+## [yt-dlp](mods/yt-dlp/.config)
+
+(youtube-dl successor)
 
 Because nothing on the Internet is guaranteed to be there tomorrow.
