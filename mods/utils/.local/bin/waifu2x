@@ -3,16 +3,18 @@ set -eo pipefail
 
 AUTO_HEIGHT=2160
 
-# Leaving the program here for now
-PATH="/mnt/c/Users/max/Downloads/_SOFTWARE/waifu2x-ncnn-vulkan:$PATH"
+if [[ $WSL_DISTRO_NAME ]]; then
+  # Leaving it here for now. Using the Windows binary to take advantage of GPU.
+  PATH="/mnt/c/Users/max/Downloads/_SOFTWARE/waifu2x-ncnn-vulkan:$PATH"
+fi
 
 if [[ $# == 0 || $1 =~ ^(--help|-h)$ ]]; then
   cat >&2 <<EOF
 Usage: waifu2x [--auto] [-s <scale>] [-n <denoise>] <image...>
 
-Upscales each image using the Windows waifu2x-ncnn-vulkan binary, which uses
-the GPU. Output file is placed in the same directory with the scale (and, if
-not default, denoise level) appended to the filename.
+Upscales each image using waifu2x-ncnn-vulkan. Output file is placed in the
+same directory with the scale (and, if not default, denoise level) appended to
+the filename.
 
 Options passed to waifu2x:
 
@@ -102,15 +104,19 @@ for input in "${paths[@]}"; do
   fi
   upscale_info+=']'
 
-  input_win=$(wslpath -w "$input")
-
+  cmd='waifu2x-ncnn-vulkan'
   output="${input%.*} ${upscale_info}.${input##*.}"
-  output_win="$(wslpath -w "$(dirname "$input")")\\$(basename "$output")"
 
-  run waifu2x-ncnn-vulkan.exe \
+  if [[ $WSL_DISTRO_NAME ]]; then
+    cmd+='.exe'
+    output="$(wslpath -w "$(dirname "$input")")\\$(basename "$output")"
+    input=$(wslpath -w "$input")
+  fi
+
+  run "$cmd" \
     -s "$image_scale" \
     -n "$denoise" \
-    -i "$input_win" \
-    -o "$output_win"
+    -i "$input" \
+    -o "$output"
 
 done
