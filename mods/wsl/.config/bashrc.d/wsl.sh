@@ -6,9 +6,7 @@ alias .e='code "$DOTFILES_DIR"'
 
 w() {
   [[ $# == 0 || ( $# == 1 && ! $1 ) ]] && set .
-  local p; for p; do
-    wslpath -w "$p" | sed 's/^\\\\wsl$\\Ubuntu\\/L:\\/'
-  done
+  local p; for p; do wslpath -w "$p"; done
 }
 
 exp() {
