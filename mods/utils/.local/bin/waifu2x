@@ -10,7 +10,7 @@ fi
 
 if [[ $# == 0 || $1 =~ ^(--help|-h)$ ]]; then
   cat >&2 <<EOF
-Usage: waifu2x [--auto] [-s <scale>] [-n <denoise>] <image...>
+Usage: waifu2x [--auto] [-s <scale>] [-n <denoise>] [-f <format>] <image...>
 
 Upscales each image using waifu2x-ncnn-vulkan. Output file is placed in the
 same directory with the scale (and, if not default, denoise level) appended to
@@ -20,6 +20,7 @@ Options passed to waifu2x:
 
   -s <scale>      upscale ratio (1/2/4/8/16/32, default=2)
   -n <denoise>    denoise level (-1/0/1/2/3, default=0)
+  -f <format>     output image format (jpg/png/webp, default=png)
 
 Additional options:
 
@@ -42,6 +43,7 @@ run() {
 
 scale=2
 denoise=0
+format=png
 paths=()
 while (( $# > 0 )); do
   case $1 in
@@ -68,6 +70,14 @@ while (( $# > 0 )); do
       ;;
     -n*)
       denoise=${1#-n}
+      ;;
+    # format
+    -f)
+      shift
+      format=$1
+      ;;
+    -f*)
+      format=${1#-f}
       ;;
     -*)
       throw "unknown option: $1"
@@ -105,7 +115,7 @@ for input in "${paths[@]}"; do
   upscale_info+=']'
 
   cmd='waifu2x-ncnn-vulkan'
-  output="${input%.*} ${upscale_info}.${input##*.}"
+  output="${input%.*} ${upscale_info}.${format}"
 
   if [[ $WSL_DISTRO_NAME ]]; then
     cmd+='.exe'
@@ -117,6 +127,7 @@ for input in "${paths[@]}"; do
     -s "$image_scale" \
     -n "$denoise" \
     -i "$input" \
-    -o "$output"
+    -o "$output" \
+    -f "$format"
 
 done
