@@ -1,8 +1,15 @@
 #!/bin/bash
 set -eo pipefail
+shopt -s nullglob
 
 AUTO_HEIGHT=2160
 AUTO_MIN_PERCENT_INCREASE=10
+
+AUTO_THRESHOLD=$(bc -l <<<"x = ${AUTO_HEIGHT} / (1 + (${AUTO_MIN_PERCENT_INCREASE} / 100)); scale=0; x/1")
+
+scale=2
+denoise=0
+format=png
 
 if [[ $WSL_DISTRO_NAME ]]; then
   # Leaving it here for now. Using the Windows binary to take advantage of GPU.
@@ -17,11 +24,14 @@ Upscales each image using waifu2x-ncnn-vulkan. Output file is placed in the
 same directory with the scale (and, if not default, denoise level) appended to
 the filename.
 
+Directories are expanded to png & jpg files (e.g. \`waifu2x --auto .\` to
+upscale anything in the current directory <${AUTO_THRESHOLD}px tall).
+
 Options passed to waifu2x:
 
-  -s <scale>      upscale ratio (1/2/4/8/16/32, default=2)
-  -n <denoise>    denoise level (-1/0/1/2/3, default=0)
-  -f <format>     output image format (jpg/png/webp, default=png)
+  -s <scale>      upscale ratio (1/2/4/8/16/32, default=${scale})
+  -n <denoise>    denoise level (-1/0/1/2/3, default=${denoise})
+  -f <format>     output image format (jpg/png/webp, default=${format})
 
 Additional options:
 
@@ -43,9 +53,6 @@ run() {
   "$@"
 }
 
-scale=2
-denoise=0
-format=png
 paths=()
 while (( $# > 0 )); do
   case $1 in
@@ -85,20 +92,22 @@ while (( $# > 0 )); do
       throw "unknown option: $1"
       ;;
     *)
-      paths+=("$1")
+      if [[ -d $1 ]]; then
+        paths+=("$1"/*.{png,jpg,jpeg,PNG,JPG,JPEG})
+      else
+        paths+=("$1")
+      fi
       ;;
   esac
   shift
 done
-
-auto_threshold=$(bc -l <<<"x = ${AUTO_HEIGHT} / (1 + (${AUTO_MIN_PERCENT_INCREASE} / 100)); scale=0; x/1")
 
 for input in "${paths[@]}"; do
 
   image_scale=$scale
   if [[ $scale == 'auto' ]]; then
     image_height=$(identify -format '%h' "$input")
-    if (( image_height > auto_threshold )); then
+    if (( image_height > AUTO_THRESHOLD )); then
       printf '\nSkipping %s (height %s above threshold)\n' "$input" "$image_height"
       continue
     fi
