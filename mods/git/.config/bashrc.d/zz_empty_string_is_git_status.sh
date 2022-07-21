@@ -6,8 +6,6 @@
 unset HISTCONTROL
 
 _ps1_empty_string_alias() {
-  "$@"
-
   _LAST="$(history 1)"
   if [[ "$_LAST" == "$_LAST2" ]] &&
     git rev-parse --is-inside-work-tree &>/dev/null; then
@@ -17,5 +15,5 @@ _ps1_empty_string_alias() {
 }
 
 if [[ $PROMPT_COMMAND != *_ps1_empty_string_alias* ]]; then
-  PROMPT_COMMAND="_ps1_empty_string_alias $PROMPT_COMMAND"
+  PROMPT_COMMAND+=$'\n_ps1_empty_string_alias'
 fi
