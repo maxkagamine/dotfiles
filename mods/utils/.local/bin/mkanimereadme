@@ -1,0 +1,70 @@
+#!/bin/bash
+set -eo pipefail
+
+throw() {
+  printf '%s: %s\n' "${0##*/}" "$1" >&2
+  return 1
+}
+
+html_unescape() {
+  python3 -c 'import html,sys;print(html.unescape(sys.stdin.read()),end="")'
+}
+
+if [[ $# == 0 || $1 =~ ^(--help|-h)$ ]]; then
+  cat >&2 <<EOF
+Usage: mkanimereadme <nyaa link> [<dir>]
+
+Creates a readme.md file in <dir> or the current directory.
+EOF
+  exit 1
+fi
+
+# Parse options
+nyaa_id=
+dir=.
+while (( $# > 0 )); do
+  case $1 in
+    https://nyaa.si/*)
+      if [[ ! $1 =~ ^https://nyaa.si/view/([[:digit:]]+) ]]; then
+        throw 'unrecognized nyaa url'
+      fi
+      nyaa_id=${BASH_REMATCH[1]}
+      ;;
+    *)
+      if [[ -d $1 ]]; then
+        dir=$1
+      else
+        throw "'$1' is neither an Nyaa link nor a directory..."
+      fi
+      ;;
+  esac
+  shift
+done
+if [[ ! $nyaa_id ]]; then
+  throw '🐱?'
+fi
+
+# Get nyaa info
+nyaa_url="https://nyaa.si/view/$nyaa_id"
+if ! nyaa_html=$(curl -sS "$nyaa_url"); then
+  throw 'failed to fetch nyaa url'
+fi
+if ! nyaa_desc=$(grep -Pzo '(?s)(?<=id="torrent-description">).*?(?=</div>)' <<<"$nyaa_html" | tr -d '\0' | html_unescape) ||
+   ! nyaa_hash=$(grep -Po '(?<=<kbd>)[0-9a-f]{40}(?=</kbd>)' <<<"$nyaa_html") ||
+   ! nyaa_title=$(grep -Po '(?<=<title>).*(?= :: Nyaa</title>)' <<<"$nyaa_html" | html_unescape); then
+   throw 'failed to parse nyaa html'
+fi
+
+# Create readme
+output="$dir/readme.md"
+cat >"$output" <<EOF
+# $nyaa_title
+
+[\`$nyaa_hash\`]($nyaa_url)
+
+## Source description
+
+$nyaa_desc
+EOF
+
+echo "Created ${output#./}"
