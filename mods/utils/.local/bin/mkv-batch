@@ -59,3 +59,5 @@ mkdir -p muxed
 for f in "${paths[@]}"; do
   mkvmerge "${opts[@]}" "$f" -o "muxed/$(basename "$f")"
 done
+
+mkv-batch-verify

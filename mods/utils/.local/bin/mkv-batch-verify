@@ -5,7 +5,7 @@ recycle() {
   if [[ ! -f "$1" ]]; then
     return
   elif command -v nircmdc.exe &>/dev/null; then
-    printf 'recycled %s\n' "$1"
+    printf 'recycling %s\n' "$1"
     nircmdc.exe moverecyclebin "$(wslpath -w "$1")"
   else
     rm -v "$1"
