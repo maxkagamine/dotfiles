@@ -57,7 +57,11 @@ fi
 mkdir -p muxed
 
 for f in "${paths[@]}"; do
-  mkvmerge "${opts[@]}" "$f" -o "muxed/$(basename "$f")"
+  # Remove crc from remuxed file (could update but it's pretty useless anyway)
+  filename=$(basename "$f")
+  output="muxed/$(perl -pe 's/ ?\[[a-f0-9]{8}\](?=\.mkv$)//i' <<<"$filename")"
+
+  mkvmerge "${opts[@]}" "$f" -o "$output"
 done
 
 mkv-batch-verify

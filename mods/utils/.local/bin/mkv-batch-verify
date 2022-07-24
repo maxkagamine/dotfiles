@@ -27,7 +27,7 @@ fi
 echo
 
 for f in muxed/*.mkv; do
-  recycle "$(basename "$f")"
+  recycle "$(basename "$f" .mkv)"*.mkv # May have had a crc
   mv -v "$f" .
 done
 
