@@ -27,17 +27,20 @@ EOF
 fi
 
 paths=()
+paths_given=
 while (( $# > 0 )); do
   if [[ -f "$1" ]]; then
     paths+=("$1")
+    paths_given=1
   elif [[ -d "$1" ]]; then
     paths+=("$1"/*.mkv)
+    paths_given=1
   else
     throw "'$1' does not exist"
   fi
   shift
 done
-if (( ${#paths[@]} == 0 )); then
+if [[ ! $paths_given ]]; then
   paths=(*.mkv)
 fi
 

@@ -8,11 +8,14 @@ throw() {
 
 if [[ $# == 0 || $1 =~ ^(--help|-h)$ ]]; then
   cat >&2 <<'EOF'
-Usage: mkv-batch <file...> <mkvmerge opts>
+Usage: mkv-batch [<path...>] <mkvmerge opts>
 
 Runs mkvmerge on each file, placing output in muxed/. Arguments up until one
 beginning with a dash are interpreted as input files; all others are passed to
 mkvmerge.
+
+Directories are expanded to contained *.mkv files (non-recursive). If no paths
+are given, the current directory is used (equivalent to `mkv-batch *.mkv`).
 
 Likely options:
 
@@ -25,19 +28,27 @@ EOF
   exit 1
 fi
 
-files=()
+paths=()
+paths_given=
 opts=()
 while (( $# > 0 )); do
   if [[ $1 == -* ]]; then
     opts=("$@")
     break
+  elif [[ -d "$1" ]]; then
+    paths+=("$1"/*.mkv)
+    paths_given=1
   else
-    files+=("$1")
-    shift
+    paths+=("$1")
+    paths_given=1
   fi
+  shift
 done
-if (( ${#files[@]} == 0 )); then
-  throw 'no input files given'
+if [[ ! $paths_given ]]; then
+  paths=(*.mkv)
+fi
+if (( ${#paths[@]} == 0 )); then
+  throw 'no files to process'
 fi
 if (( ${#opts[@]} == 0 )); then
   throw 'no mkvmerge opts given'
@@ -45,6 +56,6 @@ fi
 
 mkdir -p muxed
 
-for f in "${files[@]}"; do
+for f in "${paths[@]}"; do
   mkvmerge "${opts[@]}" "$f" -o "muxed/$(basename "$f")"
 done
