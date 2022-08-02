@@ -105,6 +105,7 @@ Also take a look at:
 Miscellaneous utilities:
 
 - [**append_crc32**](mods/utils/.local/bin/append_crc32) — Adds (or updates) a file's crc32 hash to its filename.
+- [**intersect_csvs**](mods/utils/.local/bin/intersect_csvs) - Creates CSVs containing only rows that exist in two or more of the given CSVs. For example, given A.csv, B.csv, and C.csv, creates A+B.csv, A+C.csv, B+C.csv, and A+B+C.csv. _(I used this to create [a map of arcades in Tokyo that have my favorite games](https://www.google.com/maps/d/viewer?mid=1kaE2O2LTjoS5Bf2YUCQ6OFJlXuert8U). It can easily be edited to handle files without a header row.)_
 - [**mkanimedir**](mods/utils/.local/bin/mkanimedir) — Turns a MAL link and a bunch of episodes into a nice folder.
 - [**mkv-ls**](mods/utils/.local/bin/mkv-ls) & [**mkv-batch**](mods/utils/.local/bin/mkv-batch) — Tools for batch mkv remuxing using mkvtoolnix. `mkv-ls` shows tracks in a table similar to the GUI but groups identical track listings for batch processing with `mkv-batch`.
   
