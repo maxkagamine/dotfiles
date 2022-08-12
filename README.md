@@ -42,7 +42,7 @@ Oh and _[empty string is git status](mods/git/.config/bashrc.d/zz_empty_string_i
 > And so it became, the shortest `git status` of all:  
 > **Empty string!**
 
-True story. This is a trick I learned a long time ago: using `PROMPT_COMMAND` to compare the last history entry to that which was seen the previous time the prompt was shown, as hitting enter at an empty prompt will run the command again, but the last history number will be the same. Side effect is hitting <kbd>Ctrl+C</kbd> (but not <kbd>Ctrl+U</kbd> or <kbd>Alt+Shift+#</kbd>) at a prompt will trigger git status, too.
+True story. This is a trick I learned a long time ago: using `PROMPT_COMMAND` (or a [precmd hook](https://github.com/rcaloras/bash-preexec)) to compare the last history entry to that which was seen the previous time the prompt was shown, as hitting enter at an empty prompt will run the prompt command again, but the last history number will be the same. Side effect is hitting <kbd>Ctrl+C</kbd> (but not <kbd>Ctrl+U</kbd> or <kbd>Alt+Shift+#</kbd>) at a prompt will trigger git status, too.
 
 Also, check out [<img src="https://raw.githubusercontent.com/vscode-icons/vscode-icons/3df43eb5a6dc932719159aa98d33d082cd1cceb0/icons/file_type_git.svg" height="15" />**git-branch-fzf**](mods/git/.local/bin/git-branch-fzf), my awesome [fzf](https://github.com/junegunn/fzf)-powered interactive branch switcher with keyboard shortcuts to toggle remote branches, delete branches (including remote and even the current branch!), and to [fetch the latest](mods/git/.local/bin/git-checkout-latest) of a branch **before** switching.
 
