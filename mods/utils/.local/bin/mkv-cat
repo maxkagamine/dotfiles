@@ -1,11 +1,14 @@
 #!/bin/bash
 set -eo pipefail
 
-if (( $# < 2 )); then
-  cat >&2 <<EOF
-Usage: mkv-cat <input>... <output>
+if [[ $# == 0 || $1 =~ ^(--help|-h)$ ]]; then
+  cat >&2 <<'EOF'
+Usage: mkv-cat [--no-sort] <input>... <output>
 
 Concatenates the input MKVs, adding chapters for each file.
+
+--no-sort    Concatenate inputs in the order given. By default, input files
+             are appended in natural sort order (same as `ls -v`).
 EOF
   exit 1
 fi
@@ -17,8 +20,42 @@ run() {
   "$@"
 }
 
-inputs=("${@:1:$#-1}")
-output="${!#}"
+throw() {
+  printf '%s: %s\n' "${0##*/}" "$1" >&2
+  return 1
+}
+
+paths=()
+no_sort=
+while (( $# > 0 )); do
+  case $1 in
+    --)
+      shift
+      paths+=("$@")
+      break
+      ;;
+    --no-sort)
+      no_sort=1
+      ;;
+    -*)
+      throw "unknown option: $1"
+      ;;
+    *)
+      paths+=("$1")
+      ;;
+  esac
+  shift
+done
+if (( ${#paths[@]} < 3 )); then
+  throw 'need at least two inputs and an output'
+fi
+
+inputs=("${paths[@]::${#paths[@]}-1}")
+output="${paths[-1]}"
+
+if [[ ! $no_sort ]]; then
+  readarray -t inputs < <(for x in "${inputs[@]}"; do echo "$x"; done | sort -V)
+fi
 
 args=(
   --generate-chapters 'when-appending'
