@@ -113,6 +113,7 @@ Miscellaneous utilities:
   
   <img src="doc/mkv-ls.png" width="500" />
 
+- [**mkv-cat**](mods/utils/.local/bin/mkv-cat) - Concatenates the input MKVs, adding chapters for each file.
 - [**waifu2x**](mods/utils/.local/bin/waifu2x) - Convenient wrapper for [waifu2x-ncnn-vulkan](https://github.com/nihui/waifu2x-ncnn-vulkan)
 - [**weigh**](mods/utils/.local/bin/weigh) — Shows the total size of files, directories, or stdin (optionally gzipped).
 

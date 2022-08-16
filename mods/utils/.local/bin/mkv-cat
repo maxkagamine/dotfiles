@@ -1,0 +1,34 @@
+#!/bin/bash
+set -eo pipefail
+
+if (( $# < 2 )); then
+  cat >&2 <<EOF
+Usage: mkv-cat <input>... <output>
+
+Concatenates the input MKVs, adding chapters for each file.
+EOF
+  exit 1
+fi
+
+run() {
+  printf '\n>'
+  printf ' %q' "$@"
+  printf '\n\n'
+  "$@"
+}
+
+inputs=("${@:1:$#-1}")
+output="${!#}"
+
+args=(
+  --generate-chapters 'when-appending'
+  --generate-chapters-name-template '<FILE_NAME>'
+  -o "$output"
+  "${inputs[0]}"
+)
+
+for input in "${inputs[@]:1}"; do
+  args+=(+ "$input")
+done
+
+run mkvmerge "${args[@]}"
