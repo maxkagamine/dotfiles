@@ -64,6 +64,11 @@ wherethehellami() {
   curl -Ss ipinfo.io/"$1" | jq -r '[.city,.region,.country]|join(", ")'
 }
 
+q() {
+  printf '%q ' "$@"
+  printf '\n'
+}
+
 # Load mods
 for mod in ~/.config/bashrc.d/*.sh; do
   # shellcheck disable=SC1090
