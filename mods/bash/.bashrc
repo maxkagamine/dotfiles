@@ -34,6 +34,7 @@ __cd_to_clipboard() {
 
 # General aliases
 alias .r='. ~/.bashrc'
+alias avifenc='avifenc --min 0 --max 63 -a end-usage=q -a cq-level=33' # Same as Squoosh defaults (quality 30)
 alias cd='>/dev/null cd'
 alias clip='xsel -bi'
 alias dig='dig +noall +answer'

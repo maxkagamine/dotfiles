@@ -44,6 +44,7 @@ sudo apt-get install -qy \
   gifsicle \
   google-cloud-cli \
   jq \
+  libavif-bin \
   libimage-exiftool-perl \
   mediainfo \
   mkvtoolnix \
