@@ -1,0 +1,58 @@
+#!/bin/bash
+set -eo pipefail
+
+throw() {
+  printf '%s: %s\n' "${0##*/}" "$1" >&2
+  return 1
+}
+
+sanitize_filename() {
+  # Replaces chars invalid in Windows file/dir names with a space
+  perl -pe 's/[<>:"\/\\|?*]/ /g; s/ +/ /g; s/^ +|[ \.]+$//g' <<<"$1"
+}
+
+if [[ $# == 0 || $1 =~ ^(--help|-h)$ ]]; then
+  cat >&2 <<EOF
+Usage: mkmoviedir <imdb link>
+
+Creates a directory in the format "Title (Year)" with the poster saved to
+folder.jpg (hidden). If the directory already exists but a folder.jpg doesn't,
+it'll download the poster only.
+EOF
+  exit 1
+fi
+
+if [[ ! $1 =~ ^https://www.imdb.com/title/(tt[[:digit:]]+) ]]; then
+  throw 'unrecognized imdb url'
+fi
+imdb_id=${BASH_REMATCH[1]}
+
+if ! html=$(curl -sSL "https://www.imdb.com/title/$imdb_id/"); then
+  throw 'failed to fetch imdb page'
+fi
+
+if ! title=$(grep -Po '(?<=<title>).*?(?= - IMDb)' <<<"$html" | head -n1); then
+  throw 'failed to extract title'
+fi
+
+if ! image=$(grep -Po '(?<=<meta property="og:image" content=")[^"]+' <<<"$html"); then
+  throw 'failed to extract og:image from page'
+fi
+
+dir=$(sanitize_filename "$title")
+
+mkdir -pv "$dir"
+
+if [[ -e "$dir/folder.jpg" ]]; then
+  echo 'folder.jpg already exists' >&2
+else
+  curl -sSL "$image" -o "$dir/folder.jpg"
+
+  # Hide folder.jpg if on Windows
+  if command -v wslpath &>/dev/null; then
+    attrib.exe +h "$(wslpath -w "$dir/folder.jpg")"
+    echo "Downloaded folder.jpg (and set as hidden)"
+  else
+    echo "Downloaded folder.jpg"
+  fi
+fi
