@@ -20,6 +20,7 @@ bind 'set colored-stats on'
 HISTSIZE=10000
 HISTTIMEFORMAT='%Y-%m-%d %T  '
 export LESS='-FRX --mouse --wheel-lines 2'
+export UNZIP='-O cp932 -DD' # Extract Windows zips using Japanese codepage, don't set timestamp
 
 # Alt+V cd to clipboard (bind nonsense courtesy of fzf's key-bindings.bash)
 # shellcheck disable=SC2016
