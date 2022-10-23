@@ -56,7 +56,8 @@ sweetroll_skill() { # <name>
   echo "$json" > $STATS_FILE
 
   if (( value % XP_PER_LEVEL == 0 )); then
-    printf '\n  ✨ \e[1m%s increased to %s!\e[m ✨\n\n' "$name" "$((value / XP_PER_LEVEL))"
+    level=$(( (value / XP_PER_LEVEL) + 1 ))
+    printf '\n  ✨ \e[1m%s increased to %s!\e[m ✨\n\n' "$name" "$level"
     sweetroll_play levelup
   fi
 }
