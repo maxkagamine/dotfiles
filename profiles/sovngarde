@@ -21,6 +21,7 @@ stow -R \
   docker \
   fzf \
   git \
+  htop \
   nano \
   starship \
   sweetroll \
