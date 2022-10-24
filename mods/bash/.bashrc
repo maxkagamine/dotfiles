@@ -17,6 +17,8 @@ DOTFILES_DIR=$(realpath -m ~/.bashrc/../../..)
 shopt -s histappend globstar
 bind 'set completion-ignore-case on'
 bind 'set colored-stats on'
+bind '"\e[3;5~": kill-word' # Ctrl+Del
+bind '"\C-H": backward-kill-word' # Ctrl+Backspace (note: some terminals send a regular backspace when ctrl+backspace is pressed)
 HISTSIZE=10000
 HISTTIMEFORMAT='%Y-%m-%d %T  '
 export LESS='-FRX --mouse --wheel-lines 2'
