@@ -12,6 +12,10 @@ precmd_empty_string_alias() {
     git status
   fi
   _LAST2="$_LAST"
+
+  jobs -l >/dev/null # Fixes starship bug https://github.com/starship/starship/issues/3096#issuecomment-988527867
 }
 
-precmd_functions+=(precmd_empty_string_alias)
+if [[ "${precmd_functions[*]}" != *precmd_empty_string_alias* ]]; then
+  precmd_functions+=(precmd_empty_string_alias)
+fi
