@@ -130,9 +130,7 @@ In case you missed it: [**Nuke a git repo with unrelenting force: the FUS RO DAH
 
 ## [docker](mods/docker/.config/bashrc.d/docker.sh)
 
-Better `docker ps` / `docker container ls` output, inspired by [docker-pretty-ps](https://github.com/politeauthority/docker-pretty-ps):
-
-<img src="doc/better%20docker%20ps.png" width="500" />
+[ctop](https://github.com/bcicen/ctop) and [runlike](https://github.com/lavie/runlike) functions (themselves run via docker), the latter with color (via [bat](https://github.com/sharkdp/bat)) and an fzf picker.
 
 ## [fzf](mods/fzf/.config/bashrc.d/fzf.sh)
 

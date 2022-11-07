@@ -17,6 +17,7 @@ sh -c "$(curl -fsSL https://starship.rs/install.sh)" -- \
 
 stow -R \
   bash \
+  bat \
   dircolors \
   docker \
   fzf \
