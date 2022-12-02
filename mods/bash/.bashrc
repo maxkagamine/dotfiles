@@ -24,6 +24,10 @@ HISTTIMEFORMAT='%Y-%m-%d %T  '
 export LESS='-FRX --mouse --wheel-lines 2'
 export UNZIP='-O cp932 -DD' # Extract Windows zips using Japanese codepage, don't set timestamp
 
+if [[ $TERM_PROGRAM == 'vscode' ]]; then
+  export EDITOR='code -w'
+fi
+
 # Alt+V cd to clipboard (bind nonsense courtesy of fzf's key-bindings.bash)
 # shellcheck disable=SC2016
 bind -m emacs-standard '"\ev": " \C-b\C-k \C-u`__cd_to_clipboard`\e\C-e\er\C-m\C-y\C-h\e \C-y\ey\C-x\C-x\C-d"'

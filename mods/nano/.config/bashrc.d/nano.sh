@@ -1,3 +1,5 @@
 # shellcheck shell=bash
 
-export EDITOR=nano # ¯\_(ツ)_/¯
+if [[ $TERM_PROGRAM != 'vscode' ]]; then
+  export EDITOR=nano # ¯\_(ツ)_/¯
+fi

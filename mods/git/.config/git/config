@@ -4,7 +4,6 @@
   signingKey = BAFB1EA9420D0109F91943F933BCD7C80AC41AFA
 [core]
   autocrlf = input
-  editor = nano
   excludesFile = ~/.config/git/ignore
   whitespace = trailing-space,tab-in-indent
 [alias]
