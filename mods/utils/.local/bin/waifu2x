@@ -10,10 +10,12 @@ AUTO_THRESHOLD=$(bc -l <<<"x = ${AUTO_HEIGHT} / (1 + (${AUTO_MIN_PERCENT_INCREAS
 scale=2
 denoise=0
 format=png
+upscaler=waifu2x
 
 if [[ $WSL_DISTRO_NAME ]]; then
   # Leaving it here for now. Using the Windows binary to take advantage of GPU.
-  PATH="/mnt/c/Users/max/Downloads/_SOFTWARE/waifu2x-ncnn-vulkan:$PATH"
+  _SOFTWARE='/mnt/c/Users/max/Downloads/_SOFTWARE'
+  PATH="$_SOFTWARE/waifu2x-ncnn-vulkan:$_SOFTWARE/realcugan-ncnn-vulkan:$PATH"
 fi
 
 if [[ $# == 0 || $1 =~ ^(--help|-h)$ ]]; then
@@ -37,6 +39,8 @@ Additional options:
 
   --auto          upscales to ${AUTO_HEIGHT}p or better, skipping images that
                   would not be increased by at least ${AUTO_MIN_PERCENT_INCREASE}%
+
+  --cugan         use realcugan-ncnn-vulkan instead
 EOF
   exit 1
 fi
@@ -88,6 +92,10 @@ while (( $# > 0 )); do
     -f*)
       format=${1#-f}
       ;;
+    # upscaler
+    --cugan)
+      upscaler=realcugan
+      ;;
     -*)
       throw "unknown option: $1"
       ;;
@@ -126,12 +134,15 @@ for input in "${paths[@]}"; do
   fi
 
   upscale_info="[${image_scale}x"
+  if [[ $upscaler != 'waifu2x' ]]; then
+    upscale_info+=", $upscaler"
+  fi
   if [[ $denoise != 0 ]]; then
     upscale_info+=", denoise ${denoise}"
   fi
   upscale_info+=']'
 
-  cmd='waifu2x-ncnn-vulkan'
+  cmd="${upscaler}-ncnn-vulkan"
   output="${input%.*} ${upscale_info}.${format}"
 
   if [[ $WSL_DISTRO_NAME ]]; then
