@@ -1,0 +1,47 @@
+#!/bin/bash
+set -eo pipefail
+
+throw() {
+  printf '%s: %s\n' "${0##*/}" "$1" >&2
+  return 1
+}
+
+if [[ $1 =~ ^(--help|-h)$ ]]; then
+  cat >&2 <<'EOF'
+Usage: mkv-rm-cover <path...>
+
+Removes all image/jpeg and image/png attachments from the given MKVs.
+
+Directories are expanded to contained *.mkv files (non-recursive). If no paths
+are given, the current directory is used (equivalent to `mkv-rm-cover *.mkv`).
+EOF
+  exit 1
+fi
+
+paths=()
+paths_given=
+while (( $# > 0 )); do
+  if [[ -d "$1" ]]; then
+    paths+=("$1"/*.mkv)
+    paths_given=1
+  else
+    paths+=("$1")
+    paths_given=1
+  fi
+  shift
+done
+if [[ ! $paths_given ]]; then
+  paths=(*.mkv)
+fi
+if (( ${#paths[@]} == 0 )); then
+  throw 'no files to process'
+fi
+
+for f in "${paths[@]}"; do
+
+  mkvpropedit "$f" \
+    --delete-attachment mime-type:image/jpeg \
+    --delete-attachment mime-type:image/png |
+    grep -v 'Warning: No attachment matched the spec' || true
+
+done
