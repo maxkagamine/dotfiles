@@ -1,6 +1,8 @@
 #!/bin/bash
 set -eo pipefail
 
+UA='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36'
+
 throw() {
   printf '%s: %s\n' "${0##*/}" "$1" >&2
   return 1
@@ -27,7 +29,7 @@ if [[ ! $1 =~ ^https://www.imdb.com/title/(tt[[:digit:]]+) ]]; then
 fi
 imdb_id=${BASH_REMATCH[1]}
 
-if ! html=$(curl -sSL "https://www.imdb.com/title/$imdb_id/"); then
+if ! html=$(curl -A "$UA" -sSL "https://www.imdb.com/title/$imdb_id/"); then
   throw 'failed to fetch imdb page'
 fi
 
@@ -46,7 +48,7 @@ mkdir -pv "$dir"
 if [[ -e "$dir/folder.jpg" ]]; then
   echo 'folder.jpg already exists' >&2
 else
-  curl -sSL "$image" -o "$dir/folder.jpg"
+  curl -A "$UA" -sSL "$image" -o "$dir/folder.jpg"
 
   # Hide folder.jpg if on Windows
   if command -v wslpath &>/dev/null; then
