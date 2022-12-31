@@ -1,7 +1,12 @@
 # shellcheck shell=bash
 
-[[ ":$PATH:" == *":$HOME/.local/bin:"* ]] || \
+if [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
   PATH="$HOME/.local/bin:$PATH"
+fi
+
+if [[ -d ~/.cargo && ":$PATH:" != *":$HOME/.cargo/bin:"* ]]; then
+  PATH="$HOME/.cargo/bin:$PATH"
+fi
 
 export DOTFILES_DIR
 DOTFILES_DIR=$(realpath -m ~/.bashrc/../../..)
@@ -71,10 +76,9 @@ wherethehellami() {
   curl -Ss ipinfo.io/"$1" | jq -r '[.city,.region,.country]|join(", ")'
 }
 
-q() {
-  printf '%q ' "$@"
-  printf '\n'
-}
+# For dry runs / printing arrays
+q() { printf '%q ' "$@"; printf '\n'; }
+n() { printf '%s\n' "$@"; }
 
 # Load mods
 for mod in ~/.config/bashrc.d/*.sh; do

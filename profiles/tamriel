@@ -61,9 +61,15 @@ mkdir -p ~/.local/bin
 ln -fs /usr/bin/batcat ~/.local/bin/bat
 ln -fs /usr/bin/fdfind ~/.local/bin/fd
 
+curl -fsSL https://sh.rustup.rs | sh -s -- -y --no-modify-path
+PATH="$HOME/.cargo/bin:$PATH"
+
+cargo install --git https://github.com/alexheretic/ab-av1
+cargo install gifski
+
 installers/ffmpeg.sh
 
-curl -sSL https://dist.1-2.dev/imei.sh | sudo bash - # ImageMagick 7 (https://softcreatr.github.io/imei/)
+curl -fsSL https://dist.1-2.dev/imei.sh | sudo bash - # ImageMagick 7 (https://softcreatr.github.io/imei/)
 
 wget https://github.com/BlackReloaded/wsl2-ssh-pageant/releases/latest/download/wsl2-ssh-pageant.exe \
   -O ~/.local/bin/wsl2-ssh-pageant.exe; chmod +x "$_"
@@ -73,12 +79,6 @@ wget https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp \
 
 curl -fsSL https://starship.rs/install.sh | sh -s -- \
   -y -b ~/.local/bin >/dev/null
-
-curl -fsSL https://api.github.com/repos/ImageOptim/gifski/releases/latest | \
-  grep -Po '(?<="browser_download_url": ").*amd64.deb' | \
-  wget -i - -O /tmp/gifski.deb
-sudo apt install /tmp/gifski.deb
-rm /tmp/gifski.deb
 
 wget https://github.com/stuartleeks/wsl-notify-send/releases/latest/download/wsl-notify-send_windows_amd64.zip \
   -O /tmp/wsl-notify-send.zip
