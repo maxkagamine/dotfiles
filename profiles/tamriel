@@ -39,7 +39,6 @@ sudo apt-get install -qy \
   bat \
   build-essential \
   fd-find \
-  ffmpeg \
   fzf \
   gifsicle \
   google-cloud-cli \
@@ -62,6 +61,8 @@ mkdir -p ~/.local/bin
 
 ln -fs /usr/bin/batcat ~/.local/bin/bat
 ln -fs /usr/bin/fdfind ~/.local/bin/fd
+
+installers/ffmpeg.sh
 
 curl -sSL https://dist.1-2.dev/imei.sh | sudo bash - # ImageMagick 7 (https://softcreatr.github.io/imei/)
 
