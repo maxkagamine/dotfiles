@@ -1,0 +1,27 @@
+{
+  "Makefile template": {
+    "prefix": "make",
+    "scope": "makefile",
+    "body": [
+      "${TM_DIRECTORY/^.+\\/(.*)$/$1/}::",
+      "\t\\$(PRINT)",
+      "\t$0"
+    ]
+  },
+  "Require apt": {
+    "prefix": "ifndef",
+    "scope": "makefile",
+    "body": [
+      "ifndef APT",
+      "\t\\$(error ${TM_DIRECTORY/^.+\\/(.*)$/$1/} install requires apt)",
+      "endif",
+    ]
+  },
+  "Install package": {
+    "prefix": "apt",
+    "scope": "makefile",
+    "body": [
+      "sudo apt-get install -qy $0"
+    ]
+  }
+}

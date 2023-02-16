@@ -17,3 +17,13 @@ alias nirw='ni && nrw'
 alias nis='ni && ns'
 
 alias nc='npm-check -su'
+
+# Possibly more secure than adding to PATH, but more importantly it suppresses
+# the warning from 'find' when using -execdir
+command_not_found_handle() {
+  if [[ -x "./node_modules/.bin/$1" ]]; then
+    "./node_modules/.bin/$1" "${@:2}"
+  else
+    /usr/lib/command-not-found -- "$1"
+  fi
+}
