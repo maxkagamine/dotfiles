@@ -1,0 +1,55 @@
+#!/bin/bash
+set -eo pipefail
+
+if [[ $# == 0 || $1 =~ ^(--help|-h)$ ]]; then
+  cat >&2 <<EOF
+Usage: intersect-csvs [-n] <csv 1> <csv 2> ...
+
+Creates CSVs containing only rows that exist in two or more of the given CSVs.
+For example, given A.csv, B.csv, and C.csv, creates A+B.csv, A+C.csv, B+C.csv,
+and A+B+C.csv. Each CSV should have the same header row.
+
+-n    Dry run.
+EOF
+  exit 1
+fi
+
+dry_run=
+if [[ $1 == '-n' ]]; then
+  dry_run=1
+  shift
+fi
+
+header=$(head -1 "$1")
+count=1
+already_created=("$@")
+
+is_already_created() {
+  printf '%s\0' "${already_created[@]}" | grep -Fxqz -- "$1"
+}
+
+create_pairs() {
+  count=0
+
+  for a; do
+    for b; do
+      c="$(tr + '\n' <<<"$(basename "$a" .csv)+$(basename "$b" .csv)" | sort -u | paste -sd+ -).csv"
+      if ! is_already_created "$c"; then
+        printf '\e[31m%s\e[m ∩ \e[32m%s\e[m = \e[35m%s\e[m\n' "$a" "$b" "$c"
+
+        if [[ ! $dry_run ]]; then
+          echo "$header" > "$c"
+          comm -12 <(tail +2 "$a" | sort) <(tail +2 "$b" | sort) >> "$c"
+        fi
+
+        already_created+=("$c")
+        (( count += 1 ))
+      fi
+    done
+  done
+}
+
+# This is admittedly not the most efficient way to do this
+while (( count > 0 )); do
+  create_pairs "${already_created[@]}"
+done

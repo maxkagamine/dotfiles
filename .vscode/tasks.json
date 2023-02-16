@@ -13,17 +13,36 @@
       }
     },
     {
-      "label": "Test",
+      "label": "Watch",
       "type": "shell",
-      "command": "make test",
-      "problemMatcher": "$gcc",
+      "command": "make watch",
+      "isBackground": true,
+      "runOptions": {
+        "runOn": "folderOpen",
+      },
+      "problemMatcher": {
+        "source": "shellcheck",
+        "fileLocation": "relative",
+        "pattern": {
+          "regexp": "^(.*?):(\\d+):(\\d+): (\\w+): (.*) \\[(SC\\d+)\\]$",
+          "file": 1,
+          "line": 2,
+          "column": 3,
+          "severity": 4,
+          "message": 5,
+          "code": 6,
+        },
+        "background": {
+          "beginsPattern": "^make.*?: Entering directory",
+          "endsPattern": "^make.*?: Leaving directory",
+        },
+      },
       "group": {
         "kind": "test",
-        "isDefault": true
       },
       "presentation": {
-        "reveal": "never"
-      }
+        "reveal": "never",
+      },
     }
   ]
 }

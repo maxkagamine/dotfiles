@@ -1,5 +1,8 @@
 {
   "files.associations": {
-    "quotes": "diff"
-  }
+    "quotes": "diff" // See sweetroll mod
+  },
+  // The shellcheck extension only checks open files. Running workspace-wide
+  // instead using custom `make watch` (see tasks.json).
+  "shellcheck.enable": false
 }

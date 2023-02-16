@@ -24,6 +24,7 @@ bind 'set completion-ignore-case on'
 bind 'set colored-stats on'
 bind '"\e[3;5~": kill-word' # Ctrl+Del
 bind '"\C-H": backward-kill-word' # Ctrl+Backspace (note: some terminals send a regular backspace when ctrl+backspace is pressed)
+eval "$(dircolors -b ~/.config/dircolors)"
 HISTSIZE=10000
 HISTTIMEFORMAT='%Y-%m-%d %T  '
 export LESS='-FRX --mouse --wheel-lines 2'
@@ -49,13 +50,9 @@ alias .r='. ~/.bashrc'
 alias cd='>/dev/null cd'
 alias clip='xsel -bi'
 alias dig='dig +noall +answer'
-alias exiftool='exiftool -g -overwrite_original'
-alias ffmpeg='ffmpeg -hide_banner'
-alias ffprobe='ffprobe -hide_banner'
 alias grep='grep --color=auto'
 alias ll='ls -Al'
 alias ls='ls -hv --color=auto --group-directories-first'
-alias tree='tree --dirsfirst -aCI ".git|node_modules"'
 alias tsv="column -ts $'\t' -W0"
 alias unclip='xsel -bo'
 
@@ -74,6 +71,22 @@ wtfismyip() {
 
 wherethehellami() {
   curl -Ss ipinfo.io/"$1" | jq -r '[.city,.region,.country]|join(", ")'
+}
+
+distinct() {
+  # uniq but without needing to be sorted first
+  # https://stackoverflow.com/a/11532197
+  awk '!x[$0]++'
+}
+
+digg() { # Dig deeper (substitute for "ANY")
+  local x
+  for x in A AAAA AFSDB APL CAA CDNSKEY CDS CERT CNAME CSYNC DHCID DLV DNAME \
+           DNSKEY DS EUI48 EUI64 HINFO HIP HTTPS IPSECKEY KEY KX LOC MX NAPTR \
+           NS NSEC NSEC3 NSEC3PARAM OPENPGPKEY PTR RP SIG SMIMEA SOA SPF SRV \
+           SRV SSHFP SVCB TA TKEY TSLA TSIG TXT URI ZONEMD; do
+    dig "$@" "$x"
+  done | distinct # Only show CNAME once
 }
 
 # For dry runs / printing arrays

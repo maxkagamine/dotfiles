@@ -2,3 +2,4 @@
 --target=~
 --no-folding
 --verbose=2
+--ignore=Makefile
