@@ -78,3 +78,24 @@ ifeq "$(shell command -v inotifywait 2>/dev/null)" ""
 	@sudo apt-get install -y inotify-tools >/dev/null
 endif
 	@while $(MAKE) test; inotifywait -qre close_write mods; do :; done
+
+# Unnecessary visualization
+# https://github.com/lindenb/makefile2graph
+graph:
+ifeq "$(shell command -v make2graph 2>/dev/null)" ""
+	rm -rf /tmp/make2graph
+	git clone https://github.com/lindenb/makefile2graph.git /tmp/make2graph
+	make -C /tmp/make2graph
+	sudo make -C /tmp/make2graph install
+	rm -rf /tmp/make2graph
+endif
+ifeq "$(shell command -v dot 2>/dev/null)" ""
+	sudo apt-get install -y graphviz
+endif
+	make -Bnd tamriel sovngarde | \
+		grep -Pv '(stow|Makefile)' | \
+		make2graph | \
+		sed 's/, color="red"//g' | \
+		dot -Gmargin=0.3 -Gbgcolor=transparent -Tpng -o /dev/stdout | \
+		convert /dev/stdin -channel RGB -negate -background '#0d1117' -alpha remove \
+			.github/images/graph.png

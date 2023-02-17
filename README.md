@@ -27,8 +27,10 @@ As Stow doesn't ([yet][stow todo]) support pre/post-install hooks, I'm emulating
 it by placing Makefiles in the mod directories and including them from [the main
 Makefile](Makefile). This keeps mods self-contained with any needed package
 install steps etc., and also allows mods to _depend on other mods_, with Make
-automatically figuring out which mods need to be installed and in what order.
-Some mods are just Makefiles and nothing else.
+automatically figuring out which mods need to be installed and in what
+order:
+
+![Dependency graph](.github/images/graph.png)
 
 Best part about this setup is it doesn't require any frameworks, dotfile
 managers, or YAML files. Just run `make`.
