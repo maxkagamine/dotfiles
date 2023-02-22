@@ -90,6 +90,13 @@ Linux][wsl], because I can't computer
 without a command line but Windows is life (at least until Bethesda releases
 _Skyrim: Chrome OS Edition_).
 
+[**This Alt+V keybind to paste Windows paths as Linux
+paths**](mods/wsl/.config/bashrc.d/wsl.sh) should be useful to any WSL users.
+(`unclip` is an alias for `xsel -bo`, for which I've written [a WSL
+shim](mods/wsl/.local/bin/xsel) that forwards clipboard access to PowerShell,
+which lets commands like [`npx serve`](https://www.npmjs.com/package/serve) that
+aren't WSL-aware copy things to your Windows clipboard).
+
 > ### Setting up GPG & YubiKey for WSL
 >  
 > 1. Install [Gpg4win](https://gpg4win.org/download.html) & [YubiKey Manager](https://www.yubico.com/support/download/yubikey-manager/)

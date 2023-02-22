@@ -34,18 +34,8 @@ if [[ $TERM_PROGRAM == 'vscode' ]]; then
   export EDITOR='code -w'
 fi
 
-# Alt+V cd to clipboard (bind nonsense courtesy of fzf's key-bindings.bash)
-# shellcheck disable=SC2016
-bind -m emacs-standard '"\ev": " \C-b\C-k \C-u`__cd_to_clipboard`\e\C-e\er\C-m\C-y\C-h\e \C-y\ey\C-x\C-x\C-d"'
-__cd_to_clipboard() {
-  local p; p=$(unclip) || return 1
-  if [[ $p == *:\\* ]] && command -v wslpath &>/dev/null; then
-    p=$(wslpath "$p") || return 1
-  fi
-  printf 'cd %q' "$p"
-}
-
 # General aliases
+alias .e='code "$DOTFILES_DIR"'
 alias .r='. ~/.bashrc'
 alias cd='>/dev/null cd'
 alias clip='xsel -bi'
@@ -55,6 +45,8 @@ alias ll='ls -Al'
 alias ls='ls -hv --color=auto --group-directories-first'
 alias tsv="column -ts $'\t' -W0"
 alias unclip='xsel -bo'
+alias x="xargs -d '\n' -L 1"
+alias xx="xargs -d '\n'"
 
 # General-use functions
 mkcd() {

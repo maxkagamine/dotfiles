@@ -2,25 +2,25 @@
 
 CDPATH='.:~:~/Projects:/mnt/c/Users/max/Projects:/mnt/s:/mnt/c/Users/max'
 
-alias .e='code "$DOTFILES_DIR"'
+exp() { w "${1:-.}" | x explorer.exe || true; }
+hide() { w "$@" | x attrib.exe +h; }
+unhide() { w "$@" | x attrib.exe -h; }
+recycle() { w "$@" | x nircmdc.exe moverecyclebin; }
 
 w() {
-  [[ $# == 0 || ( $# == 1 && ! $1 ) ]] && set .
-  local p; for p; do wslpath -w "$p"; done
+  local path
+  for path; do
+    printf '%s\n' "$(wslpath -w "$path")"
+  done
 }
 
-exp() {
-  explorer.exe "$(w "$1")" || true
+# Alt+V pastes Windows paths as WSL paths
+bind -x '"\ev": __paste_wslpath'
+__paste_wslpath() {
+  local before="${READLINE_LINE:0:$READLINE_POINT}"
+  local after="${READLINE_LINE:$READLINE_POINT}"
+  local insert; insert=$(wslpath "$(unclip)")
+  READLINE_LINE="${before}${insert}${after}"
+  ((READLINE_POINT += ${#insert}))
 }
 
-hide() {
-  w "$@" | xargs -d '\n' -L 1 attrib.exe +h
-}
-
-unhide() {
-  w "$@" | xargs -d '\n' -L 1 attrib.exe -h
-}
-
-recycle() {
-  w "$@" | xargs -d '\n' -L 1 nircmdc.exe moverecyclebin
-}
