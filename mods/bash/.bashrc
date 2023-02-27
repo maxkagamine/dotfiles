@@ -81,6 +81,18 @@ digg() { # Dig deeper (substitute for "ANY")
   done | distinct # Only show CNAME once
 }
 
+monitorclip() { # e.g. monitorclip | tee urls.txt
+  local x y
+  x=$(unclip)
+  while true; do
+    y=$(unclip)
+    if [[ $y != "$x" ]]; then
+      echo "$y"
+      x="$y"
+    fi
+  done
+}
+
 # For dry runs / printing arrays
 q() { printf '%q ' "$@"; printf '\n'; }
 n() { printf '%s\n' "$@"; }
