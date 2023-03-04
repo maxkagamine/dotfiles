@@ -1,0 +1,76 @@
+#!/bin/bash
+# shellcheck disable=SC2088,SC2029
+#
+# This script can be added to crontab (see cron-wrapper) to automatically pull
+# completed downloads off a seedbox as soon as they're finished. Unlike various
+# sync solutions, it's a simple one-way move, and you can have it drop files in
+# your regular Downloads instead of needing a dedicated sync folder.
+#
+# In ruTorrent, make sure AutoMove is enabled and set to "Hard link" and the
+# REMOTE_DIR below. Torrents will continue seeding until removed either manually
+# or by a ratio group (e.g. 200%/0/0/720h/Remove data). AutoWatch can be set to
+# the same path (you could add a second rsync to send torrent files up to the
+# box; I use WinSCP's right click > Send To > Seedbox instead). Note: you may
+# wish to reduce the watch interval in rutorrent/plugins/autotools/conf.php.
+#
+# Add the following to ~/.ssh/config and mkdir ~/.ssh/controlmasters to keep a
+# persistent ssh connection to the seedbox:
+#
+#   Host *
+#     ControlPath ~/.ssh/controlmasters/%r@%h:%p
+#     ControlMaster auto
+#     ControlPersist 10m
+#
+# For details, see https://en.wikibooks.org/wiki/OpenSSH/Cookbook/Multiplexing
+#
+# Note: rsync could be replaced with rclone to download in parallel.
+#
+set -e
+
+REMOTE_HOST='seedbox'
+REMOTE_DIR='~/downloads/sync/'
+LOCAL_DIR='/mnt/c/Users/max/Downloads/'
+TEMP_DIR='/mnt/c/Users/max/AppData/Local/Temp/'
+
+# Connect ssh to Gpg4win so that it can use my Yubikey to log into the seedbox
+export SSH_AUTH_SOCK="$HOME/.ssh/agent.sock"
+if ! ss -a | grep -q "$SSH_AUTH_SOCK"; then
+  setsid nohup socat UNIX-LISTEN:"$SSH_AUTH_SOCK,fork" EXEC:"$HOME/.local/bin/wsl2-ssh-pageant.exe" >/dev/null 2>&1
+fi
+
+# Check if there's anything to transfer
+readarray -t downloads < <(ssh "$REMOTE_HOST" \
+  find "$REMOTE_DIR" -mindepth 1 -maxdepth 1 -not -name '*.torrent')
+wait $! # https://stackoverflow.com/a/72045997
+count=${#downloads[@]}
+
+if (( count == 0 )); then
+  exit
+fi
+
+# Move the completed files off the seedbox
+rsync \
+  -vv \
+  --remove-source-files \
+  --recursive \
+  --copy-links \
+  --ignore-existing \
+  --whole-file \
+  --exclude='*.torrent' \
+  --temp-dir="$TEMP_DIR" \
+  "$REMOTE_HOST:$REMOTE_DIR" \
+  "$LOCAL_DIR"
+
+# Remove any empty directories rsync left behind
+ssh "$REMOTE_HOST" \
+  find "$REMOTE_DIR" -mindepth 1 -depth -type d -empty -delete
+
+# Show a notification
+message="Transferred $(basename "${downloads[0]}")"
+if (( count == 2 )); then
+  message+=" and $(basename "${downloads[1]}")"
+elif (( count > 2 )); then
+  message+=" and $((count - 1)) others."
+fi
+
+notify-send --category 'Pull from seedbox' "$message"

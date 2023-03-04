@@ -1,0 +1,60 @@
+#!/bin/bash
+#
+# This wrapper script for cronjobs does three things:
+#
+# 1. Prevent a new instance from starting while the job is already running,
+#    similar to wrapping with `flock` or `run-one`.
+#
+# 2. Append to a log file, with timestamps, truncating it to a set number of
+#    lines before starting (so the latest run's full output is always present)
+#
+# 3. Send a notification if the command fails, using notify-send. In WSL, I use
+#    https://github.com/stuartleeks/wsl-notify-send to trigger a Windows
+#    notification.
+#
+# Examples:
+#
+#   0 0 */3 * * SCRIPT_NAME='Download YouTube playlists' /home/max/.local/bin/cron-wrapper /mnt/s/Videos/YouTube\ Playlists/download.sh
+#   * * *   * * /home/max/.local/bin/cron-wrapper /home/max/.local/bin/pull-from-seedbox
+#
+# These will create log files at ~/.cache/download-youtube-playlists.log and
+# ~/.cache/pull-from-seedbox.log, respectively. The same name is used as a key
+# for each job's lockfile.
+#
+set -eo pipefail
+
+if (( $# == 0 )); then
+  exit
+fi
+
+export PATH="$HOME/.local/bin:$PATH"
+
+CMD="$1"
+ARGS=("${@:2}")
+
+SCRIPT_NAME=${SCRIPT_NAME:-$(basename "$CMD" .sh | sed -E 's/[-_]/ /g;s/^./\U&/g')}
+IDENTIFIER=$(sed 's/ /-/g;s/.*/\L&/' <<<"$SCRIPT_NAME")
+LOG=${LOG:-"$HOME/.cache/$IDENTIFIER.log"}
+LOG_LINES=${LOG_LINES:-3000}
+LOCKFILE="/tmp/$IDENTIFIER.lock"
+
+if [[ -e $LOCKFILE && -d /proc/$(cat "$LOCKFILE") ]]; then
+  exit
+fi
+
+echo $$ > "$LOCKFILE"
+trap 'rm "$LOCKFILE"' EXIT
+
+tag() {
+  awk -v tag="$1" '{ printf "[%s] %s\n", tag, $0; fflush(stdout) }'
+}
+
+mkdir -p "$(dirname "$LOG")"
+touch "$LOG"
+if l=$(wc -l <"$LOG") && (( l > LOG_LINES )); then
+  printf '1,$-%sd\nw\n' "$LOG_LINES" | ed -s "$LOG"
+fi
+
+if ! "$CMD" "${ARGS[@]}" 2>&1 | tag "$(date -Is)" | tee -a "$LOG"; then
+  notify-send --category "$SCRIPT_NAME" "Cronjob failed. Logs in ${LOG/$HOME/\~}"
+fi

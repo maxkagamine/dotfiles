@@ -172,9 +172,9 @@ command, but for screenshot purposes I used the `!()` glob syntax instead.)_
 
 Additional tools:
 
-- [**mkv-cat**](mods/mkvtoolnix/.local/bin/mkv-cat) - Concatenates the input
+- [**mkv-cat**](mods/mkvtoolnix/.local/bin/mkv-cat) — Concatenates the input
   MKVs, adding chapters for each file.
-- [**mkv-rm-cover**](mods/mkvtoolnix/.local/bin/mkv-rm-cover) - Removes all
+- [**mkv-rm-cover**](mods/mkvtoolnix/.local/bin/mkv-rm-cover) — Removes all
   image/jpeg and image/png attachments from the given MKVs.
 
 ## ⚙&hairsp;[misc utils](mods/misc-utils/.local/bin)
@@ -183,7 +183,12 @@ Miscellaneous utilities:
 
 - [**append-crc**](mods/misc-utils/.local/bin/append-crc) — Adds (or updates) a
   file's crc32 hash to its filename.
-- [**intersect-csvs**](mods/misc-utils/.local/bin/intersect-csvs) - Creates CSVs
+- [**cron-wrapper**](mods/misc-utils/.local/bin/cron-wrapper) — Wrapper script
+  for cronjobs that prevents multiple instances, handles logging, and triggers a
+  notification on error. Used for
+  [**pull-from-seedbox**](mods/wsl/.local/bin/pull-from-seedbox) and another
+  script that runs yt-dlp to backup YouTube playlists.
+- [**intersect-csvs**](mods/misc-utils/.local/bin/intersect-csvs) — Creates CSVs
   containing only rows that exist in two or more of the given CSVs. For example,
   given A.csv, B.csv, and C.csv, creates A+B.csv, A+C.csv, B+C.csv, and
   A+B+C.csv. I used this to create [a
@@ -192,9 +197,9 @@ Miscellaneous utilities:
   handle files without a header row.
 - [**mkanimedir**](mods/misc-utils/.local/bin/mkanimedir) — Turns a MAL link and
   a bunch of episodes into a nice folder.
-- [**mkmoviedir**](mods/misc-utils/.local/bin/mkmoviedir) - Like mkanimedir but
+- [**mkmoviedir**](mods/misc-utils/.local/bin/mkmoviedir) — Like mkanimedir but
   for an IMDb link.
-- [**waifu2x**](mods/misc-utils/.local/bin/waifu2x) - Convenient wrapper for
+- [**waifu2x**](mods/misc-utils/.local/bin/waifu2x) — Convenient wrapper for
   [waifu2x-ncnn-vulkan](https://github.com/nihui/waifu2x-ncnn-vulkan)
 - [**weigh**](mods/misc-utils/.local/bin/weigh) — Shows the total size of files,
   directories, or stdin (optionally gzipped).
