@@ -3,7 +3,7 @@
 #
 # This script can be added to crontab (see cron-wrapper) to automatically pull
 # completed downloads off a seedbox as soon as they're finished. Unlike various
-# sync solutions, it's a simple one-way move, and you can have it drop files in
+# sync solutions, it's a simple one-way move, so you can have it drop files in
 # your regular Downloads instead of needing a dedicated sync folder.
 #
 # In ruTorrent, make sure AutoMove is enabled and set to "Hard link" and the
@@ -31,6 +31,8 @@ REMOTE_HOST='seedbox'
 REMOTE_DIR='~/downloads/sync/'
 LOCAL_DIR='/mnt/c/Users/max/Downloads/'
 TEMP_DIR='/mnt/c/Users/max/AppData/Local/Temp/'
+
+SCRIPT_NAME=$(basename "${BASH_SOURCE[0]}" | title-case)
 
 # Connect ssh to Gpg4win so that it can use my Yubikey to log into the seedbox
 export SSH_AUTH_SOCK="$HOME/.ssh/agent.sock"
@@ -66,11 +68,12 @@ ssh "$REMOTE_HOST" \
   find "$REMOTE_DIR" -mindepth 1 -depth -type d -empty -delete
 
 # Show a notification
-message="Transferred $(basename "${downloads[0]}")"
-if (( count == 2 )); then
-  message+=" and $(basename "${downloads[1]}")"
-elif (( count > 2 )); then
-  message+=" and $((count - 1)) others."
+# Note: --appId is specific to wsl-notify-send
+title="$count file"
+if (( count > 1 )); then
+  title+='s'
 fi
+title+=' transferred'
 
-notify-send --category 'Pull from seedbox' "$message"
+notify-send --appId "$SCRIPT_NAME" --category "$title" \
+  "$(basename -a "${downloads[@]}")"

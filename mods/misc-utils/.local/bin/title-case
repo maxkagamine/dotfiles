@@ -1,0 +1,8 @@
+#!/bin/bash
+sed -E '
+  s/[-_]/ /g
+  s/^.| ./\U&/g
+  s/ (a|an|and|as|at|but|by|for|if|in|nor|of|off|on|or|per|so|the|to|up|via|yet) /\L&/ig
+  s/Javascript/JavaScript/g
+  s/Youtube/YouTube/g
+' <<<"${1:-$(cat)}"

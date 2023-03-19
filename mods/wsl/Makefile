@@ -8,7 +8,7 @@ export AUTO_UPDATE_SCRIPT
 
 define WSL_CRONTAB
 0 0 *   * * docker image prune -f && docker builder prune -f
-0 0 */3 * * SCRIPT_NAME='Download YouTube playlists' /home/max/.local/bin/cron-wrapper /mnt/s/Videos/YouTube\ Playlists/download.sh
+0 0 */3 * * /home/max/.local/bin/cron-wrapper /mnt/s/Videos/YouTube\ Playlists/download-youtube-playlists.sh
 * * *   * * /home/max/.local/bin/cron-wrapper /home/max/.local/bin/pull-from-seedbox
 endef
 export WSL_CRONTAB
@@ -37,8 +37,11 @@ wsl-bin:
 	ln -sft ~/.local/bin \
 		"$$(pwd)/vendor/cmdmp3/cmdmp3.exe" \
 		"$$(pwd)/vendor/nircmd/nircmdc.exe" \
-		"$$(pwd)/vendor/wsl-notify-send/wsl-notify-send.exe" \
 		"$$(pwd)/vendor/wsl2-ssh-pageant/wsl2-ssh-pageant.exe"
+# WSL can run Windows exe's without the .exe extension, no wrapper needed!
+	ln -sf \
+		"$$(pwd)/vendor/wsl-notify-send/wsl-notify-send.exe" \
+		~/.local/bin/notify-send
 
 wsl-crontab: misc-utils # cron-wrapper is located in misc-utils mod
 	$(PRINT)

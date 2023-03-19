@@ -14,12 +14,12 @@
 #
 # Examples:
 #
-#   0 0 */3 * * SCRIPT_NAME='Download YouTube playlists' /home/max/.local/bin/cron-wrapper /mnt/s/Videos/YouTube\ Playlists/download.sh
+#   0 0 */3 * * /home/max/.local/bin/cron-wrapper /mnt/s/Videos/YouTube\ Playlists/download-youtube-playlists.sh
 #   * * *   * * /home/max/.local/bin/cron-wrapper /home/max/.local/bin/pull-from-seedbox
 #
 # These will create log files at ~/.cache/download-youtube-playlists.log and
 # ~/.cache/pull-from-seedbox.log, respectively. The same name is used as a key
-# for each job's lockfile.
+# for lockfiles. The script name is title-cased for error notifications.
 #
 set -eo pipefail
 
@@ -32,22 +32,18 @@ export PATH="$HOME/.local/bin:$PATH"
 CMD="$1"
 ARGS=("${@:2}")
 
-SCRIPT_NAME=${SCRIPT_NAME:-$(basename "$CMD" .sh | sed -E 's/[-_]/ /g;s/^./\U&/g')}
-IDENTIFIER=$(sed 's/ /-/g;s/.*/\L&/' <<<"$SCRIPT_NAME")
-LOG=${LOG:-"$HOME/.cache/$IDENTIFIER.log"}
-LOG_LINES=${LOG_LINES:-3000}
-LOCKFILE="/tmp/$IDENTIFIER.lock"
+SCRIPT_ID=$(basename "$CMD" .sh)
+SCRIPT_NAME=$(title-case "$SCRIPT_ID")
+LOG="$HOME/.cache/$SCRIPT_ID.log"
+LOG_LINES=3000
+LOCKFILE="/tmp/$SCRIPT_ID.lock"
 
-if [[ -e $LOCKFILE && -d /proc/$(cat "$LOCKFILE") ]]; then
+if [[ -f $LOCKFILE && -d /proc/$(cat "$LOCKFILE") ]]; then
   exit
 fi
 
 echo $$ > "$LOCKFILE"
 trap 'rm "$LOCKFILE"' EXIT
-
-tag() {
-  awk -v tag="$1" '{ printf "[%s] %s\n", tag, $0; fflush(stdout) }'
-}
 
 mkdir -p "$(dirname "$LOG")"
 touch "$LOG"
@@ -55,6 +51,16 @@ if l=$(wc -l <"$LOG") && (( l > LOG_LINES )); then
   printf '1,$-%sd\nw\n' "$LOG_LINES" | ed -s "$LOG"
 fi
 
-if ! "$CMD" "${ARGS[@]}" 2>&1 | tag "$(date -Is)" | tee -a "$LOG"; then
-  notify-send --category "$SCRIPT_NAME" "Cronjob failed. Logs in ${LOG/$HOME/\~}"
+if ! "$CMD" "${ARGS[@]}" 2>&1 |
+  awk '{ printf "[%s] %s\n", strftime(), $0; fflush(stdout) }' |
+  tee -a "$LOG"
+then
+  title='Cronjob failed'
+  message="Logs in ${LOG/$HOME/\~}"
+
+  if [[ $(notify-send --version) == wsl-notify-send* ]]; then
+    notify-send --appId "$SCRIPT_NAME" --category "$title" "$message"
+  else
+    notify-send --category "$SCRIPT_NAME" "$title. $message"
+  fi
 fi
