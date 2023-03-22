@@ -19,7 +19,7 @@ bind -x '"\ev": __paste_wslpath'
 __paste_wslpath() {
   local before="${READLINE_LINE:0:$READLINE_POINT}"
   local after="${READLINE_LINE:$READLINE_POINT}"
-  local insert; insert=$(wslpath "$(unclip)")
+  local insert; insert=$(printf '%q' "$(wslpath "$(unclip)")")
   READLINE_LINE="${before}${insert}${after}"
   ((READLINE_POINT += ${#insert}))
 }
