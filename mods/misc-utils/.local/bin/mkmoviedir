@@ -13,6 +13,10 @@ sanitize_filename() {
   perl -pe 's/[<>:"\/\\|?*]/ /g; s/ +/ /g; s/^ +|[ \.]+$//g' <<<"$1"
 }
 
+html_unescape() {
+  python3 -c 'import html,sys;print(html.unescape(sys.stdin.read()),end="")'
+}
+
 if [[ $# == 0 || $1 =~ ^(--help|-h)$ ]]; then
   cat >&2 <<EOF
 Usage: mkmoviedir <imdb link> [<file>]
@@ -45,7 +49,7 @@ if ! html=$(curl -A "$UA" -sSL "https://www.imdb.com/title/$imdb_id/"); then
   throw 'failed to fetch imdb page'
 fi
 
-if ! title=$(grep -Po '(?<=<title>).*?(?= - IMDb)' <<<"$html" | head -n1); then
+if ! title=$(grep -Po '(?<=<title>).*?(?= - IMDb)' <<<"$html" | head -n1 | html_unescape); then
   throw 'failed to extract title'
 fi
 
