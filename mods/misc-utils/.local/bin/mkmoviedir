@@ -15,7 +15,7 @@ sanitize_filename() {
 
 if [[ $# == 0 || $1 =~ ^(--help|-h)$ ]]; then
   cat >&2 <<EOF
-Usage: mkmoviedir <imdb link>
+Usage: mkmoviedir <imdb link> [<file>]
 
 Creates a directory in the format "Title (Year)" with the poster saved to
 folder.jpg (hidden). If the directory already exists but a folder.jpg doesn't,
@@ -24,10 +24,22 @@ EOF
   exit 1
 fi
 
-if [[ ! $1 =~ ^https://www.imdb.com/title/(tt[[:digit:]]+) ]]; then
-  throw 'unrecognized imdb url'
-fi
-imdb_id=${BASH_REMATCH[1]}
+imdb_id=
+files=()
+while (( $# > 0 )); do
+  case $1 in
+    https://*)
+      if [[ ! $1 =~ ^https://www.imdb.com/title/(tt[[:digit:]]+) ]]; then
+        throw 'unrecognized imdb url'
+      fi
+      imdb_id=${BASH_REMATCH[1]}
+      ;;
+    *)
+      files+=("$1")
+      ;;
+  esac
+  shift
+done
 
 if ! html=$(curl -A "$UA" -sSL "https://www.imdb.com/title/$imdb_id/"); then
   throw 'failed to fetch imdb page'
@@ -58,3 +70,5 @@ else
     echo "Downloaded folder.jpg"
   fi
 fi
+
+mv -v "${files[@]}" "$dir"
