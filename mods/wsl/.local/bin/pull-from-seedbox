@@ -41,10 +41,10 @@ if ! ss -a | grep -q "$SSH_AUTH_SOCK"; then
 fi
 
 # Check if there's anything to transfer
-readarray -t downloads < <(ssh "$REMOTE_HOST" \
+readarray -t items < <(ssh "$REMOTE_HOST" \
   find "$REMOTE_DIR" -mindepth 1 -maxdepth 1 -not -name '*.torrent')
 wait $! # https://stackoverflow.com/a/72045997
-count=${#downloads[@]}
+count=${#items[@]}
 
 if (( count == 0 )); then
   exit
@@ -69,11 +69,11 @@ ssh "$REMOTE_HOST" \
 
 # Show a notification
 # Note: --appId is specific to wsl-notify-send
-title="$count file"
+title="$count item"
 if (( count > 1 )); then
   title+='s'
 fi
 title+=' transferred'
 
 notify-send --appId "$SCRIPT_NAME" --category "$title" \
-  "$(basename -a "${downloads[@]}")"
+  "$(basename -a "${items[@]}")"
