@@ -13,59 +13,44 @@
 # box; I use WinSCP's right click > Send To > Seedbox instead). Note: you may
 # wish to reduce the watch interval in rutorrent/plugins/autotools/conf.php.
 #
-# Add the following to ~/.ssh/config and mkdir ~/.ssh/controlmasters to keep a
-# persistent ssh connection to the seedbox:
-#
-#   Host *
-#     ControlPath ~/.ssh/controlmasters/%r@%h:%p
-#     ControlMaster auto
-#     ControlPersist 10m
-#
-# For details, see https://en.wikibooks.org/wiki/OpenSSH/Cookbook/Multiplexing
-#
-# Note: rsync could be replaced with rclone to download in parallel.
+# Install rclone (https://rclone.org/downloads/) and run `rclone config` to set
+# the remote's login credentials.
 #
 set -e
 
-REMOTE_HOST='seedbox'
-REMOTE_DIR='~/downloads/sync/'
-LOCAL_DIR='/mnt/c/Users/max/Downloads/'
-TEMP_DIR='/mnt/c/Users/max/AppData/Local/Temp/'
+REMOTE_NAME='seedbox'
+REMOTE_DIR='downloads/sync'
+LOCAL_DIR='/mnt/c/Users/max/Downloads'
 
-SCRIPT_NAME=$(basename "${BASH_SOURCE[0]}" | title-case)
-
-# Connect ssh to Gpg4win so that it can use my Yubikey to log into the seedbox
-export SSH_AUTH_SOCK="$HOME/.ssh/agent.sock"
-if ! ss -a | grep -q "$SSH_AUTH_SOCK"; then
-  setsid nohup socat UNIX-LISTEN:"$SSH_AUTH_SOCK,fork" EXEC:"$HOME/.local/bin/wsl2-ssh-pageant.exe" >/dev/null 2>&1
+# Run rclone, but hold off on logging anything unless it failed
+if ! output=$(
+  rclone move \
+    --no-traverse \
+    --log-format '' \
+    --log-level INFO \
+    --ignore-existing \
+    --exclude '*.torrent' \
+    --delete-empty-src-dirs \
+    "$REMOTE_NAME:$REMOTE_DIR" "$LOCAL_DIR" 2>&1
+); then
+  echo "$output"
+  exit 1
 fi
 
-# Check if there's anything to transfer
-readarray -t items < <(ssh "$REMOTE_HOST" \
-  find "$REMOTE_DIR" -mindepth 1 -maxdepth 1 -not -name '*.torrent')
-wait $! # https://stackoverflow.com/a/72045997
-count=${#items[@]}
+# Exit silently if nothing was copied to avoid filling up logs
+if grep -q 'There was nothing to transfer' <<<"$output"; then
+  exit
+fi
+echo "$output"
 
+# Grep out the names of the top-level items that were copied
+readarray -t items < <(
+  grep -oP '(?<=INFO  : )[^/]*(?=.*: (Multi-thread )?Copied)' <<<"$output" |
+  sort -u)
+count=${#items[@]}
 if (( count == 0 )); then
   exit
 fi
-
-# Move the completed files off the seedbox
-rsync \
-  -vv \
-  --remove-source-files \
-  --recursive \
-  --copy-links \
-  --ignore-existing \
-  --whole-file \
-  --exclude='*.torrent' \
-  --temp-dir="$TEMP_DIR" \
-  "$REMOTE_HOST:$REMOTE_DIR" \
-  "$LOCAL_DIR"
-
-# Remove any empty directories rsync left behind
-ssh "$REMOTE_HOST" \
-  find "$REMOTE_DIR" -mindepth 1 -depth -type d -empty -delete
 
 # Show a notification
 # Note: --appId is specific to wsl-notify-send
@@ -74,6 +59,18 @@ if (( count > 1 )); then
   title+='s'
 fi
 title+=' transferred'
+description=$(basename -a "${items[@]}")
 
-notify-send --appId "$SCRIPT_NAME" --category "$title" \
-  "$(basename -a "${items[@]}")"
+box() {
+  local width=$1
+  printf "┌%$((width - 2))s┐\n" | sed 's/ /─/g'
+  fold -w $((width - 4)) | xargs -d $'\n' printf "│ %-$((width - 4))s │\n"
+  printf "└%$((width - 2))s┘\n" | sed 's/ /─/g'
+}
+
+printf '%s\n\n%s\n' "$title" "$description" | box 75 | sed 's/^/ /'
+
+notify-send \
+  --appId "$(basename "${BASH_SOURCE[0]}" | title-case)" \
+  --category "$title" \
+  "$description"

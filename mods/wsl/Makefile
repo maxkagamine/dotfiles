@@ -43,6 +43,8 @@ wsl-bin:
 		"$$(pwd)/vendor/wsl-notify-send/wsl-notify-send.exe" \
 		~/.local/bin/notify-send
 
-wsl-crontab: misc-utils # cron-wrapper is located in misc-utils mod
+# cron-wrapper is located in misc-utils mod
+# rclone used by pull-from-seedbox
+wsl-crontab: misc-utils rclone
 	$(PRINT)
 	crontab - <<<"$$WSL_CRONTAB"

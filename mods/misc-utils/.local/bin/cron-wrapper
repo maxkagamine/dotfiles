@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# This wrapper script for cronjobs does three things:
+# This wrapper script for cronjobs does several things:
 #
 # 1. Prevent a new instance from starting while the job is already running,
 #    similar to wrapping with `flock` or `run-one`.
@@ -12,14 +12,16 @@
 #    https://github.com/stuartleeks/wsl-notify-send to trigger a Windows
 #    notification.
 #
+# 4. If DISABLE_ON_ERROR is set, disables the cronjob on failure. Useful as a
+#    circuit breaker for scripts that run every minute like the example below.
+#
 # Examples:
 #
 #   0 0 */3 * * /home/max/.local/bin/cron-wrapper /mnt/s/Videos/YouTube\ Playlists/download-youtube-playlists.sh
-#   * * *   * * /home/max/.local/bin/cron-wrapper /home/max/.local/bin/pull-from-seedbox
+#   * * *   * * DISABLE_ON_ERROR=1 /home/max/.local/bin/cron-wrapper /home/max/.local/bin/pull-from-seedbox
 #
-# These will create log files at ~/.cache/download-youtube-playlists.log and
-# ~/.cache/pull-from-seedbox.log, respectively. The same name is used as a key
-# for lockfiles. The script name is title-cased for error notifications.
+# Note: the script name (without .sh) should be unique, as it's used for the log
+# file, lockfile, and to identify which line in the crontab to disable.
 #
 set -eo pipefail
 
@@ -57,6 +59,11 @@ if ! "$CMD" "${ARGS[@]}" 2>&1 |
 then
   title='Cronjob failed'
   message="Logs in ${LOG/$HOME/\~}"
+
+  if [[ $DISABLE_ON_ERROR ]]; then
+    title+=' and has been disabled'
+    crontab -l | sed "/^[^#].*${SCRIPT_ID/./\\.}.*/s/^/# /" | crontab -
+  fi
 
   if [[ $(notify-send --version) == wsl-notify-send* ]]; then
     notify-send --appId "$SCRIPT_NAME" --category "$title" "$message"
