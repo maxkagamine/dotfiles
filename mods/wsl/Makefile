@@ -13,7 +13,7 @@ define WSL_CRONTAB
 endef
 export WSL_CRONTAB
 
-wsl:: wsl-auto-update wsl-mount-network-drive wsl-bin wsl-crontab
+wsl:: wsl-auto-update wsl-mount-network-drive wsl-bin wsl-crontab wslu
 
 wsl-auto-update:
 	$(PRINT)
@@ -48,3 +48,12 @@ wsl-bin:
 wsl-crontab: misc-utils rclone
 	$(PRINT)
 	crontab - <<<"$$WSL_CRONTAB"
+
+# https://wslutiliti.es/wslu/
+# Was installed by default in WSL prior to 22.04 LTS
+wslu:
+	$(PRINT)
+	sudo apt-get install -qy software-properties-common
+	sudo add-apt-repository -yu ppa:wslutilities/wslu
+	sudo apt-get install -qy wslu
+	wslview --reg-as-browser
