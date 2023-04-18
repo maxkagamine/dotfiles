@@ -26,3 +26,8 @@ __paste_wslpath() {
   ((READLINE_POINT += ${#insert}))
 }
 
+# https://learn.microsoft.com/en-us/windows/terminal/tutorials/new-tab-same-directory
+windows_terminal_precmd() {
+  printf "\e]9;9;%s\e\\" "$(wslpath -w "$PWD")"
+}
+precmd_functions+=(windows_terminal_precmd)
