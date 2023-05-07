@@ -18,6 +18,7 @@ tamriel: \
   gif-tools \
   git \
   imagemagick \
+  img2pdf \
   jq \
   misc-utils \
   mkvtoolnix \
