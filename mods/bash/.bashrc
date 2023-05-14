@@ -93,6 +93,14 @@ monitorclip() { # e.g. monitorclip | tee urls.txt
   done
 }
 
+parallel() {
+  # Helper function for running N tasks in parallel (defaults to number of
+  # cores). Example: for f in *; do somejob & parallel; done; wait
+  if (( $(jobs -rp | wc -l) >= ${1:-$(nproc)} )); then
+    wait -n
+  fi
+}
+
 # For dry runs / printing arrays
 q() { printf '%q ' "$@"; printf '\n'; }
 n() { printf '%s\n' "$@"; }
