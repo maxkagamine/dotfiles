@@ -42,7 +42,7 @@ while (( $# > 0 )); do
       fi
       mal_id=${BASH_REMATCH[1]}
       ;;
-    https://nyaa.si/*)
+    https://*nyaa.si/*)
       nyaa_url=$1
       ;;
     *)
