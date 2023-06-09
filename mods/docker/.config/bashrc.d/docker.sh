@@ -4,6 +4,9 @@ alias d='docker'
 alias dr='docker run -it --rm'
 alias dx='docker exec -it'
 alias dc='docker compose'
+alias dcu='dc up --wait'
+alias dcd='dc down'
+alias dcr='dcu --build --force-recreate --remove-orphans'
 
 ctop() {
   docker run --rm -it \
