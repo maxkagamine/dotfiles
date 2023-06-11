@@ -56,4 +56,7 @@ wslu:
 	sudo apt-get install -qy software-properties-common
 	sudo add-apt-repository -yu ppa:wslutilities/wslu
 	sudo apt-get install -qy wslu
-	wslview --reg-as-browser
+	sudo update-alternatives --install /usr/bin/x-www-browser x-www-browser /usr/bin/wslview 999
+	sudo update-alternatives --install /usr/bin/www-browser www-browser /usr/bin/wslview 999
+	sudo update-alternatives --install /usr/bin/open open /usr/bin/wslview 999
+

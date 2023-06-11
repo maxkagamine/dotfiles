@@ -2,7 +2,8 @@
 
 CDPATH='.:~:~/Projects:/mnt/c/Users/max/Projects:/mnt/s:/mnt/c/Users/max'
 
-alias open='wslview'
+export BROWSER=/usr/bin/wslview
+
 alias e='exp'
 alias ee='exp;exit'
 
