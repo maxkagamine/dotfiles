@@ -32,6 +32,8 @@ tamriel: \
   wsl \
   yt-dlp \
 
+oblivion: tamriel # Same, but wsl mod will configure differently
+
 sovngarde: \
   bash \
   bat \

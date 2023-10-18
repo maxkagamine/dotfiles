@@ -6,6 +6,7 @@ fi
 endef
 export AUTO_UPDATE_SCRIPT
 
+# TODO: Move docker prune to cron.daily (& place in docker mod instead)
 define WSL_CRONTAB
 0 0 *   * * docker image prune -f && docker builder prune -f
 0 0 */3 * * /home/max/.local/bin/cron-wrapper /mnt/s/Videos/YouTube\ Playlists/download-youtube-playlists.sh
@@ -13,7 +14,16 @@ define WSL_CRONTAB
 endef
 export WSL_CRONTAB
 
-wsl:: wsl-auto-update wsl-mount-network-drive wsl-bin wsl-crontab wslu
+# TODO: Create separate mods for Tamriel and Oblivion?
+WSL_TARGETS:=wsl-auto-update wsl-bin wslu
+ifeq "$(shell echo $${HOSTNAME,,})" "tamriel"
+WSL_TARGETS:=$(WSL_TARGETS) wsl-mount-network-drive wsl-crontab
+endif
+
+wsl:: $(WSL_TARGETS)
+	$(PRINT)
+# Needed for wsl-gpg-agent.sh
+	sudo apt-get install -qy socat
 
 wsl-auto-update:
 	$(PRINT)
