@@ -1,26 +1,17 @@
 # shellcheck shell=bash
 # https://github.com/BlackReloaded/wsl2-ssh-pageant
 
-export SSH_AUTH_SOCK="$HOME/.ssh/agent.sock"
-if ! ss -a | grep -q "$SSH_AUTH_SOCK"; then
+if ! pgrep -f wsl2-ssh-pageant > /dev/null; then
+  # SSH
+  export SSH_AUTH_SOCK="$HOME/.ssh/agent.sock"
   rm -f "$SSH_AUTH_SOCK"
-  wsl2_ssh_pageant_bin="$HOME/.local/bin/wsl2-ssh-pageant.exe"
-  if test -x "$wsl2_ssh_pageant_bin"; then
-    (setsid nohup socat UNIX-LISTEN:"$SSH_AUTH_SOCK,fork" EXEC:"$wsl2_ssh_pageant_bin" >/dev/null 2>&1 &)
-  else
-    echo >&2 "WARNING: $wsl2_ssh_pageant_bin is not executable."
-  fi
-  unset wsl2_ssh_pageant_bin
-fi
+  (setsid nohup socat UNIX-LISTEN:"$SSH_AUTH_SOCK,fork" EXEC:"$HOME/.local/bin/wsl2-ssh-pageant.exe" >/dev/null 2>&1 &)
 
-export GPG_AGENT_SOCK="$HOME/.gnupg/S.gpg-agent"
-if ! ss -a | grep -q "$GPG_AGENT_SOCK"; then
-  rm -rf "$GPG_AGENT_SOCK"
-  wsl2_ssh_pageant_bin="$HOME/.local/bin/wsl2-ssh-pageant.exe"
-  if test -x "$wsl2_ssh_pageant_bin"; then
-    (setsid nohup socat UNIX-LISTEN:"$GPG_AGENT_SOCK,fork" EXEC:"$wsl2_ssh_pageant_bin --gpg S.gpg-agent" >/dev/null 2>&1 &)
-  else
-    echo >&2 "WARNING: $wsl2_ssh_pageant_bin is not executable."
-  fi
-  unset wsl2_ssh_pageant_bin
+  # GPG
+  systemctl --user disable gpg-agent.socket
+  systemctl --user stop gpg-agent.socket
+  gpg_agent_socket=$(gpgconf --list-dirs | sed -n 's/agent-socket://p')
+  rm -f "$gpg_agent_socket"
+  (setsid nohup socat UNIX-LISTEN:"$gpg_agent_socket,fork" EXEC:"$HOME/.local/bin/wsl2-ssh-pageant.exe --gpg S.gpg-agent" >/dev/null 2>&1 &)
+  unset gpg_agent_socket
 fi
