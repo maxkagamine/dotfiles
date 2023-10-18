@@ -45,7 +45,7 @@ if [[ ! $nyaa_url ]]; then
 fi
 
 # Get nyaa info
-if ! nyaa_html=$(curl -fsSL "$nyaa_url"); then
+if ! nyaa_html=$(curl -fsSLk --compressed "$nyaa_url"); then
   throw 'failed to fetch nyaa url'
 fi
 if ! nyaa_desc=$(grep -Pzo '(?s)(?<=id="torrent-description">).*?(?=</div>)' <<<"$nyaa_html" | tr -d '\0' | html_unescape) ||
