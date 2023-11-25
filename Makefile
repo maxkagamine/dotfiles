@@ -26,6 +26,7 @@ tamriel: \
   node \
   passwordless-sudo \
   python3 \
+  shellcheck \
   starship \
   sweetroll \
   tree \

@@ -1,4 +1,5 @@
 #!/bin/bash
+# shellcheck disable=SC2016
 set -eo pipefail
 
 if [[ $# == 0 || $1 =~ ^(--help|-h)$ ]]; then
@@ -29,12 +30,19 @@ if [[ $selection != 'clipboard' || ! $mode ]]; then
   exit 72
 fi
 
+
 case $mode in
   copy)
-    # shellcheck disable=SC2016
-    powershell.exe -noprofile -command '$input | Set-Clipboard'
+    # This is absurd, but it's the only way to properly handle Unicode with PowerShell.
+    # *Really* need to write a simple xsel.exe to replace this junk.
+    powershell.exe -noprofile -command "
+      [System.Text.Encoding]::UTF8.GetString(
+        [System.Convert]::FromBase64String('$(base64 --wrap=0)')) |
+      Set-Clipboard"
     ;;
   paste)
-    powershell.exe -noprofile -command 'Get-Clipboard' | tr -d $'\r'
+    powershell.exe -noprofile -command '
+      [Console]::OutputEncoding = New-Object System.Text.UTF8Encoding;
+      Get-Clipboard' | tr -d $'\r'
     ;;
 esac
