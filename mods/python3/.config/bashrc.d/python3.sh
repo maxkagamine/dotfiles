@@ -1,8 +1,14 @@
 # shellcheck shell=bash disable=SC1091
 
 alias py='python3'
-alias pi='pip install'
-alias pir='pi -r requirements.txt'
+alias pir='pip install -r requirements.txt'
+
+pi() {
+  pip install "$@" || return $?
+  if [[ -f requirements.txt ]]; then
+    pip freeze | grep -Pi "$(IFS='|'; printf '^(%s)==' "$*")" >> requirements.txt
+  fi
+}
 
 venv() {
   case $1 in
