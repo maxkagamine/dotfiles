@@ -81,13 +81,15 @@ digg() { # Dig deeper (substitute for "ANY")
   done | distinct # Only show CNAME once
 }
 
-monitorclip() { # e.g. monitorclip | tee urls.txt
+readclip() { # Like readarray: readclip urls && printf '%s\n' "${urls[@]}"
   local x y
+  declare -n arr="$1"
   x=$(unclip)
   while true; do
     y=$(unclip)
     if [[ $y != "$x" ]]; then
       echo "$y"
+      arr+=("$y")
       x="$y"
     fi
   done
