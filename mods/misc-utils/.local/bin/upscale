@@ -1,0 +1,279 @@
+#!/bin/bash
+set -eo pipefail
+shopt -s nullglob
+
+AUTO_HEIGHT=2160
+AUTO_THRESHOLD=1500
+
+scale=2
+denoise=0
+format=png
+upscalers=()
+dry_run=
+verbose=
+
+if [[ $WSL_DISTRO_NAME ]]; then
+  # Leaving them here for now. Using Windows binary to take advantage of GPU.
+  # TODO: Use a Makefile to install these to ~/.local
+  for d in waifu2x-ncnn-vulkan realcugan-ncnn-vulkan realesrgan-ncnn-vulkan; do
+    PATH="/mnt/c/Users/max/Downloads/_SOFTWARE/$d:$PATH"
+  done
+fi
+
+if [[ $# == 0 || $1 =~ ^(--help|-h)$ ]]; then
+  cat >&2 <<EOF
+Usage: upscale (<upscalers> | --all) [-s <scale> | --auto] [-n <denoise>]
+               [-f png|jpg|webp] [--dry-run] [--verbose] <image or directory>...
+
+UPSCALERS
+
+  --all          + Laziest
+                 - Slowest
+
+  --waifu2x      + Simplest, smoothes lines without changing too much
+                 - Narrow range of images where it's actually effective
+
+  --cugan        + Much sharper
+                 - Often heavily oversharpened with visible halos
+                 - Sometimes adds weird splotches of color
+
+  --esrgan       + Most accurate reconstruction of shapes
+                 - Brightens images
+                 - Soft gradients/shading can become sharper
+
+                 Note: Uses the default animevideov3 model. The x4plus models
+                 have too many issues with quality for general use.
+
+OPTIONS
+
+  --auto         Upscales images <${AUTO_THRESHOLD}px tall to ${AUTO_HEIGHT}p+
+
+  -s <scale>     1/2/4/8/16/32 for waifu2x & cugan; 2/3/4 for esrgan. Mutually
+                 exclusive with --auto. (default=2)
+
+  -n <denoise>   -1/0/1/2/3 for waifu2x & cugan; ignored for esrgan. (default=0)
+
+  -f <format>    png/jpg/webp (default=png)
+
+  <image or directory>  One or more images to process. Upscaled images are saved
+                        alongside the input. Directories are expanded to
+                        containing png, jpg, and jpeg files (non-recursively).
+
+  --dry-run      Print what would be upscaled but do nothing. Implies --verbose.
+
+  --verbose      Print the commands being run.
+EOF
+  exit 1
+fi
+
+throw() {
+  printf '%s: %s\n' "${0##*/}" "$1" >&2
+  return 1
+}
+
+paths=()
+while (( $# > 0 )); do
+  case $1 in
+    # upscaler
+    --all)
+      upscalers=(waifu2x cugan esrgan)
+      ;;
+    --waifu2x)
+      upscalers+=(waifu2x)
+      ;;
+    --cugan)
+      upscalers+=(cugan)
+      ;;
+    --esrgan)
+      upscalers+=(esrgan)
+      ;;
+    # scale
+    -s)
+      shift
+      scale=$1
+      ;;
+    -s*)
+      scale=${1#-s}
+      ;;
+    --auto)
+      scale=auto
+      ;;
+    # denoise
+    -n)
+      shift
+      denoise=$1
+      ;;
+    -n*)
+      denoise=${1#-n}
+      ;;
+    # format
+    -f)
+      shift
+      format=$1
+      ;;
+    -f*)
+      format=${1#-f}
+      ;;
+    # debugging
+    --dry-run)
+      dry_run=1
+      verbose=1
+      ;;
+    --verbose)
+      verbose=1
+      ;;
+    # non-option
+    --)
+      shift
+      paths+=("$@")
+      break
+      ;;
+    -*)
+      throw "unknown option: $1"
+      ;;
+    *)
+      if [[ -d $1 ]]; then
+        paths+=("$1"/*.{png,jpg,jpeg,PNG,JPG,JPEG})
+      else
+        paths+=("$1")
+      fi
+      ;;
+  esac
+  shift
+done
+
+if (( ${#upscalers[@]} == 0 )); then
+  throw 'no upscalers specified (try --all?)'
+fi
+
+if (( ${#paths[@]} == 0 )); then
+  throw 'no images to upscale'
+fi
+
+calculate_auto_scale() {
+  local input=$1
+  local image_height
+
+  image_height=$(identify -format '%h' "$input")
+  if (( image_height >= AUTO_THRESHOLD )); then
+    return 1
+  fi
+
+  minimum_scale=$(( (AUTO_HEIGHT + image_height - 1) / image_height ))
+  if (( minimum_scale > 16 )); then
+    echo 32
+  elif (( minimum_scale > 8 )); then
+    echo 16
+  elif (( minimum_scale > 4 )); then
+    echo 8
+  elif (( minimum_scale > 2 )); then
+    echo 4
+  else
+    echo 2
+  fi
+}
+
+run_ncnn() { # <binary> <input> <output> <options...>
+  local binary=$1
+  local input=$2
+  local output=$3
+  local opts=("${@:4}")
+  local cmd=()
+  local buffer
+
+  if [[ $WSL_DISTRO_NAME ]]; then
+    binary+='.exe'
+    input=$(wslpath -w "$input")
+    output="$(wslpath -w "$(dirname "$output")")\\$(basename "$output")"
+  fi
+
+  cmd=("$binary" -i "$input" -o "$output" "${opts[@]}")
+
+  if [[ $verbose ]]; then
+    printf '\e[1;30m>'
+    printf ' %q' "${cmd[@]}"
+    printf '\e[m\n'
+  fi
+
+  if [[ $dry_run ]]; then
+    return
+  fi
+
+  if ! buffer=$("${cmd[@]}" 2>&1); then
+    printf '\e[31m%s\e[m\n' "$buffer" >&2
+    return 1
+  fi
+}
+
+create_output_path() { # <upscaler> <input> <scale>
+  local upscaler=$1
+  local input=$2
+  local scale=$3
+
+  local upscale_info="[${scale}x, ${upscaler}"
+  if [[ $upscaler != 'esrgan' && $denoise != 0 ]]; then
+    upscale_info+=", denoise ${denoise}"
+  fi
+  upscale_info+=']'
+
+  echo "${input%.*} ${upscale_info}.${format}"
+}
+
+upscale_waifu2x() { # <input> <output> <scale>
+  local input=$1
+  local output=$2
+  local scale=$3
+
+  run_ncnn waifu2x-ncnn-vulkan \
+    "$input" \
+    "$output" \
+    -s "$scale" \
+    -n "$denoise" \
+    -f "$format"
+}
+
+upscale_cugan() { # <input> <output> <scale>
+  local input=$1
+  local output=$2
+  local scale=$3
+
+  run_ncnn realcugan-ncnn-vulkan \
+    "$input" \
+    "$output" \
+    -s "$scale" \
+    -n "$denoise" \
+    -f "$format"
+}
+
+upscale_esrgan() { # <input> <output> <scale>
+  local input=$1
+  local output=$2
+  local scale=$3
+
+  if (( scale > 4 )); then # --auto might cause 8-32x
+    printf 'Warning: clamping scale to \e[33m4\e[mx (esrgan does not support \e[33m%s\e[mx)\n' "$scale"
+    scale=4
+  fi
+
+  run_ncnn realesrgan-ncnn-vulkan \
+    "$input" \
+    "$output" \
+    -s "$scale" \
+    -f "$format"
+}
+
+for input in "${paths[@]}"; do
+  input_scale=$scale
+  if [[ $scale == 'auto' ]] && ! input_scale=$(calculate_auto_scale "$input"); then
+    printf 'Skipping \e[32m%s\e[m (height exceeds threshold)\n' "$input"
+    continue
+  fi
+
+  for upscaler in "${upscalers[@]}"; do
+    printf 'Upscaling \e[32m%s\e[m to \e[33m%s\e[mx using \e[32m%s\e[m\n' \
+      "$input" "$input_scale" "$upscaler"
+
+    output=$(create_output_path "$upscaler" "$input" "$input_scale")
+    upscale_"$upscaler" "$input" "$output" "$input_scale"
+  done
+done
