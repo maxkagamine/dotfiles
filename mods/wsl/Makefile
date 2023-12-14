@@ -14,8 +14,21 @@ define WSL_CRONTAB
 endef
 export WSL_CRONTAB
 
+define WSL_KEEPALIVE
+[Unit]
+Description=WSL Keepalive
+
+[Service]
+ExecStartPre=/mnt/c/Windows/system32/waitfor.exe /si WSLKEEPALIVE
+ExecStart=/mnt/c/Windows/system32/waitfor.exe WSLKEEPALIVE
+
+[Install]
+WantedBy=multi-user.target
+endef
+export WSL_KEEPALIVE
+
 # TODO: Create separate mods for Tamriel and Oblivion?
-WSL_TARGETS:=wsl-auto-update wsl-bin wslu
+WSL_TARGETS:=wsl-auto-update wsl-bin wsl-keepalive wslu
 ifeq "$(shell echo $${HOSTNAME,,})" "tamriel"
 WSL_TARGETS:=$(WSL_TARGETS) wsl-mount-network-drive wsl-crontab
 endif
@@ -58,6 +71,12 @@ wsl-bin:
 wsl-crontab: misc-utils rclone
 	$(PRINT)
 	crontab - <<<"$$WSL_CRONTAB"
+
+wsl-keepalive:
+	$(PRINT)
+	sudo tee /etc/systemd/system/wsl-keepalive.service >/dev/null <<<"$$WSL_KEEPALIVE"
+	sudo systemctl enable wsl-keepalive.service
+	sudo systemctl start wsl-keepalive.service
 
 # https://wslutiliti.es/wslu/
 # Was installed by default in WSL prior to 22.04 LTS

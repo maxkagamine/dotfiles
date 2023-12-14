@@ -9,8 +9,8 @@ if ! pgrep -f wsl2-ssh-pageant > /dev/null; then
   (setsid nohup socat UNIX-LISTEN:"$SSH_AUTH_SOCK,fork" EXEC:"$HOME/.local/bin/wsl2-ssh-pageant.exe" >/dev/null 2>&1 &)
 
   # GPG
-  systemctl --user disable gpg-agent.socket
-  systemctl --user stop gpg-agent.socket
+  systemctl --user disable gpg-agent.socket &>/dev/null
+  systemctl --user stop gpg-agent.socket &>/dev/null
   gpg_agent_socket=$(gpgconf --list-dirs | sed -n 's/agent-socket://p')
   rm -f "$gpg_agent_socket"
   (setsid nohup socat UNIX-LISTEN:"$gpg_agent_socket,fork" EXEC:"$HOME/.local/bin/wsl2-ssh-pageant.exe --gpg S.gpg-agent" >/dev/null 2>&1 &)
