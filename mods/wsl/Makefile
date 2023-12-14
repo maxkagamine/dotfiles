@@ -28,15 +28,12 @@ endef
 export WSL_KEEPALIVE
 
 # TODO: Create separate mods for Tamriel and Oblivion?
-WSL_TARGETS:=wsl-auto-update wsl-bin wsl-keepalive wslu
+WSL_TARGETS:=wsl-auto-update wsl-bin wsl-keepalive wsl2-ssh-pageant wslu
 ifeq "$(shell echo $${HOSTNAME,,})" "tamriel"
 WSL_TARGETS:=$(WSL_TARGETS) wsl-mount-network-drive wsl-crontab
 endif
 
 wsl:: $(WSL_TARGETS)
-	$(PRINT)
-# Needed for wsl-gpg-agent.sh
-	sudo apt-get install -qy socat
 
 wsl-auto-update:
 	$(PRINT)
@@ -77,6 +74,12 @@ wsl-keepalive:
 	sudo tee /etc/systemd/system/wsl-keepalive.service >/dev/null <<<"$$WSL_KEEPALIVE"
 	sudo systemctl enable wsl-keepalive.service
 	sudo systemctl start wsl-keepalive.service
+
+wsl2-ssh-pageant: wsl-bin
+	$(PRINT)
+	sudo apt-get install -qy socat
+	systemctl --user enable wsl2-ssh-pageant
+	systemctl --user start wsl2-ssh-pageant
 
 # https://wslutiliti.es/wslu/
 # Was installed by default in WSL prior to 22.04 LTS
