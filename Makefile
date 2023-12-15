@@ -8,7 +8,6 @@ PRINT=$(info $(shell printf '\e[32m%-*s\e[m\n' $$(tput cols) $@ | perl -pe 's/(?
 # machine's hostname, thanks to the "default goal" above.
 tamriel: \
   7zip \
-  ab-av1 \
   bash \
   bat \
   docker \
