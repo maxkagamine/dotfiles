@@ -11,6 +11,7 @@ format=png
 upscalers=()
 dry_run=
 verbose=
+histmatch=
 
 if [[ $WSL_DISTRO_NAME ]]; then
   # Leaving them here for now. Using Windows binary to take advantage of GPU.
@@ -23,7 +24,8 @@ fi
 if [[ $# == 0 || $1 =~ ^(--help|-h)$ ]]; then
   cat >&2 <<EOF
 Usage: upscale (<upscalers> | --all) [-s <scale> | --auto] [-n <denoise>]
-               [-f png|jpg|webp] [--dry-run] [--verbose] <image or directory>...
+               [-f png|jpg|webp] [--histmatch] [--dry-run] [--verbose]
+               <image or directory>...
 
 UPSCALERS
 
@@ -55,13 +57,16 @@ OPTIONS
 
   -f <format>    png/jpg/webp (default=png)
 
-  <image or directory>  One or more images to process. Upscaled images are saved
-                        alongside the input. Directories are expanded to
-                        containing png, jpg, and jpeg files (non-recursively).
+  --histmatch    esrgan only, attempts to undo the brightening using Fred
+                 Weinhaus' histmatch script
 
   --dry-run      Print what would be upscaled but do nothing. Implies --verbose.
 
   --verbose      Print the commands being run.
+
+  <image or directory>  One or more images to process. Upscaled images are saved
+                        alongside the input. Directories are expanded to
+                        containing png/jpg/jpeg/jfif files (non-recursively).
 EOF
   exit 1
 fi
@@ -114,6 +119,10 @@ while (( $# > 0 )); do
     -f*)
       format=${1#-f}
       ;;
+    # histmatch
+    --histmatch)
+      histmatch=1
+      ;;
     # debugging
     --dry-run)
       dry_run=1
@@ -133,7 +142,7 @@ while (( $# > 0 )); do
       ;;
     *)
       if [[ -d $1 ]]; then
-        paths+=("$1"/*.{png,jpg,jpeg,PNG,JPG,JPEG})
+        paths+=("$1"/*.{png,jpg,jpeg,jfif,PNG,JPG,JPEG,JFIF})
       else
         paths+=("$1")
       fi
@@ -214,6 +223,9 @@ create_output_path() { # <upscaler> <input> <scale>
   if [[ $upscaler != 'esrgan' && $denoise != 0 ]]; then
     upscale_info+=", denoise ${denoise}"
   fi
+  if [[ $upscaler == 'esrgan' && $histmatch ]]; then
+    upscale_info+=', histmatch'
+  fi
   upscale_info+=']'
 
   echo "${input%.*} ${upscale_info}.${format}"
@@ -255,11 +267,31 @@ upscale_esrgan() { # <input> <output> <scale>
     scale=4
   fi
 
-  run_ncnn realesrgan-ncnn-vulkan \
-    "$input" \
-    "$output" \
-    -s "$scale" \
-    -f "$format"
+  if [[ $histmatch ]]; then
+    if ! command -v histmatch &>/dev/null; then
+      echo 'Downloading histmatch script'
+      curl -fsSL 'http://www.fmwconcepts.com/imagemagick/downloadcounter.php?scriptname=histmatch&dirname=histmatch' \
+        -o ~/.local/bin/histmatch
+      chmod +x "$_"
+    fi
+
+    local temp="${output%.*}.temp.png"
+    run_ncnn realesrgan-ncnn-vulkan \
+      "$input" \
+      "$temp" \
+      -s "$scale" \
+      -f png
+
+    echo 'Running histmatch'
+    histmatch -c rgb "$input" "$temp" "$output" >/dev/null
+    rm "$temp"
+  else
+    run_ncnn realesrgan-ncnn-vulkan \
+      "$input" \
+      "$output" \
+      -s "$scale" \
+      -f "$format"
+  fi
 }
 
 for input in "${paths[@]}"; do
