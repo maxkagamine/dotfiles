@@ -15,7 +15,7 @@
     {
       "label": "Watch",
       "type": "shell",
-      "command": "make watch",
+      "command": "make watch & wait",
       "isBackground": true,
       "runOptions": {
         "runOn": "folderOpen",
