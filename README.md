@@ -174,6 +174,8 @@ Additional tools:
 
 - [**mkv-cat**](mods/mkvtoolnix/.local/bin/mkv-cat) — Concatenates the input
   MKVs, adding chapters for each file.
+- [**mkv-extract-subs**](mods/mkvtoolnix/.local/bin/mkv-extract-subs) — Batch
+  extracts all subtitles from the given MKVs.
 - [**mkv-rm-cover**](mods/mkvtoolnix/.local/bin/mkv-rm-cover) — Removes all
   image/jpeg and image/png attachments from the given MKVs.
 
@@ -199,8 +201,8 @@ Miscellaneous utilities:
   a bunch of episodes into a nice folder.
 - [**mkmoviedir**](mods/misc-utils/.local/bin/mkmoviedir) — Like mkanimedir but
   for an IMDb link.
-- [**waifu2x**](mods/misc-utils/.local/bin/waifu2x) — Convenient wrapper for
-  [waifu2x-ncnn-vulkan](https://github.com/nihui/waifu2x-ncnn-vulkan)
+- [**upscale**](mods/misc-utils/.local/bin/upscale) — Wrapper for several AI
+  image upscalers, with options for automatic batch processing.
 - [**weigh**](mods/misc-utils/.local/bin/weigh) — Shows the total size of files,
   directories, or stdin (optionally gzipped).
 
