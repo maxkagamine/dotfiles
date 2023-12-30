@@ -78,4 +78,6 @@ else
   fi
 fi
 
-mv -v "${files[@]}" "$dir"
+if (( ${#files[@]} > 0 )); then
+  mv -v "${files[@]}" "$dir"
+fi
