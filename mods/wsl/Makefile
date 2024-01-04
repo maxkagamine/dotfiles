@@ -10,7 +10,7 @@ export AUTO_UPDATE_SCRIPT
 define WSL_CRONTAB
 0 0 *   * * docker image prune -f && docker builder prune -f
 0 0 */3 * * /home/max/.local/bin/cron-wrapper /mnt/s/Videos/YouTube\ Playlists/download-youtube-playlists.sh
-* * *   * * /home/max/.local/bin/cron-wrapper /home/max/.local/bin/pull-from-seedbox
+* * *   * * DISABLE_ON_ERROR=1 /home/max/.local/bin/cron-wrapper /home/max/.local/bin/pull-from-seedbox
 endef
 export WSL_CRONTAB
 
