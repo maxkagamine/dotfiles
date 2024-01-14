@@ -9,7 +9,7 @@
 # In ruTorrent, make sure AutoMove is enabled and set to "Hard link" and the
 # REMOTE_DIR below. Torrents will continue seeding until removed either manually
 # or by a ratio group (e.g. 200%/0/0/720h/Remove data). AutoWatch can be set to
-# the same path (you could add a second rsync to send torrent files up to the
+# the same path (you could add a second rclone to send torrent files up to the
 # box; I use WinSCP's right click > Send To > Seedbox instead). Note: you may
 # wish to reduce the watch interval in rutorrent/plugins/autotools/conf.php.
 #
@@ -22,20 +22,39 @@ REMOTE_NAME='seedbox'
 REMOTE_DIR='downloads/sync'
 LOCAL_DIR='/mnt/c/Users/max/Downloads'
 
-# Run rclone, but hold off on logging anything unless it failed
-if ! output=$(
-  rclone move \
-    --no-traverse \
-    --log-format '' \
-    --log-level INFO \
-    --ignore-existing \
-    --exclude '*.torrent' \
-    --delete-empty-src-dirs \
-    "$REMOTE_NAME:$REMOTE_DIR" "$LOCAL_DIR" 2>&1
-); then
-  echo "$output"
-  exit 1
-fi
+run_rclone() {
+  # Run rclone, but hold off on logging anything unless it failed
+  if ! output=$(
+    rclone move \
+      --no-traverse \
+      --log-format '' \
+      --log-level DEBUG \
+      --ignore-existing \
+      --exclude '*.torrent' \
+      --delete-empty-src-dirs \
+      --low-level-retries 3 \
+      "$REMOTE_NAME:$REMOTE_DIR" "$LOCAL_DIR" 2>&1
+  ); then
+    echo "$output"
+    return 1
+  fi
+}
+
+# Exponential backoff in case of intermittent connection errors
+backoff=2
+backoff_factor=2
+attempts_left=4
+while (( attempts_left-- > 0 )); do
+  if run_rclone; then
+    break
+  elif (( attempts_left == 0 )) || [[ $output == *unable\ to\ authenticate* ]]; then
+    # cron-wrapper will disable the cronjob and trigger a notification
+    exit 1
+  fi
+  printf 'rclone failed, retrying in %s min (%s attempts left)\n' "$backoff" "$attempts_left"
+  sleep "${backoff}m"
+  (( backoff *= backoff_factor ))
+done
 
 # Exit silently if nothing was copied to avoid filling up logs
 if grep -q 'There was nothing to transfer' <<<"$output"; then
