@@ -97,14 +97,25 @@ shim](mods/wsl/.local/bin/xsel) that forwards clipboard access to PowerShell,
 which lets commands like [`npx serve`](https://www.npmjs.com/package/serve) that
 aren't WSL-aware copy things to your Windows clipboard).
 
-> ### Setting up GPG & YubiKey for WSL
->  
-> 1. Install [Gpg4win](https://gpg4win.org/download.html) & [YubiKey Manager](https://www.yubico.com/support/download/yubikey-manager/)
->    - Ignore the PINs in the PIV app; the OpenPGP app on the YubiKey [is separate](https://github.com/drduh/YubiKey-Guide/issues/248). I'd even disable PIV in "Interfaces" to avoid confusion if you're not using it.
-> 2. Follow [Yubico's guide here](https://developers.yubico.com/PGP/SSH_authentication/Windows.html), but hold off on cloning something since we'll do that in WSL (skip steps 1 and 8). **You don't need PuTTY** (the GPG agent replaces Pageant).
->    - Use Task Scheduler to run `"C:\Program Files (x86)\GnuPG\bin\gpg-connect-agent.exe" /bye` at log on. Remember to uncheck everything in Conditions. I enabled "If the task fails, restart every 1 minute" in Settings.
-> 3. Use [wsl2-ssh-pageant](https://github.com/BlackReloaded/wsl2-ssh-pageant) to connect the Linux-side SSH and GPG agents to GPG running Windows-side.
-> 4. After restarting WSL (`wsl.exe --shutdown`), you should be able to run `gpg --card-status` in Linux👍 Import your public key and test that it works with `ssh git@github.com`.
+### Using Yubikey for GPG & SSH in WSL
+
+In the past, I was using [wsl2-ssh-pageant](https://github.com/BlackReloaded/wsl2-ssh-pageant) which uses `socat` to replace the gpg-agent socket with one that runs an exe that bridges Gpg4win. The bridge itself worked well (with a [small fix](https://github.com/maxkagamine/dotfiles/commit/fddf1ee8def1667b04f465f5a52e7a6f4c73bc30)), but despite [my best efforts](https://github.com/maxkagamine/dotfiles/commit/2f61b2820019fc591b33a2d6a47dcb6622cf1eee) I could never get the socket shenanigans to work reliably.
+
+In the end that was too much of a hassle, so I switched to using [usbipd-win](https://github.com/dorssel/usbipd-win) which connects the Yubikey directly to Linux. So far, this has proved much simpler. The downside is that connecting a device to WSL means disconnecting it from Windows; if you need the Yubikey to log into a website, you'll have to temporarily detach it from WSL.
+
+1. Install [WSL USB Manager](https://gitlab.com/alelec/wsl-usb-gui).
+   - This will install usbipd-win & WSL dependencies automatically. (If on first run you get an error about the `usbipd wsl` command being removed, exit WSL USB Manager from the system tray and restart it to make it realize you have the new version.)
+   - Move the shortcut from `%appdata%\Microsoft\Windows\Start Menu\Programs` into Startup so it runs at login.
+2. Right click on the Yubikey in the device list (should say "Smartcard Reader") and Attach to WSL. The Yubikey should show up now if you run `lsusb` in WSL.
+3. Right click again and choose "Auto-Attach Device", then "Device".
+4. In WSL, `sudo apt install scdaemon pcscd`
+   - Installing pcscd fixes the situation where `gpg --card-status` only works when run as root and says "gpg: selecting card failed: No such device" otherwise. (Adding a udev rule via the "Grant User Permissions" option in WSL USB Manager didn't do anything in this case.)
+5. Set `SSH_AUTH_SOCK` and `GPG_TTY` in your .bashrc [as shown here](mods/gpg/.config/bashrc.d/gpg.sh).
+6. Add `enable-ssh-support` to [~/.gnupg/gpg-agent.conf](mods/gpg/.gnupg/gpg-agent.conf)
+7. Add `Match host * exec "gpg-connect-agent updatestartuptty /bye"` to [~/.ssh/config](mods/gpg/.ssh/config)
+   - Explanation for why `updatestartuptty` is necessary [here](https://stackoverflow.com/a/72427213); running it via ssh config comes from [this answer](https://unix.stackexchange.com/a/587691). Supposedly `GPG_TTY` is enough, but for whatever reason on my machine that only worked for gpg signing and not the ssh agent ¯\\\_(ツ)\_/¯
+   - Note: Without a GUI pinentry program, some Git features in VSCode (like auto-fetch) won't work until you've unlocked the card in a terminal (e.g. by running `git fetch` yourself).
+8. `gpg --card-status` and `ssh git@github.com` should work now!
 
 ## <img src=".github/images/icons/unraid.png" align="top" height="25" />&hairsp; [unraid](mods/unraid)
 

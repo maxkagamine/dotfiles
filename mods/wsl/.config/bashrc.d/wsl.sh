@@ -3,7 +3,6 @@
 CDPATH='.:~:~/Projects:/mnt/c/Users/max/Projects:/mnt/s:/mnt/c/Users/max'
 
 export BROWSER=/usr/bin/wslview
-export SSH_AUTH_SOCK="$HOME/.ssh/agent.sock" # wsl2-ssh-pageant
 
 alias e='exp'
 alias ee='exp;exit'

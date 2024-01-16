@@ -16,6 +16,7 @@ tamriel: \
   fzf \
   gif-tools \
   git \
+  gpg \
   imagemagick \
   img2pdf \
   jq \

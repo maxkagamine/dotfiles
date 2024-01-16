@@ -1,9 +1,0 @@
-[Unit]
-Description=wsl2-ssh-pageant
-After=gpg-agent.socket
-
-[Service]
-ExecStart=%h/.local/bin/wsl2-ssh-pageant
-
-[Install]
-WantedBy=default.target

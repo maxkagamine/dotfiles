@@ -34,7 +34,7 @@ endef
 export WSL_TIMESYNCD_OVERRIDE
 
 # TODO: Create separate mods for Tamriel and Oblivion?
-WSL_TARGETS:=wsl-auto-update wsl-bin wsl-keepalive wsl-timesyncd wsl2-ssh-pageant wslu
+WSL_TARGETS:=wsl-auto-update wsl-bin wsl-keepalive wsl-timesyncd wslu
 ifeq "$(shell echo $${HOSTNAME,,})" "tamriel"
 WSL_TARGETS:=$(WSL_TARGETS) wsl-mount-network-drive wsl-crontab
 endif
@@ -62,8 +62,7 @@ wsl-bin:
 	mkdir -p ~/.local/bin
 	ln -sft ~/.local/bin \
 		"$$(pwd)/vendor/cmdmp3/cmdmp3.exe" \
-		"$$(pwd)/vendor/nircmd/nircmdc.exe" \
-		"$$(pwd)/vendor/wsl2-ssh-pageant/wsl2-ssh-pageant.exe"
+		"$$(pwd)/vendor/nircmd/nircmdc.exe"
 # WSL can run Windows exe's without the .exe extension, no wrapper needed!
 	ln -sf \
 		"$$(pwd)/vendor/wsl-notify-send/wsl-notify-send.exe" \
@@ -89,12 +88,6 @@ wsl-timesyncd:
 	sudo tee /etc/systemd/system/systemd-timesyncd.service.d/override.conf >/dev/null <<<"$$WSL_TIMESYNCD_OVERRIDE"
 	sudo systemctl daemon-reload
 	sudo systemctl start systemd-timesyncd
-
-wsl2-ssh-pageant: wsl-bin
-	$(PRINT)
-	sudo apt-get install -qy socat
-	systemctl --user enable wsl2-ssh-pageant
-	systemctl --user start wsl2-ssh-pageant
 
 # https://wslutiliti.es/wslu/
 # Was installed by default in WSL prior to 22.04 LTS
