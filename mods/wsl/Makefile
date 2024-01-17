@@ -27,8 +27,14 @@ WantedBy=multi-user.target
 endef
 export WSL_KEEPALIVE
 
+define WSL_TIMESYNCD_OVERRIDE
+[Unit]
+ConditionVirtualization=
+endef
+export WSL_TIMESYNCD_OVERRIDE
+
 # TODO: Create separate mods for Tamriel and Oblivion?
-WSL_TARGETS:=wsl-auto-update wsl-bin wsl-keepalive wsl2-ssh-pageant wslu
+WSL_TARGETS:=wsl-auto-update wsl-bin wsl-keepalive wsl-timesyncd wsl2-ssh-pageant wslu
 ifeq "$(shell echo $${HOSTNAME,,})" "tamriel"
 WSL_TARGETS:=$(WSL_TARGETS) wsl-mount-network-drive wsl-crontab
 endif
@@ -75,6 +81,15 @@ wsl-keepalive:
 	sudo systemctl enable wsl-keepalive.service
 	sudo systemctl start wsl-keepalive.service
 
+# Fixes a bug where the time in WSL gets out of sync with Windows
+wsl-timesyncd:
+	$(PRINT)
+	sudo apt-get install -qy systemd-timesyncd
+	sudo mkdir -p /etc/systemd/system/systemd-timesyncd.service.d
+	sudo tee /etc/systemd/system/systemd-timesyncd.service.d/override.conf >/dev/null <<<"$$WSL_TIMESYNCD_OVERRIDE"
+	sudo systemctl daemon-reload
+	sudo systemctl start systemd-timesyncd
+
 wsl2-ssh-pageant: wsl-bin
 	$(PRINT)
 	sudo apt-get install -qy socat
@@ -91,4 +106,3 @@ wslu:
 	sudo update-alternatives --install /usr/bin/x-www-browser x-www-browser /usr/bin/wslview 999
 	sudo update-alternatives --install /usr/bin/www-browser www-browser /usr/bin/wslview 999
 	sudo update-alternatives --install /usr/bin/open open /usr/bin/wslview 999
-
