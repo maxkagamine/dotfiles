@@ -35,7 +35,6 @@ if [[ $TERM_PROGRAM == 'vscode' ]]; then
 fi
 
 # General aliases
-alias .e='code "$DOTFILES_DIR"'
 alias .r='. ~/.bashrc'
 alias cd='>/dev/null cd'
 alias clip='xsel -bi'
@@ -47,6 +46,12 @@ alias tsv="column -ts $'\t' -W0"
 alias unclip='xsel -bo'
 alias x="xargs -d '\n' -L 1"
 alias xx="xargs -d '\n'"
+
+# Open this repo in vscode, jumping to the source of any given commands
+function .e() {
+  n "$@" | x -r which | x -r realpath | xx code "$DOTFILES_DIR"
+}
+complete -c .e
 
 # General-use functions
 mkcd() {
@@ -81,7 +86,7 @@ digg() { # Dig deeper (substitute for "ANY")
   done | distinct # Only show CNAME once
 }
 
-readclip() { # Like readarray: readclip urls && printf '%s\n' "${urls[@]}"
+readclip() { # Like readarray: readclip urls; printf '%s\n' "${urls[@]}"
   local x y
   declare -n arr="$1"
   x=$(unclip)
