@@ -9,7 +9,7 @@ throw() {
 
 if [[ $1 =~ ^(--help|-h)$ ]]; then
   cat >&2 <<'EOF'
-Usage: mkv-ls [<path...>]
+Usage: mkv-ls [--attachments|-a] [<path...>]
 
 Lists the tracks in an mkv for muxing with mkvmerge or mkv-batch, including
 track name, language, and whether it's the default track. (`mkvmerge -i` does
@@ -22,14 +22,21 @@ Directories are expanded to contained *.mkv files (non-recursive). If no paths
 are given, the current directory is used (equivalent to `mkv-ls *.mkv`).
 
 Note: Video title is not shown when grouping.
+
+Options:
+
+  --attachments, -a      Show attachments as well (cover, fonts, etc.)
 EOF
   exit 1
 fi
 
 paths=()
 paths_given=
+attachments=
 while (( $# > 0 )); do
-  if [[ -f "$1" ]]; then
+  if [[ $1 =~ ^--attachments|-a$ ]]; then
+    attachments=1
+  elif [[ -f "$1" ]]; then
     paths+=("$1")
     paths_given=1
   elif [[ -d "$1" ]]; then
@@ -67,6 +74,20 @@ list_tracks() {
         )
       end
     ' | column -ts $'\t' -N 'TID,Type,Codec,Lang,Def,For,Name'
+
+  if [[ $attachments ]]; then
+    echo
+    mkvmerge -J "$1" | \
+      jq -r '
+        if .attachments | type == "array" then
+          .attachments[] | (
+            (.id | tostring) + "\t" +
+            .content_type + "\t" +
+            .file_name
+          )
+        end
+      ' | column -ts $'\t' -N 'AID,Type,Name'
+  fi
 }
 
 if (( ${#paths[@]} == 1 )); then
@@ -84,9 +105,9 @@ else
     # Look for identical track list
     found=
     for i in "${!grouped_tracks[@]}"; do
-      if [[ ${grouped_tracks[$i]} == "$track_list" ]]; then
+      if [[ ${grouped_tracks[i]} == "$track_list" ]]; then
         # Add file name to group
-        grouped_filenames[$i]="${grouped_filenames[$i]} $escaped_name"
+        grouped_filenames[i]="${grouped_filenames[i]} $escaped_name"
         found=1
       fi
     done
@@ -103,7 +124,7 @@ else
   # Print groups
   for i in "${!grouped_tracks[@]}"; do
     (( i > 0 )) && echo
-    printf '\e[30;1m%s\e[m\n' "${grouped_filenames[$i]}"
-    echo "${grouped_tracks[$i]}"
+    printf '\e[30;1m%s\e[m\n' "${grouped_filenames[i]}"
+    echo "${grouped_tracks[i]}"
   done
 fi
