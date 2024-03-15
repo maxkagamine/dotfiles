@@ -14,7 +14,7 @@ sanitize_filename() {
 
 if [[ $1 =~ ^(--help|-h)$ ]]; then
   cat >&2 <<'EOF'
-Usage: mkv-extract-subs [-l <languages>] [<path...>]
+Usage: mkv-extract-subs [-l <languages>] [-n] [<path...>]
 
 Extracts all subtitles from the given mkvs.
 
@@ -25,6 +25,8 @@ Options:
 
   -l <languages>    Comma-separated list of three-letter language codes to
                     extract. Example: -l eng,und
+
+  -n                Dry run.
 EOF
   exit 1
 fi
@@ -32,6 +34,7 @@ fi
 languages=()
 paths=()
 paths_given=
+dry_run=
 while (( $# > 0 )); do
   case $1 in
     --)
@@ -46,6 +49,10 @@ while (( $# > 0 )); do
       ;;
     -l*)
       IFS=',' read -r -a languages <<<"${1#-l}"
+      ;;
+    # dry run
+    -n)
+      dry_run=1
       ;;
     -*)
       throw "unknown option: $1"
@@ -97,12 +104,22 @@ for path in "${paths[@]}"; do
   dir=$(dirname "$path")
   basename=$(basename "$path" .mkv)
   subs=()
+  has_subs=
+
+  list=$(list_subtitle_tracks "$path")
 
   while read -r line; do
+    has_subs=1
+
     track_id=$(cut -f1 <<<"$line")
     track_codec=$(cut -f2 <<<"$line")
     track_language=$(cut -f3 <<<"$line")
     track_name=$(cut -f4 <<<"$line")
+
+    formatted_name="track $track_id - $track_language"
+    if [[ $track_name ]]; then
+      formatted_name+=" - $track_name"
+    fi
 
     skip=
     if (( ${#languages[@]} > 0 )); then
@@ -114,30 +131,23 @@ for path in "${paths[@]}"; do
         fi
       done
     fi
+
     if [[ $skip ]]; then
-      echo "  Skipping $track_language subs (track $track_id)"
-      continue
+      printf '  \e[36mSkipping\e[m %s\n' "$formatted_name"
+    else
+      printf '  \e[32mExtracting\e[m %s\n' "$formatted_name"
+      filename="$basename - $formatted_name"
+      filename+=$(get_extension "$track_codec")
+      subs+=("$track_id:$dir/$filename")
     fi
+  done <<<"$list"
 
-    filename="$basename - Track $track_id"
-    if [[ $track_name ]]; then
-      filename+=" $(sanitize_filename "$track_name")"
-    fi
-    filename+=" ($track_language)"
-    filename+=$(get_extension "$track_codec")
-
-    subs+=("$track_id:$dir/$filename")
-  done < <(list_subtitle_tracks "$path")
-
-  if (( ${#subs[@]} > 0 )); then
-    plural=
-    if (( ${#subs[@]} > 1 )); then
-      plural='s'
-    fi
-    printf '  Extracting %s sub%s\n' "${#subs[@]}" "$plural"
-
-    mkvextract "$path" tracks "${subs[@]}" > /dev/null
-  else
-    echo '  Nothing to extract'
+  if [[ ! $has_subs ]]; then
+    printf '  No subtitles\n'
+    continue
+  elif (( ${#subs[@]} == 0 )) || [[ $dry_run ]]; then
+    continue
   fi
+
+  mkvextract "$path" tracks "${subs[@]}" > /dev/null
 done

@@ -187,6 +187,8 @@ Additional tools:
   MKVs, adding chapters for each file.
 - [**mkv-extract-subs**](mods/mkvtoolnix/.local/bin/mkv-extract-subs) — Batch
   extracts all subtitles from the given MKVs.
+- [**mkv-extract-fonts**](mods/mkvtoolnix/.local/bin/mkv-extract-fonts) — Batch
+  extracts all unique fonts (by filename) from the given MKVs.
 - [**mkv-rm-cover**](mods/mkvtoolnix/.local/bin/mkv-rm-cover) — Removes all
   image/jpeg and image/png attachments from the given MKVs.
 

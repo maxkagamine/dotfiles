@@ -1,0 +1,108 @@
+#!/bin/bash
+set -eo pipefail
+shopt -s nullglob
+
+throw() {
+  printf '%s: %s\n' "${0##*/}" "$1" >&2
+  return 1
+}
+
+if [[ $1 =~ ^(--help|-h)$ ]]; then
+  cat >&2 <<'EOF'
+Usage: mkv-extract-fonts [-n] [<path...>]
+
+Extracts all unique fonts (by filename) from the given mkvs. Fonts are
+extracted to the current directory.
+
+Directories are expanded to contained *.mkv files (non-recursive). If no paths
+are given, the current directory is used.
+
+Options:
+
+  -n        Dry run.
+EOF
+  exit 1
+fi
+
+paths=()
+paths_given=
+dry_run=
+while (( $# > 0 )); do
+  case $1 in
+    --)
+      shift
+      paths+=("$@")
+      break
+      ;;
+    -n)
+      dry_run=1
+      ;;
+    -*)
+      throw "unknown option: $1"
+      ;;
+    *)
+      if [[ -f "$1" ]]; then
+        paths+=("$1")
+        paths_given=1
+      elif [[ -d "$1" ]]; then
+        paths+=("$1"/*.mkv)
+        paths_given=1
+      else
+        throw "'$1' does not exist"
+      fi
+      ;;
+  esac
+  shift
+done
+if [[ ! $paths_given ]]; then
+  paths=(*.mkv)
+fi
+
+list_fonts() { # <path>
+  mkvmerge -J "$1" | jq -r '
+    if .tracks | type != "array" then
+      "\"\(.file_name)\" is not an mkv\n" | halt_error
+    else
+      .attachments[] | select(
+        (.content_type | startswith("font/")) or
+        .content_type == "application/x-truetype-font" or
+        .content_type == "application/x-font-ttf" or
+        .content_type == "application/vnd.ms-opentype" or
+        .content_type == "application/font-sfnt" or
+        .content_type == "application/font-woff" or
+        (.file_name | test("\\.(ttf|otf|ttc|woff2?)$"; "i"))
+      ) | (
+        (.id | tostring) + ":" + .file_name
+      )
+    end
+  '
+}
+
+for path in "${paths[@]}"; do
+  echo "$path"
+
+  fonts=()
+  has_fonts=
+
+  list=$(list_fonts "$path")
+
+  while read -r line; do
+    has_fonts=1
+    filename=$(cut -f2 -d: <<<"$line")
+    if [[ -f $filename ]]; then
+      printf '  \e[36mAlready extracted\e[m %s\n' "$filename"
+    else
+      printf '  \e[32mExtracting\e[m %s\n' "$filename"
+      fonts+=("$line")
+    fi
+  done <<<"$list"
+
+  if [[ ! $has_fonts ]]; then
+    printf '  No fonts\n'
+    continue
+  elif (( ${#fonts[@]} == 0 )) || [[ $dry_run ]]; then
+    continue
+  fi
+
+  mkvextract "$path" attachments "${fonts[@]}" >/dev/null
+done

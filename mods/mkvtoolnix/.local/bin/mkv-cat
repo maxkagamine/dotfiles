@@ -61,7 +61,8 @@ if [[ -e $output ]]; then
 fi
 
 if [[ ! $no_sort ]]; then
-  readarray -t inputs < <(for x in "${inputs[@]}"; do echo "$x"; done | sort -V)
+  list=$(for x in "${inputs[@]}"; do echo "$x"; done | sort -V)
+  readarray -t inputs <<<"$list"
 fi
 
 args=(

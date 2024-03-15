@@ -63,9 +63,8 @@ fi
 echo "$output"
 
 # Grep out the names of the top-level items that were copied
-readarray -t items < <(
-  grep -oP '(?<=INFO  : )[^/]*(?=.*: (Multi-thread )?Copied)' <<<"$output" |
-  sort -u)
+list=$(grep -oP '(?<=INFO  : )[^/]*(?=.*: (Multi-thread )?Copied)' <<<"$output" | sort -u)
+readarray -t items <<<"$list"
 count=${#items[@]}
 if (( count == 0 )); then
   exit
