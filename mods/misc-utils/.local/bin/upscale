@@ -48,7 +48,8 @@ UPSCALERS
 
 OPTIONS
 
-  --auto         Upscales images <${AUTO_THRESHOLD}px tall to ${AUTO_HEIGHT}p+
+  --auto         Upscales images <${AUTO_THRESHOLD}px tall to ${AUTO_HEIGHT}p+, using waifu2x and
+                 esrgan+histmatch unless upscalers are specifed explicitly.
 
   -s <scale>     1/2/4/8/16/32 for waifu2x & cugan; 2/3/4 for esrgan. Mutually
                  exclusive with --auto. (default=2)
@@ -152,7 +153,12 @@ while (( $# > 0 )); do
 done
 
 if (( ${#upscalers[@]} == 0 )); then
-  throw 'no upscalers specified (try --all?)'
+  if [[ $scale == 'auto' ]]; then
+    upscalers=(waifu2x esrgan)
+    histmatch=1
+  else
+    throw 'no upscalers specified (try --all or --auto?)'
+  fi
 fi
 
 if (( ${#paths[@]} == 0 )); then
