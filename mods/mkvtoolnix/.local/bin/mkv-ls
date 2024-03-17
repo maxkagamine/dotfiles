@@ -79,12 +79,14 @@ list_tracks() {
     echo
     mkvmerge -J "$1" | \
       jq -r '
-        if .attachments | type == "array" then
+        if .attachments | length > 0 then
           .attachments[] | (
             (.id | tostring) + "\t" +
             .content_type + "\t" +
             .file_name
           )
+        else
+          "(no\t\u0008atta\t\u0008\u0008chments)"  # \u008 is the backspace character
         end
       ' | column -ts $'\t' -N 'AID,Type,Name'
   fi

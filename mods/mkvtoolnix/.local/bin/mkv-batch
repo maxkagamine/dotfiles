@@ -17,14 +17,15 @@ mkvmerge.
 Directories are expanded to contained *.mkv files (non-recursive). If no paths
 are given, the current directory is used (equivalent to `mkv-batch *.mkv`).
 
-Likely options:
+Common options:
 
   -a, --audio-tracks [!]TID1,TID2,...     \
   -d, --video-tracks [!]TID1,TID2,...      | Can use lang codes instead.
   -s, --subtitle-tracks [!]TID1,TID2,...  /  Remember to quote/escape the '!'
   --track-order 0:TID1,0:TID2,...
-  --default-track TID
+  --default-track-flag TID[:0]
 EOF
+  printf '\nSee autocomplete suggestions and \e[34m\e]8;;https://mkvtoolnix.download/doc/mkvmerge.html\e\\mkvmerge manual\e]8;;\e\\\e[m.\n' >&2
   exit 1
 fi
 
