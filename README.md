@@ -203,6 +203,9 @@ Miscellaneous utilities:
   notification on error. Used for
   [**pull-from-seedbox**](mods/wsl/.local/bin/pull-from-seedbox) and another
   script that runs yt-dlp to backup YouTube playlists.
+- [**flatten**](mods/misc-utils/.local/bin/flatten) - Flattens the contents of a
+  directory such that "foo/bar/file.jpg" is renamed to "foo - bar - file.jpg",
+  with an optional prefix/suffix added to the filenames.
 - [**intersect-csvs**](mods/misc-utils/.local/bin/intersect-csvs) — Creates CSVs
   containing only rows that exist in two or more of the given CSVs. For example,
   given A.csv, B.csv, and C.csv, creates A+B.csv, A+C.csv, B+C.csv, and

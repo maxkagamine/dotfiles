@@ -1,0 +1,150 @@
+#!/bin/bash
+set -eo pipefail
+
+throw() {
+  printf '%s: %s\n' "${0##*/}" "$1" >&2
+  return 1
+}
+
+if [[ $# == 0 || $1 =~ ^(--help|-h)$ ]]; then
+  cat >&2 <<EOF
+Usage: flatten [-p|--prefix <prefix>] [-s|--suffix <suffix>]
+               [-d|--delimiter <delimiter>] [-n|--dry-run] <directory>
+
+Flattens the contents of a directory "dir" such that "dir/foo/bar/file.jpg" is
+renamed to "dir/foo - bar - file.jpg" with the empty directories "bar" and
+"foo" removed afterward. Existing files are never overwritten.
+
+Options:
+
+  -p, --prefix <prefix>          Optional string prepended to filenames.
+
+  -s, --suffix <suffix>          Optional string appended to filenames (before
+                                 the file extension).
+
+  -d, --delimiter <delimiter>    Separator added between path components.
+                                 Defaults to " - ".
+
+  -n, --dry-run                  Show how files would be renamed and exit.
+EOF
+  exit 1
+fi
+
+paths=()
+prefix=
+suffix=
+delimiter=' - '
+dry_run=
+while (( $# > 0 )); do
+  case $1 in
+    --)
+      shift
+      paths+=("$@")
+      break
+      ;;
+    # prefix
+    -p|--prefix)
+      shift
+      prefix=$1
+      ;;
+    -p*)
+      prefix=${1#-p}
+      ;;
+    --prefix=*)
+      prefix=${1#--prefix=}
+      ;;
+    # suffix
+    -s|--suffix)
+      shift
+      suffix=$1
+      ;;
+    -s*)
+      suffix=${1#-s}
+      ;;
+    --suffix=*)
+      suffix=${1#--suffix=}
+      ;;
+    # delimiter
+    -d|--delimiter)
+      shift
+      delimiter=$1
+      ;;
+    -d*)
+      delimiter=${1#-d}
+      ;;
+    --delimiter=*)
+      delimiter=${1#--delimiter=}
+      ;;
+    # dry run
+    -n|--dry-run)
+      dry_run=1
+      ;;
+    -*)
+      throw "unknown option: $1"
+      ;;
+    *)
+      paths+=("$1")
+      ;;
+  esac
+  shift
+done
+if (( ${#paths[@]} == 0 )); then
+  throw 'no directory given'
+elif (( ${#paths[@]} > 1 )); then
+  throw 'too many directories given'
+elif [[ ! -d ${paths[0]} ]]; then
+  throw "not a directory: ${paths[0]}"
+fi
+directory=${paths[0]}
+
+echo 'Scanning directory...'
+file_list=$(cd "$directory" && find . -type f | sed 's/^.\///')
+count_not_moved=0
+
+while read -r orig_path; do
+  orig_path_without_ext=${orig_path%.*}
+  ext=
+  if [[ $orig_path == *.* ]]; then
+    ext=.${orig_path##*.}
+  fi
+  new_path="${prefix}${orig_path_without_ext//\//${delimiter}}${suffix}${ext}"
+
+  full_orig_path="$directory/$orig_path"
+  full_new_path="$directory/$new_path"
+
+  if [[ $full_orig_path == "$full_new_path" ]]; then
+    continue
+  fi
+
+  echo
+
+  if [[ -e $full_new_path ]]; then
+    printf '\e[31mAlready exists: %s\e[m\n' "$new_path"
+    (( count_not_moved += 1 ))
+    continue
+  fi
+
+  if [[ $dry_run ]]; then
+    printf 'Would rename \e[32m%s\e[m\n' "$orig_path"
+    printf '          to \e[32m%s\e[m\n' "$new_path"
+    continue
+  fi
+
+  printf 'Renaming \e[32m%s\e[m\n' "$orig_path"
+  printf '      to \e[32m%s\e[m\n' "$new_path"
+  mv -n "$full_orig_path" "$full_new_path" 2> >(sed $'s/.*/\e[31m&\e[m/')
+done <<<"$file_list"
+
+echo
+if [[ ! $dry_run ]]; then
+  echo 'Removing empty directories...'
+  find "$directory" -mindepth 1 -depth -type d -empty -exec rmdir -- {} \;
+fi
+echo 'Done.'
+
+if (( count_not_moved > 0 )); then
+  (( count_not_moved == 1 )) && plural= || plural=s
+  printf '\n\e[31m%s file%s skipped to avoid overwriting existing files.\e[m\n' "$count_not_moved" "$plural"
+fi
+
+exit $((count_not_moved > 255 ? 255 : count_not_moved))
