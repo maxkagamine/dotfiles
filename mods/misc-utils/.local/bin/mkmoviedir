@@ -22,24 +22,36 @@ html_unescape() {
 
 if [[ $# == 0 || $1 =~ ^(--help|-h)$ ]]; then
   cat >&2 <<EOF
-Usage: mkmoviedir <imdb link> [<file>]
+Usage: mkmoviedir <imdb or mydramalist url> [<file>]
 
 Creates a directory in the format "Title (Year)" with the poster saved to
 folder.jpg (hidden). If the directory already exists but a folder.jpg doesn't,
 it'll download the poster only.
+
+Works for TV shows too.
 EOF
   exit 1
 fi
 
-imdb_id=
+imdb_url=
+mdl_url=
 files=()
 while (( $# > 0 )); do
   case $1 in
-    https://*)
-      if [[ ! $1 =~ ^https://www.imdb.com/title/(tt[[:digit:]]+) ]]; then
+    https://www.imdb.com/*)
+      if [[ ! $1 =~ ^https://www.imdb.com/title/tt[[:digit:]]+ ]]; then
         throw 'unrecognized imdb url'
       fi
-      imdb_id=${BASH_REMATCH[1]}
+      imdb_url=${BASH_REMATCH[0]}
+      ;;
+    https://mydramalist.com/*)
+      if [[ ! $1 =~ ^https://mydramalist.com/[[:digit:]]+-[^/]+ ]]; then
+        throw 'unrecognized mydramalist url'
+      fi
+      mdl_url=${BASH_REMATCH[0]}
+      ;;
+    http://*|https://*)
+      throw 'unrecognized url'
       ;;
     *)
       files+=("$1")
@@ -48,16 +60,29 @@ while (( $# > 0 )); do
   shift
 done
 
-if ! html=$(curl "${CURL_OPTS[@]}" -sSL "https://www.imdb.com/title/$imdb_id/"); then
-  throw 'failed to fetch imdb page'
-fi
+fetch_data() { # <url> <title suffix>, sets $html, $title, $image
+  local url=$1
+  local title_suffix=$2
 
-if ! title=$(grep -Po '(?<=<title>).*?(?= - IMDb)' <<<"$html" | head -n1 | html_unescape); then
-  throw 'failed to extract title'
-fi
+  if ! html=$(curl "${CURL_OPTS[@]}" -sSL "$url"); then
+    throw 'failed to fetch page'
+  fi
 
-if ! image=$(grep -Po '(?<=<meta property="og:image" content=")[^"]+' <<<"$html"); then
-  throw 'failed to extract og:image from page'
+  if ! title=$(grep -Po '(?<=<title>).*?(?='"$title_suffix"')' <<<"$html" | head -n1 | html_unescape); then
+    throw 'failed to extract title'
+  fi
+
+  if ! image=$(grep -Po '(?<=<meta property="og:image" content=")[^"]+' <<<"$html"); then
+    throw 'failed to extract og:image from page'
+  fi
+}
+
+if [[ $imdb_url ]]; then
+  fetch_data "$imdb_url" ' - IMDb'
+elif [[ $mdl_url ]]; then
+  fetch_data "$mdl_url" ' - MyDramaList'
+else
+  throw 'need either an imdb url or a mydramalist url'
 fi
 
 dir=$(sanitize_filename "$title")
