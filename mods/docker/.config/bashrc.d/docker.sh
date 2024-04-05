@@ -8,24 +8,8 @@ alias dcu='dc up --wait'
 alias dcd='dc down'
 alias dcr='dcu --build --force-recreate --remove-orphans'
 
-ctop() {
-  docker run --rm -it \
-    --name=ctop \
-    --volume /var/run/docker.sock:/var/run/docker.sock:ro \
-    quay.io/vektorlab/ctop:latest
-}
+# https://github.com/alexheretic/ab-av1 (image must be built locally)
+alias ab-av1='dr -v .:/videos ab-av1'
 
-runlike() {
-  if (( $# == 0 )); then
-    docker ps --format '{{.Names}}' |
-      fzf --preview 'runlike {} --color=always' --preview-window 'right:66%' |
-      xargs -rI {} bash -c "runlike '{}'"
-  else
-    docker run --rm -v /var/run/docker.sock:/var/run/docker.sock:ro \
-      assaflavie/runlike -p "$1" |
-      sed -E 's/^\s+/  /' |
-      bat -pp -l sh "${@:2}"
-  fi
-}
-
-export -f runlike # Makes the function available in fzf --preview and xargs
+# https://github.com/w3c/epubcheck (image must be built locally)
+alias epubcheck='dr -v .:/data:ro epubcheck'
