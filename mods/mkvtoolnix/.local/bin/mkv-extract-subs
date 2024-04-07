@@ -136,7 +136,7 @@ for path in "${paths[@]}"; do
       printf '  \e[36mSkipping\e[m %s\n' "$formatted_name"
     else
       printf '  \e[32mExtracting\e[m %s\n' "$formatted_name"
-      filename="$basename - $formatted_name"
+      filename="$basename - $(sanitize_filename "$formatted_name")"
       filename+=$(get_extension "$track_codec")
       subs+=("$track_id:$dir/$filename")
     fi
