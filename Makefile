@@ -13,6 +13,7 @@ tamriel: \
   docker \
   exiftool \
   ffmpeg \
+  fx \
   fzf \
   gif-tools \
   git \
