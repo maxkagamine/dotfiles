@@ -14,3 +14,5 @@ set tabstospaces
 set titlecolor brightblack,normal
 
 include "/usr/share/nano/*.nanorc"
+
+extendsyntax sh formatter shfmt --write --indent 2 --case-indent
