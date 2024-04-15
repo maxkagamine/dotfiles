@@ -23,11 +23,13 @@
 [color]
   ui = auto
 [commit]
-  gpgSign = true # TODO: Restore previous git hook to sign only own commits
+  gpgSign = true
 [diff]
   tool = code
 [difftool "code"]
   cmd = code --diff --wait $LOCAL $REMOTE
+[diff "json"]
+  textconv = json_xs <\"$1\"
 [fetch]
   prune = true
 [init]

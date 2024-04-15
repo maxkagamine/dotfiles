@@ -20,7 +20,7 @@ tamriel: \
   gpg \
   imagemagick \
   img2pdf \
-  jq \
+  json-tools \
   misc-utils \
   mkvtoolnix \
   nano \
