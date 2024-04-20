@@ -13,3 +13,6 @@ alias ab-av1='dr -v .:/videos ab-av1'
 
 # https://github.com/w3c/epubcheck (image must be built locally)
 alias epubcheck='dr -v .:/data:ro epubcheck'
+
+# https://github.com/wagoodman/dive
+alias dive='dr -v /var/run/docker.sock:/var/run/docker.sock:ro wagoodman/dive'
