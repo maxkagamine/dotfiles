@@ -26,10 +26,10 @@
   gpgSign = true
 [diff]
   tool = code
+[diff "json"]
+  textconv = python -m json.tool --indent 2 --no-ensure-ascii
 [difftool "code"]
   cmd = code --diff --wait $LOCAL $REMOTE
-[diff "json"]
-  textconv = json_xs <\"$1\"
 [fetch]
   prune = true
 [init]
