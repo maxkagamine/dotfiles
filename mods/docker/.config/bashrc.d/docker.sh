@@ -1,9 +1,11 @@
 # shellcheck shell=bash
 
 alias d='docker'
-alias dr='docker run -it --rm'
-alias dx='docker exec -it'
-alias dc='docker compose'
+alias dr='d run -it --rm'
+alias dx='d exec -it'
+alias dc='d compose'
+alias dps='d ps -a' # docker container ls -a
+alias dis='d images -a' # docker image ls -a
 alias dcu='dc up --wait'
 alias dcd='dc down'
 alias dcr='dcu --build --force-recreate --remove-orphans'
