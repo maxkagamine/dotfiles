@@ -9,7 +9,7 @@ alias ee='exp;exit'
 
 exp() {
   (( $# == 0 )) && set .
-  wslview "$@"
+  powershell.exe -noprofile Start "'$(wslpath -aw "$1")'"
 }
 
 hide() { n "$@" | x wslpath -w | x attrib.exe +h; }
