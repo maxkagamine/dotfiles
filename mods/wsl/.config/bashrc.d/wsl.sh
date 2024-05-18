@@ -16,6 +16,11 @@ hide() { n "$@" | x wslpath -w | x attrib.exe +h; }
 unhide() { n "$@" | x wslpath -w | x attrib.exe -h; }
 recycle() { n "$@" | x wslpath -w | x nircmdc.exe moverecyclebin; }
 
+# Way faster than doing it from Windows
+empty-sovngarde-recycle-bin() {
+  ssh sovngarde 'rm -rfv /mnt/user/*/\$RECYCLE.BIN/*'
+}
+
 # Alt+V pastes Windows paths as WSL paths
 bind -x '"\ev": __paste_wslpath'
 __paste_wslpath() {
