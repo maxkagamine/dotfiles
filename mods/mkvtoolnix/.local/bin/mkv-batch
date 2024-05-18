@@ -51,7 +51,7 @@ fi
 if (( ${#paths[@]} == 0 )); then
   throw 'no files to process'
 fi
-if (( ${#opts[@]} == 0 )); then
+if (( ${#opts[@]} == 0 )) && [[ ! $CLEANING ]]; then
   throw 'no mkvmerge opts given'
 fi
 

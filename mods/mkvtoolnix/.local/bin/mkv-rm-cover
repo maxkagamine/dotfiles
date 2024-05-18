@@ -12,6 +12,8 @@ Usage: mkv-rm-cover <path...>
 
 Removes all image/jpeg and image/png attachments from the given MKVs.
 
+See also: mkv-clean
+
 Directories are expanded to contained *.mkv files (non-recursive). If no paths
 are given, the current directory is used (equivalent to `mkv-rm-cover *.mkv`).
 EOF

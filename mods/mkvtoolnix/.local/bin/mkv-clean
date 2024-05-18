@@ -1,0 +1,112 @@
+#!/bin/bash
+# shellcheck disable=SC2018,SC2019
+set -eo pipefail
+
+throw() {
+  printf '%s: %s\n' "${0##*/}" "$1" >&2
+  return 1
+}
+
+if [[ $1 =~ ^(--help|-h)$ ]]; then
+  cat >&2 <<'EOF'
+Usage: mkv-clean <path...>
+
+Removes the title and video track name (both used occasionally just to advertise
+the encoding group), cover image (some groups plaster the series cover on every
+episode), and common Windows system fonts (which are often unnecessarily
+included with subs and do nothing but waste space) from the given MKVs.
+
+Note: this uses mkvpropedit which does a quick delete by zeroing bytes; the MKV
+will need to be remuxed after this to reclaim space.
+
+Directories are expanded to contained *.mkv files (non-recursive). If no paths
+are given, the current directory is used (equivalent to `mkv-clean *.mkv`).
+EOF
+  exit 1
+fi
+
+SYSTEM_FONTS=(
+  arial.ttf arialbd.ttf arialbi.ttf ariali.ttf ariblk.ttf bahnschrift.ttf
+  calibri.ttf calibrib.ttf calibrii.ttf calibril.ttf calibrili.ttf calibriz.ttf
+  cambria.ttc cambriab.ttf cambriai.ttf cambriaz.ttf candara.ttf candarab.ttf
+  candarai.ttf candaral.ttf candarali.ttf candaraz.ttf comic.ttf comicbd.ttf
+  comici.ttf comicz.ttf consola.ttf consolab.ttf consolai.ttf consolaz.ttf
+  constan.ttf constanb.ttf constani.ttf constanz.ttf corbel.ttf corbelb.ttf
+  corbeli.ttf corbell.ttf corbelli.ttf corbelz.ttf cour.ttf courbd.ttf
+  courbi.ttf couri.ttf ebrima.ttf ebrimabd.ttf framd.ttf framdit.ttf
+  gabriola.ttf gadugi.ttf gadugib.ttf georgia.ttf georgiab.ttf georgiai.ttf
+  georgiaz.ttf himalaya.ttf impact.ttf inkfree.ttf javatext.ttf LeelaUIb.ttf
+  LeelawUI.ttf LeelUIsl.ttf lucon.ttf l_10646.ttf malgun.ttf malgunbd.ttf
+  malgunsl.ttf marlett.ttf micross.ttf mingliub.ttc mmrtext.ttf mmrtextb.ttf
+  monbaiti.ttf msgothic.ttc msjh.ttc MSJHBD.ttc msjhl.ttc msyh.ttc msyhbd.ttc
+  msyhl.ttc msyi.ttf mvboli.ttf nirmala.ttf NirmalaB.ttf NirmalaS.ttf
+  ntailu.ttf ntailub.ttf pala.ttf palab.ttf palabi.ttf palai.ttf phagspa.ttf
+  PhagsPaB.ttf segmdl2.ttf segoepr.ttf segoeprb.ttf segoesc.ttf segoescb.ttf
+  segoeui.ttf segoeuib.ttf segoeuii.ttf segoeuil.ttf segoeuisl.ttf segoeuiz.ttf
+  seguibl.ttf seguibli.ttf seguiemj.ttf seguihis.ttf seguili.ttf seguisb.ttf
+  seguisbi.ttf seguisli.ttf seguisym.ttf simsun.ttc simsunb.ttf sylfaen.ttf
+  symbol.ttf tahoma.ttf tahomabd.ttf taile.ttf TaiLeb.ttf times.ttf timesbd.ttf
+  timesbi.ttf timesi.ttf trebuc.ttf trebucbd.ttf trebucbi.ttf trebucit.ttf
+  verdana.ttf verdanab.ttf verdanai.ttf verdanaz.ttf webdings.ttf wingding.ttf
+  YuGothB.ttc YuGothL.ttc YuGothM.ttc YuGothR.ttc
+)
+
+paths=()
+paths_given=
+while (( $# > 0 )); do
+  if [[ -d "$1" ]]; then
+    paths+=("$1"/*.mkv)
+    paths_given=1
+  else
+    paths+=("$1")
+    paths_given=1
+  fi
+  shift
+done
+if [[ ! $paths_given ]]; then
+  paths=(*.mkv)
+fi
+if (( ${#paths[@]} == 0 )); then
+  throw 'no files to process'
+fi
+
+opts=(
+  --edit info --delete title
+  --edit track:v1 --delete name
+  --delete-attachment mime-type:image/jpeg
+  --delete-attachment mime-type:image/png
+)
+
+for font in "${SYSTEM_FONTS[@]}"; do
+  lowercase=$(tr A-Z a-z <<<"$font")
+  uppercase=$(tr a-z A-Z <<<"$font")
+  titlecase="$(tr a-z A-Z <<<"${font:0:1}")$(tr A-Z a-z <<<"${font:1}")"
+
+  opts+=(--delete-attachment name:"$font")
+  [[ $font == "$lowercase" ]] || opts+=(--delete-attachment name:"$lowercase")
+  [[ $font == "$uppercase" ]] || opts+=(--delete-attachment name:"$uppercase")
+  [[ $font == "$titlecase" ]] || opts+=(--delete-attachment name:"$titlecase")
+
+  # For some reason these are sometimes found with "_0" in the name
+  font=${font/./_0.}
+  lowercase=${lowercase/./_0.}
+  uppercase=${uppercase/./_0.}
+  titlecase=${titlecase/./_0.}
+
+  opts+=(--delete-attachment name:"$font")
+  [[ $font == "$lowercase" ]] || opts+=(--delete-attachment name:"$lowercase")
+  [[ $font == "$uppercase" ]] || opts+=(--delete-attachment name:"$uppercase")
+  [[ $font == "$titlecase" ]] || opts+=(--delete-attachment name:"$titlecase")
+done
+
+for f in "${paths[@]}"; do
+  mkvpropedit "$f" "${opts[@]}" |
+    grep -v 'Warning: No attachment matched the spec' || true
+done
+
+echo
+read -rp 'If attachments were removed, the mkvs will need to be remuxed to remove free space. Do that now? [Yn] ' yn
+if [[ ! $yn =~ [Nn] ]]; then
+  echo
+  CLEANING=1 mkv-batch "${paths[@]}"
+fi
