@@ -119,9 +119,10 @@ In the end that was too much of a hassle, so I switched to using [usbipd-win](ht
 
 ## <img src=".github/images/icons/unraid.png" align="top" height="25" />&hairsp; [unraid](mods/unraid)
 
-For "Sovngarde," my NAS. There isn't much here (literally just a `CDPATH`), but
-if you're running Unraid as well, see **[How to install GNU Stow on Unraid]**.
-Here's my user script, set to run on array start, if it happens to be useful:
+For "Sovngarde," my NAS. There isn't much here (just a `CDPATH` and a function
+to list/monitor files on the array that are being accessed), but if you're
+running Unraid as well, see **[How to install GNU Stow on Unraid]**. Here's my
+user script, set to run on array start, if it happens to be useful:
 
 <details>
 <summary><code>cat /boot/config/plugins/user.scripts/scripts/install_dotfiles/script</code></summary>
