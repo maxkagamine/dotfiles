@@ -45,6 +45,7 @@ sovngarde: \
   git \
   htop \
   misc-utils \
+  mkvtoolnix \
   nano \
   starship \
   sweetroll \
