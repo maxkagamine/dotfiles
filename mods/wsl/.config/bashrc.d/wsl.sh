@@ -6,6 +6,7 @@ export BROWSER=/usr/bin/wslview
 
 alias e='exp'
 alias ee='exp;exit'
+alias vs='open *.sln'
 
 exp() {
   (( $# == 0 )) && set .
