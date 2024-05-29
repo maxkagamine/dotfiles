@@ -70,7 +70,7 @@ title=$(jq -r .data.title <<<"$json")
 image=$(jq -r .data.images.jpg.large_image_url <<<"$json")
 
 if [[ ! $title || $title == 'null' ]]; then
-  throw 'unexpected response from jikan.moe'
+  throw "$(printf 'unexpected response from jikan.moe:\n\n%s' "$(jq -C . <<<"$json" 2>/dev/null || echo "$json")")"
 fi
 
 # Create or rename directory
