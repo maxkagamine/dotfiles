@@ -18,6 +18,7 @@ tamriel: \
   gif-tools \
   git \
   gpg \
+  hyperfine \
   imagemagick \
   img2pdf \
   json-tools \
