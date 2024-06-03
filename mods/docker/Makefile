@@ -1,4 +1,12 @@
-docker::
+ifneq "${WSL_DISTRO_NAME}" ""
+DOCKER_CREDENTIAL_HELPER:=docker-credential-wincred
+else
+# Could install cred helpers for different platforms w/o changing config.json
+# simply by giving them all the same name (docker-credential-whatever)
+DOCKER_CREDENTIAL_HELPER:=
+endif
+
+docker:: ${DOCKER_CREDENTIAL_HELPER}
 	$(PRINT)
 ifeq "$(shell echo $${HOSTNAME,,})" "sovngarde"
 	$(info skipping docker install on sovngarde)
@@ -21,3 +29,9 @@ else
 	sudo usermod -aG docker $$USER
 	docker completion bash | sudo tee /etc/bash_completion.d/docker > /dev/null
 endif
+
+docker-credential-wincred:
+	$(PRINT)
+	curl -fsSL https://github.com/docker/docker-credential-helpers/releases/download/v0.8.2/docker-credential-wincred-v0.8.2.windows-amd64.exe \
+		-o ~/.local/bin/docker-credential-wincred
+	chmod +x ~/.local/bin/docker-credential-wincred
