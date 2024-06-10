@@ -293,7 +293,8 @@ upscale_esrgan() { # <input> <scale>
     output_histmatch=$(create_output_path 'esrgan' "$input" "$scale")
 
     echo 'Running histmatch'
-    histmatch -c rgb "$input" "$output" "$output_histmatch" >/dev/null
+    histmatch -c rgb "$input" "$output" "$output_histmatch" 2>&1 >/dev/null |
+      grep -Pv '^\s*$|^WARNING: The convert command is deprecated'
   fi
 }
 

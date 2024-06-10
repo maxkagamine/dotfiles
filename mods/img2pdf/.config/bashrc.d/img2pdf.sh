@@ -25,7 +25,7 @@ pdf() {
     return 1
   fi
   for f in "${paths[@]}"; do
-    convert "$f" -quality 50 "${f}.temp.jpg" || return $?
+    magick "$f" -quality 50 "${f}.temp.jpg" || return $?
     temp_jpgs+=("$_")
   done
   img2pdf --output "$output" "${temp_jpgs[@]}" || return $?

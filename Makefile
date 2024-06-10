@@ -106,5 +106,5 @@ endif
 		make2graph | \
 		sed 's/, color="red"//g' | \
 		dot -Gmargin=0.3 -Gbgcolor=transparent -Tpng -o /dev/stdout | \
-		convert /dev/stdin -channel RGB -negate -background '#0d1117' -alpha remove \
+		magick /dev/stdin -channel RGB -negate -background '#0d1117' -alpha remove \
 			.github/images/graph.png
