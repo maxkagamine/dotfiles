@@ -10,6 +10,7 @@ tamriel: \
   7zip \
   bash \
   bat \
+  clef \
   docker \
   exiftool \
   ffmpeg \
