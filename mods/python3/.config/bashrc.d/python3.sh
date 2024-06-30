@@ -2,6 +2,7 @@
 
 alias py='python3'
 alias pir='pip install -r requirements.txt'
+alias pipdeptree='pipdeptree --python=auto'
 
 pi() {
   pip install "$@" || return $?
