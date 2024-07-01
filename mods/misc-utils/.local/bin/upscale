@@ -294,7 +294,7 @@ upscale_esrgan() { # <input> <scale>
 
     echo 'Running histmatch'
     histmatch -c rgb "$input" "$output" "$output_histmatch" 2>&1 >/dev/null |
-      grep -Pv '^\s*$|^WARNING: The convert command is deprecated'
+      grep -Pv '^\s*$|^WARNING: The convert command is deprecated' || true
   fi
 }
 
