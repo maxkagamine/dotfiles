@@ -21,7 +21,7 @@ ugoira-to-avif() {
   # For whatever reason, the last frame must be specified twice (bug in concat
   # demuxer?). Can confirm correct (or close enough) frame times using:
   #   ffprobe *.avif -show_frames | grep pkt_duration_time=
-  jq -r '(.[]|"file \(.file)\nduration \(.delay)ms"),(.[-1]|"file \(.file)")' \
+  jq -r '(.[]|"file '\''\(.file)'\''\nduration \(.delay)ms"),(.[-1]|"file '\''\(.file)'\''")' \
     animation.json > animation.txt || return $?
   # VFR results in the same number of frames (plus one due to the above) and
   # thus smaller file size / faster encode. Capped at 60fps (defaults to 25
