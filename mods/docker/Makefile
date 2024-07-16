@@ -1,10 +1,25 @@
 ifneq "${WSL_DISTRO_NAME}" ""
 DOCKER_CREDENTIAL_HELPER:=docker-credential-wincred
+define DOCKER_CONFIG
+{
+	"auths": {
+		"ghcr.io": {}
+	},
+	"psFormat": "table {{.Names}}\\t{{.Image}}\\t{{.Status}}",
+	"credsStore": "wincred"
+}
+endef
 else
 # Could install cred helpers for different platforms w/o changing config.json
 # simply by giving them all the same name (docker-credential-whatever)
 DOCKER_CREDENTIAL_HELPER:=
+define DOCKER_CONFIG
+{
+	"psFormat": "table {{.Names}}\\t{{.Image}}\\t{{.Status}}",
+}
+endef
 endif
+export DOCKER_CONFIG
 
 docker:: ${DOCKER_CREDENTIAL_HELPER}
 	$(PRINT)
@@ -29,6 +44,7 @@ else
 	sudo usermod -aG docker $$USER
 	docker completion bash | sudo tee /etc/bash_completion.d/docker > /dev/null
 endif
+	tee ~/.docker/config.json >/dev/null <<<"$$DOCKER_CONFIG"
 
 docker-credential-wincred:
 	$(PRINT)
