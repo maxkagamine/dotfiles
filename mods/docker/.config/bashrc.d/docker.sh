@@ -18,3 +18,11 @@ alias epubcheck='dr -v .:/data:ro epubcheck'
 
 # https://github.com/wagoodman/dive
 alias dive='dr -v /var/run/docker.sock:/var/run/docker.sock:ro wagoodman/dive'
+
+# https://github.com/apngasm/apngasm (custom dockerfile)
+alias apngasm='dr -v .:/srv apngasm'
+
+ugoira-to-apng() { # See also ugoira-to-avif in ffmpeg.sh
+  jq -r '.[] | "\(.file)\n\(.delay)"' animation.json | \
+    xx docker run --rm -v .:/srv apngasm -o "${PWD##*/}.apng"
+}

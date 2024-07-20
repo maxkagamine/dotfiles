@@ -11,7 +11,7 @@ flac() {
   done
 }
 
-ugoira-to-avif() {
+ugoira-to-avif() { # See also ugoira-to-apng in docker.sh
   local DEFAULT_CRF=20
   if [[ ! -f animation.json || $1 =~ ^(--help|-h)$ ]]; then
     echo 'Run from directory containing frames & animation.json.' >&2
