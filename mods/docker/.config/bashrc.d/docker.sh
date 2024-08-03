@@ -10,6 +10,10 @@ alias dcu='dc up --wait'
 alias dcd='dc down'
 alias dcr='dcu --build --force-recreate --remove-orphans'
 
+# https://github.com/maxkagamine/sqlarserver
+alias sqlarserver='dr -v .:/srv:ro -p 3939:80 -e TZ=Asia/Tokyo ghcr.io/maxkagamine/sqlarserver'
+alias sqlarserverd='dr -d -v .:/srv:ro -p 3939:80 -e TZ=Asia/Tokyo --name=sqlarserver ghcr.io/maxkagamine/sqlarserver'
+
 # https://github.com/alexheretic/ab-av1 (image must be built locally)
 alias ab-av1='dr -v .:/videos -v ab-av1:/root/.cache/ab-av1 ab-av1'
 
