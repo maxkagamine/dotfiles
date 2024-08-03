@@ -8,6 +8,8 @@ alias e='exp'
 alias ee='exp;exit'
 alias vs='open *.sln'
 
+alias ffplay='&>/dev/null ffplay.exe -hide_banner -nodisp -autoexit'
+
 exp() {
   (( $# == 0 )) && set .
   powershell.exe -noprofile Start "'$(wslpath -aw "$1")'"
