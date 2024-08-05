@@ -21,7 +21,7 @@ DOTFILES_DIR=$(realpath -m ~/.bashrc/../../..)
 # Shell config
 shopt -s histappend globstar
 bind 'set completion-ignore-case on'
-bind 'set colored-stats on'
+#bind 'set colored-stats on'
 bind '"\e[3;5~": kill-word' # Ctrl+Del
 bind '"\C-H": backward-kill-word' # Ctrl+Backspace (note: some terminals send a regular backspace when ctrl+backspace is pressed)
 eval "$(dircolors -b ~/.config/dircolors)"
