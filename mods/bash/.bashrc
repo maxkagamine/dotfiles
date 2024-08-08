@@ -27,7 +27,7 @@ bind '"\C-H": backward-kill-word' # Ctrl+Backspace (note: some terminals send a 
 eval "$(dircolors -b ~/.config/dircolors)"
 HISTSIZE=10000
 HISTTIMEFORMAT='%Y-%m-%d %T  '
-export LESS='-FRX --mouse --wheel-lines 2'
+export LESS='-FRX'
 export UNZIP='-O cp932 -DD' # Extract Windows zips using Japanese codepage, don't set timestamp
 
 if [[ $TERM_PROGRAM == 'vscode' ]]; then
