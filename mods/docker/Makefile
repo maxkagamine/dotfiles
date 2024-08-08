@@ -15,7 +15,7 @@ else
 DOCKER_CREDENTIAL_HELPER:=
 define DOCKER_CONFIG
 {
-	"psFormat": "table {{.Names}}\\t{{.Image}}\\t{{.Status}}",
+	"psFormat": "table {{.Names}}\\t{{.Image}}\\t{{.Status}}"
 }
 endef
 endif
