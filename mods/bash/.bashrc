@@ -29,6 +29,7 @@ HISTSIZE=10000
 HISTTIMEFORMAT='%Y-%m-%d %T  '
 export LESS='-FRX'
 export UNZIP='-O cp932 -DD' # Extract Windows zips using Japanese codepage, don't set timestamp
+export XDELTA='-v -B536870912 -W16777216' # Use more memory to drastically speed up xdelta3 and improve compression
 
 if [[ $TERM_PROGRAM == 'vscode' ]]; then
   export EDITOR='code -w'
