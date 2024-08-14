@@ -8,8 +8,3 @@ fzf:: fd
 	sudo mkdir -p /usr/share/doc/fzf/examples
 	sudo curl -fsSL https://raw.githubusercontent.com/junegunn/fzf/v$(FZF_VERSION)/shell/key-bindings.bash \
 		-o /usr/share/doc/fzf/examples/key-bindings.bash
-
-# Used by Ctrl+T & Alt+C shortcuts, see .config/bashrc.d/fzf.sh
-fd: cargo
-	$(PRINT)
-	cargo install fd-find

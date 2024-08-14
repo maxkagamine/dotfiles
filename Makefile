@@ -14,6 +14,7 @@ tamriel: \
   docker \
   exiftool \
   ffmpeg \
+  fd \
   fx \
   fzf \
   gif-tools \
@@ -43,6 +44,7 @@ sovngarde: \
   bash \
   bat \
   docker \
+  fd \
   fzf \
   git \
   htop \
