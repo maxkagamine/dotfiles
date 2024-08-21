@@ -4,6 +4,10 @@ MAKEFLAGS+=--always-make # This makes all targets "phony"
 APT:=$(shell command -v apt 2>/dev/null)
 PRINT=$(info $(shell printf '\e[32m%-*s\e[m\n' $$(tput cols) $@ | perl -pe 's/(?<= ) /─/g'))
 
+ifneq "$(shell command -v pacman 2>/dev/null)" ""
+PACMAN:=sudo pacman -S --noconfirm --needed
+endif
+
 # Mod lists. Running `make` will install the mod list corresponding to the
 # machine's hostname, thanks to the "default goal" above.
 tamriel: \
@@ -28,17 +32,21 @@ tamriel: \
   mkvtoolnix \
   nano \
   node \
-  passwordless-sudo \
   python3 \
   shellcheck \
   sqlite3 \
   starship \
+  sudo \
   sweetroll \
   tree \
   wsl \
   yt-dlp \
 
-oblivion: tamriel # Same, but wsl mod will configure differently
+oblivion: \
+	bash \
+	git \
+	gpg \
+	sudo
 
 sovngarde: \
   bash \
@@ -70,6 +78,8 @@ stow:
 ifdef APT
 	sudo apt-get update -qq
 	sudo apt-get install -qy stow
+else ifdef PACMAN
+	$(PACMAN) --refresh stow
 else
 # https://gist.github.com/maxkagamine/7e3741b883a272230eb451bdd84a8e23
 # MAKEFLAGS need to be reset to prevent weird behavior in stow's Makefile

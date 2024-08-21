@@ -8,20 +8,38 @@
       "\t$0"
     ]
   },
-  "Require apt": {
+  "Require pacman": {
     "prefix": "ifndef",
     "scope": "makefile",
     "body": [
-      "ifndef APT",
-      "\t\\$(error ${TM_DIRECTORY/^.+\\/(.*)$/$1/} install requires apt)",
+      "ifndef PACMAN",
+      "\t\\$(error ${TM_DIRECTORY/^.+\\/(.*)$/$1/} install requires pacman)",
       "endif",
     ]
   },
-  "Install package": {
+  "Check if pacman": {
+    "prefix": "ifdef",
+    "scope": "makefile",
+    "body": [
+      "ifdef PACMAN",
+      "\t$0",
+      "else",
+      "\t\\$(error ${TM_DIRECTORY/^.+\\/(.*)$/$1/} install requires pacman)",
+      "endif",
+    ]
+  },
+  "Apt: Install package": {
     "prefix": "apt",
     "scope": "makefile",
     "body": [
       "sudo apt-get install -qy $0"
+    ]
+  },
+  "Pacman: Install package": {
+    "prefix": "pacman",
+    "scope": "makefile",
+    "body": [
+      "\\$(PACMAN) $0"
     ]
   }
 }

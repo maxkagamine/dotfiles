@@ -1,6 +1,9 @@
 gpg::
 	$(PRINT)
-ifndef APT
+ifdef APT
+	sudo apt-get install -qy scdaemon pcscd
+else ifdef PACMAN
+	$(PACMAN) openssh
+else
 	$(error gpg install requires apt)
 endif
-	sudo apt-get install -qy scdaemon pcscd
