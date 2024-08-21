@@ -42,7 +42,10 @@ tamriel: \
 oblivion: \
 	bash \
   bat \
+  exiftool \
   fd \
+  ffmpeg \
+  fzf \
 	git \
 	gpg \
 	sudo \
