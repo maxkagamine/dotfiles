@@ -41,6 +41,8 @@ tamriel: \
 
 oblivion: \
 	bash \
+  bat \
+  fd \
 	git \
 	gpg \
 	sudo \
