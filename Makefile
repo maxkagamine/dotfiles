@@ -46,7 +46,9 @@ oblivion: \
 	bash \
 	git \
 	gpg \
-	sudo
+	sudo \
+  man \
+  wget \
 
 sovngarde: \
   bash \
