@@ -11,10 +11,8 @@ endif
 # Mod lists. Running `make` will install the mod list corresponding to the
 # machine's hostname, thanks to the "default goal" above.
 tamriel: \
-  7zip \
   bash \
   bat \
-  clef \
   docker \
   exiftool \
   ffmpeg \
@@ -26,7 +24,6 @@ tamriel: \
   gpg \
   hyperfine \
   imagemagick \
-  img2pdf \
   json-tools \
   misc-utils \
   mkvtoolnix \
