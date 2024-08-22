@@ -61,7 +61,6 @@ oblivion: \
 	nano \
 	node \
 	python \
-	rclone \
 	shellcheck \
 	sqlite \
 	starship \
@@ -69,6 +68,7 @@ oblivion: \
 	sweetroll \
 	tree \
 	wget \
+	wsl \
 	yt-dlp \
 
 sovngarde: \
