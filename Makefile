@@ -29,7 +29,7 @@ tamriel: \
   mkvtoolnix \
   nano \
   node \
-  python3 \
+  python \
   shellcheck \
   sqlite3 \
   starship \
@@ -57,6 +57,8 @@ oblivion: \
   json-tools \
   man \
   nano \
+  node \
+  python \
 	sudo \
   wget \
 
