@@ -46,10 +46,15 @@ oblivion: \
   fd \
   ffmpeg \
   fzf \
+  gif-tools \
 	git \
 	gpg \
-	sudo \
+  htop \
+  hyperfine \
+  imagemagick \
+  json-tools \
   man \
+	sudo \
   wget \
 
 sovngarde: \

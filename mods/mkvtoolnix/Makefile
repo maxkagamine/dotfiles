@@ -6,7 +6,7 @@ ENTRYPOINT /usr/bin/mkvmerge
 endef
 export MKVMERGE_DOCKERFILE
 
-mkvtoolnix:: jq
+mkvtoolnix:: json-tools
 	$(PRINT)
 ifeq "$(shell echo $${HOSTNAME,,})" "sovngarde"
 	docker build -t mkvmerge - <<<"$$MKVMERGE_DOCKERFILE"
