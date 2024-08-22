@@ -51,6 +51,7 @@ oblivion: \
 	gpg \
   htop \
   hyperfine \
+  ifconfig \
   imagemagick \
   json-tools \
   man \
