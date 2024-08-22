@@ -42,6 +42,7 @@ tamriel: \
 oblivion: \
 	bash \
   bat \
+  cron \
   exiftool \
   fd \
   ffmpeg \
@@ -55,6 +56,7 @@ oblivion: \
   imagemagick \
   json-tools \
   man \
+  nano \
 	sudo \
   wget \
 

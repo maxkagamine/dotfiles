@@ -13,6 +13,9 @@ set tabsize 2
 set tabstospaces
 set titlecolor brightblack,normal
 
+bind M-F formatter main
+bind M-B linter main
+
 include "/usr/share/nano/*.nanorc"
 
 extendsyntax sh formatter shfmt --write --indent 2 --case-indent
