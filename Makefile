@@ -11,75 +11,80 @@ endif
 # Mod lists. Running `make` will install the mod list corresponding to the
 # machine's hostname, thanks to the "default goal" above.
 tamriel: \
-  bash \
-  bat \
-  docker \
-  exiftool \
-  ffmpeg \
-  fd \
-  fx \
-  fzf \
-  gif-tools \
-  git \
-  gpg \
-  hyperfine \
-  imagemagick \
-  json-tools \
-  misc-utils \
-  mkvtoolnix \
-  nano \
-  node \
-  python \
-  shellcheck \
-  sqlite \
-  starship \
-  sudo \
-  sweetroll \
-  tree \
-  wsl \
-  yt-dlp \
+	bash \
+	bat \
+	docker \
+	exiftool \
+	ffmpeg \
+	fd \
+	fx \
+	fzf \
+	gif-tools \
+	git \
+	gpg \
+	hyperfine \
+	imagemagick \
+	json-tools \
+	misc-utils \
+	mkvtoolnix \
+	nano \
+	node \
+	python \
+	shellcheck \
+	sqlite \
+	starship \
+	sudo \
+	sweetroll \
+	tree \
+	wsl \
+	yt-dlp \
 
 oblivion: \
 	bash \
-  bat \
-  cron \
-  exiftool \
-  fd \
-  ffmpeg \
-  fzf \
-  gif-tools \
+	bat \
+	cron \
+	exiftool \
+	fd \
+	ffmpeg \
+	fzf \
+	gif-tools \
 	git \
 	gpg \
-  htop \
-  hyperfine \
-  ifconfig \
-  imagemagick \
-  json-tools \
-  man \
-  mkvtoolnix \
-  nano \
-  node \
-  python \
-  rclone \
-  shellcheck \
-  sqlite \
+	htop \
+	hyperfine \
+	ifconfig \
+	imagemagick \
+	json-tools \
+	man \
+	misc-utils \
+	mkvtoolnix \
+	nano \
+	node \
+	python \
+	rclone \
+	shellcheck \
+	sqlite \
+	starship \
 	sudo \
-  wget \
+	sweetroll \
+	tree \
+	wget \
+	yt-dlp \
 
 sovngarde: \
-  bash \
-  bat \
-  docker \
-  fd \
-  fzf \
-  git \
-  htop \
-  misc-utils \
-  mkvtoolnix \
-  nano \
-  starship \
-  sweetroll \
-  unraid \
+	bash \
+	bat \
+	docker \
+	fd \
+	fzf \
+	git \
+	htop \
+	misc-utils \
+	mkvtoolnix \
+	nano \
+	starship \
+	sweetroll \
+	unraid \
 
 # Create targets for each mod. Double colon targets are separate targets with
 # the same name that run in series; this lets mods define additional install

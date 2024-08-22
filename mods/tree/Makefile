@@ -1,6 +1,9 @@
 tree::
 	$(PRINT)
-ifndef APT
-	$(error tree install requires apt)
-endif
+ifdef PACMAN
+	$(PACMAN) tree
+else ifdef APT
 	sudo apt-get install -qy tree
+else
+	$(error tree install requires apt or pacman)
+endif
