@@ -14,8 +14,10 @@ ifeq "$(shell echo $${HOSTNAME,,})" "sovngarde"
 		printf '#!/bin/sh\ndocker run -it --rm -v "$$(pwd):/srv" --entrypoint /usr/bin/%s mkvmerge "$$@"\n' "$$x" | \
 			sudo tee "/usr/local/bin/$$x" && sudo chmod +x "/usr/local/bin/$$x"; \
 	done
-else ifndef APT
-	$(error mkvtoolnix install requires apt)
-else
+else ifdef APT
 	sudo apt-get install -qy mkvtoolnix
+else ifdef PACMAN
+	$(PACMAN) mkvtoolnix-cli
+else
+	$(error mkvtoolnix install requires apt or pacman)
 endif

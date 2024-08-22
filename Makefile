@@ -31,7 +31,7 @@ tamriel: \
   node \
   python \
   shellcheck \
-  sqlite3 \
+  sqlite \
   starship \
   sudo \
   sweetroll \
@@ -56,9 +56,13 @@ oblivion: \
   imagemagick \
   json-tools \
   man \
+  mkvtoolnix \
   nano \
   node \
   python \
+  rclone \
+  shellcheck \
+  sqlite \
 	sudo \
   wget \
 
