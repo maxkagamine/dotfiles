@@ -2,18 +2,13 @@
 
 CDPATH='.:~:~/Projects:/mnt/c/Users/max/Projects:/mnt/s:/mnt/c/Users/max'
 
-export BROWSER=/usr/bin/wslview
+export BROWSER=~/.local/bin/open
 
-alias e='exp'
-alias ee='exp;exit'
+alias e='open .'
+alias ee='e; exit'
 alias vs='open *.sln'
 
 alias ffplay='&>/dev/null ffplay.exe -hide_banner -nodisp -autoexit'
-
-exp() {
-  (( $# == 0 )) && set .
-  powershell.exe -noprofile Start "'$(wslpath -aw "$1")'"
-}
 
 hide() { n "$@" | x wslpath -w | x attrib.exe +h; }
 unhide() { n "$@" | x wslpath -w | x attrib.exe -h; }

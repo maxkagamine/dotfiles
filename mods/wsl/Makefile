@@ -34,12 +34,16 @@ endef
 export WSL_TIMESYNCD_OVERRIDE
 
 # TODO: Create separate mods for Tamriel and Oblivion?
-WSL_TARGETS:=wsl-auto-update wsl-bin wsl-keepalive wsl-timesyncd wslu
+WSL_TARGETS:=wsl-auto-update wsl-bin wsl-keepalive wsl-timesyncd
 ifeq "$(shell echo $${HOSTNAME,,})" "tamriel"
 WSL_TARGETS:=$(WSL_TARGETS) wsl-mount-network-drive wsl-crontab
 endif
 
 wsl:: $(WSL_TARGETS)
+	$(PRINT)
+	sudo update-alternatives --install /usr/bin/x-www-browser x-www-browser ~/.local/bin/open 999
+	sudo update-alternatives --install /usr/bin/www-browser www-browser ~/.local/bin/open 999
+	sudo update-alternatives --install /usr/bin/open open ~/.local/bin/open 999
 
 wsl-auto-update:
 	$(PRINT)
@@ -88,14 +92,3 @@ wsl-timesyncd:
 	sudo tee /etc/systemd/system/systemd-timesyncd.service.d/override.conf >/dev/null <<<"$$WSL_TIMESYNCD_OVERRIDE"
 	sudo systemctl daemon-reload
 	sudo systemctl start systemd-timesyncd
-
-# https://wslutiliti.es/wslu/
-# Was installed by default in WSL prior to 22.04 LTS
-wslu:
-	$(PRINT)
-	sudo apt-get install -qy software-properties-common
-	sudo add-apt-repository -yu ppa:wslutilities/wslu
-	sudo apt-get install -qy wslu
-	sudo update-alternatives --install /usr/bin/x-www-browser x-www-browser /usr/bin/wslview 999
-	sudo update-alternatives --install /usr/bin/www-browser www-browser /usr/bin/wslview 999
-	sudo update-alternatives --install /usr/bin/open open /usr/bin/wslview 999
