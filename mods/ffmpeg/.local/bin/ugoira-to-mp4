@@ -1,0 +1,39 @@
+#!/bin/bash
+set -eo pipefail
+
+DEFAULT_CRF=0 # Lossless
+
+if [[ $# == 0 || $1 =~ ^(--help|-h)$ || ! -f "$1/animation.json" ]]; then
+  cat >&2 <<EOF
+Usage: ugoira-to-mp4 <ugoira directory>
+
+Outputs an mp4 in the current directory with the name of the ugoira.
+CRF environment variable controls crf, defaults to $DEFAULT_CRF.
+EOF
+  exit 1
+fi
+
+output="$PWD/$(basename "$1").mp4"
+cd "$1"
+
+# For whatever reason, the last frame must be specified twice (bug in concat
+# demuxer?). Can confirm correct (or close enough) frame times using:
+#   ffprobe *.mp4 -show_frames | grep pkt_duration_time=
+jq -r '(.[]|"file '\''\(.file)'\''\nduration \(.delay)ms"),(.[-1]|"file '\''\(.file)'\''")' \
+  animation.json > animation.txt
+
+# Preserve RGB colorspace
+codec=libx264
+if [[ $(ffprobe "$(jq -r .[0].file animation.json)" -show_entries stream=pix_fmt -of csv=p=0 -v error) == *rgb* ]]; then
+  codec=libx264rgb
+fi
+
+# VFR results in the same number of frames (plus one due to the above) and thus
+# smaller file size / faster encode. Capped at 60fps (defaults to 25 otherwise).
+# Switched from AV1 to H.264 here for better image viewer support; XnView MP
+# still doesn't support animated AVIFs, and while it does support video files,
+# AV1 in an mkv/mp4/webm container typically causes it to freeze. APNG using
+# apngasm is decent in terms of file size but loads slow.
+ffmpeg -safe 0 -f concat -i animation.txt \
+  -c:v "$codec" -crf "${CRF:-$DEFAULT_CRF}" -preset slow -fps_mode vfr -r 60 \
+  "$output"
