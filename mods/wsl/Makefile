@@ -34,7 +34,7 @@ endef
 export WSL_TIMESYNCD_OVERRIDE
 
 # TODO: Create separate mods for Tamriel and Oblivion?
-WSL_TARGETS:=wsl-auto-update wsl-bin wsl-keepalive wsl-timesyncd
+WSL_TARGETS:=wsl-auto-update wsl-bin wsl-keepalive wsl-timesyncd xsel-win
 ifeq "$(shell echo $${HOSTNAME,,})" "tamriel"
 WSL_TARGETS:=$(WSL_TARGETS) wsl-mount-network-drive wsl-crontab
 endif
@@ -92,3 +92,8 @@ wsl-timesyncd:
 	sudo tee /etc/systemd/system/systemd-timesyncd.service.d/override.conf >/dev/null <<<"$$WSL_TIMESYNCD_OVERRIDE"
 	sudo systemctl daemon-reload
 	sudo systemctl start systemd-timesyncd
+
+xsel-win:
+	$(PRINT)
+	sudo curl -fsSL https://github.com/maxkagamine/xsel-win/releases/latest/download/xsel -o /usr/local/bin/xsel
+	sudo chmod 755 /usr/local/bin/xsel
