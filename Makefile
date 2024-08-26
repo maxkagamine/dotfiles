@@ -13,35 +13,6 @@ endif
 tamriel: \
 	bash \
 	bat \
-	docker \
-	exiftool \
-	ffmpeg \
-	fd \
-	fx \
-	fzf \
-	gif-tools \
-	git \
-	gpg \
-	hyperfine \
-	imagemagick \
-	json-tools \
-	misc-utils \
-	mkvtoolnix \
-	nano \
-	node \
-	python \
-	shellcheck \
-	sqlite \
-	starship \
-	sudo \
-	sweetroll \
-	tree \
-	wsl \
-	yt-dlp \
-
-oblivion: \
-	bash \
-	bat \
 	cron \
 	exiftool \
 	fd \
@@ -71,6 +42,8 @@ oblivion: \
 	wget \
 	wsl \
 	yt-dlp \
+
+oblivion: tamriel
 
 sovngarde: \
 	bash \
