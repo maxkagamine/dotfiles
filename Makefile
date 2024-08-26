@@ -120,7 +120,13 @@ test:
 watch:
 ifeq "$(shell command -v inotifywait 2>/dev/null)" ""
 	$(info Installing inotifywait...)
+ifdef APT
 	@sudo apt-get install -y inotify-tools >/dev/null
+else ifdef PACMAN
+	@$(PACMAN) inotify-tools
+else
+	$(error inotifywait install requires apt or pacman)
+endif
 endif
 	@while $(MAKE) test; inotifywait -qre close_write mods; do :; done
 
@@ -135,7 +141,13 @@ ifeq "$(shell command -v make2graph 2>/dev/null)" ""
 	rm -rf /tmp/make2graph
 endif
 ifeq "$(shell command -v dot 2>/dev/null)" ""
+ifdef APT
 	sudo apt-get install -y graphviz
+else ifdef PACMAN
+	$(PACMAN) graphviz
+else
+	$(error graphviz install requires apt or pacman)
+endif
 endif
 	make -Bnd tamriel sovngarde | \
 		grep -Pv '(stow|Makefile)' | \
