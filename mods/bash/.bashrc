@@ -40,7 +40,6 @@ alias .e='code "$DOTFILES_DIR"'
 alias .r='. ~/.bashrc'
 alias cd='>/dev/null cd'
 alias clip='xsel -bi'
-alias dig='dig +noall +answer'
 alias grep='grep --color=auto'
 alias ll='ls -Al'
 alias ls='ls -hv --color=auto --group-directories-first'
@@ -70,16 +69,6 @@ distinct() {
   # uniq but without needing to be sorted first
   # https://stackoverflow.com/a/11532197
   awk '!x[$0]++'
-}
-
-digg() { # Dig deeper (substitute for "ANY")
-  local x
-  for x in A AAAA AFSDB APL CAA CDNSKEY CDS CERT CNAME CSYNC DHCID DLV DNAME \
-           DNSKEY DS EUI48 EUI64 HINFO HIP HTTPS IPSECKEY KEY KX LOC MX NAPTR \
-           NS NSEC NSEC3 NSEC3PARAM OPENPGPKEY PTR RP SIG SMIMEA SOA SPF SRV \
-           SRV SSHFP SVCB TA TKEY TSLA TSIG TXT URI ZONEMD; do
-    dig "$@" "$x"
-  done | distinct # Only show CNAME once
 }
 
 readclip() { # Like readarray: readclip urls; printf '%s\n' "${urls[@]}"

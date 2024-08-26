@@ -14,6 +14,7 @@ tamriel: \
 	bash \
 	bat \
 	cron \
+	dig \
 	exiftool \
 	fd \
 	ffmpeg \
