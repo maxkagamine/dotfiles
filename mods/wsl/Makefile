@@ -1,10 +1,3 @@
-define TAMRIEL_CRONTAB
-0 0 *   * * docker image prune -f && docker builder prune -f
-0 0 */3 * * /home/max/.local/bin/cron-wrapper /mnt/s/Videos/YouTube\ Playlists/download-youtube-playlists.sh
-* * *   * * DISABLE_ON_ERROR=1 /home/max/.local/bin/cron-wrapper /home/max/.local/bin/pull-from-seedbox
-endef
-export TAMRIEL_CRONTAB
-
 define WSL_KEEPALIVE
 [Unit]
 Description=WSL Keepalive
@@ -45,10 +38,6 @@ export WSL_MOUNT_PROPAGATION
 WSL_TARGETS:= \
 	wsl-bin wsl-keepalive wsl-mount-network-drive wsl-mount-propagation \
 	wsl-timesyncd xsel-win
-
-ifeq "$(shell echo $${HOSTNAME,,})" "tamriel"
-WSL_TARGETS:=$(WSL_TARGETS) tamriel-crontab
-endif
 
 wsl:: $(WSL_TARGETS)
 	$(PRINT)
@@ -104,11 +93,6 @@ endif
 	sudo tee /etc/systemd/system/systemd-timesyncd.service.d/override.conf >/dev/null <<<"$$WSL_TIMESYNCD_OVERRIDE"
 	sudo systemctl daemon-reload
 	sudo systemctl start systemd-timesyncd
-
-# cron-wrapper is located in misc-utils mod; rclone is used by pull-from-seedbox
-tamriel-crontab: misc-utils rclone
-	$(PRINT)
-	crontab - <<<"$$TAMRIEL_CRONTAB"
 
 xsel-win:
 	$(PRINT)
