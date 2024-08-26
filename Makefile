@@ -60,6 +60,7 @@ oblivion: \
 	mkvtoolnix \
 	nano \
 	node \
+	podman \
 	python \
 	shellcheck \
 	sqlite \

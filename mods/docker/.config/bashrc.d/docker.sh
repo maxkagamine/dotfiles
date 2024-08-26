@@ -9,7 +9,7 @@ alias dcd='dc down'
 alias dcr='dcu --build --force-recreate --remove-orphans'
 
 ds() { # "docker status"
-  d ps -a; echo
+  d ps -a --format 'table {{.Names}}\t{{.Image}}\t{{.Status}}'; echo
   d images -a
 }
 
