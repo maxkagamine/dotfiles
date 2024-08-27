@@ -15,6 +15,7 @@ DOTFILES_DIR=$(realpath -m ~/.bashrc/../../..)
 [[ $- == *i* ]] || return
 
 # Install bash-preexec (https://github.com/rcaloras/bash-preexec)
+unset PROMPT_COMMAND
 # shellcheck source-path=SCRIPTDIR source=.local/lib/bash-preexec.sh
 . ~/.local/lib/bash-preexec.sh
 
