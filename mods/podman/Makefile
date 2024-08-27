@@ -5,7 +5,10 @@ ifndef PACMAN
 endif
 	$(PACMAN) podman podman-compose podman-docker
 # Allow non-root to bind to port 80+
-	sudo sysctl net.ipv4.ip_unprivileged_port_start=0
+	sudo tee /etc/sysctl.d/90-unprivileged-ports.conf >/dev/null \
+		<<<'net.ipv4.ip_unprivileged_port_start = 0'
+# Load those settings for the current session
+	sudo sysctl -p /etc/sysctl.d/90-unprivileged-ports.conf
 # Squelch "Emulate Docker CLI using podman" message
 	sudo touch /etc/containers/nodocker
 
