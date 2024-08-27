@@ -9,13 +9,13 @@ alias dcd='dc down'
 alias dcr='dcu --build --force-recreate --remove-orphans'
 
 ds() { # "docker status"
-  d ps -a --format 'table {{.Names}}\t{{.Image}}\t{{.Status}}'; echo
+  d ps -a; echo
   d images -a
 }
 
 # https://github.com/maxkagamine/sqlarserver
-alias sqlarserver='dr -v .:/srv:ro -p 3939:3939 -e ASPNETCORE_HTTP_PORTS=3939 kagamine/sqlarserver'
-alias sqlarserverd='dr -d -v .:/srv:ro -p 3939:3939 -e ASPNETCORE_HTTP_PORTS=3939 --name=sqlarserver kagamine/sqlarserver'
+alias sqlarserver='dr -v .:/srv:ro -p 3939:80 -e TZ=Asia/Tokyo kagamine/sqlarserver'
+alias sqlarserverd='dr -d -v .:/srv:ro -p 3939:80 -e TZ=Asia/Tokyo --name=sqlarserver kagamine/sqlarserver'
 
 # https://github.com/alexheretic/ab-av1 (image must be built locally)
 alias ab-av1='dr -v .:/videos -v ab-av1:/root/.cache/ab-av1 ab-av1'

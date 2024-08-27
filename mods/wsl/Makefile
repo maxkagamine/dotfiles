@@ -17,29 +17,7 @@ ConditionVirtualization=
 endef
 export WSL_TIMESYNCD_OVERRIDE
 
-# systemd normally sets the root directory's mount propagation to "shared" by
-# default, but this doesn't happen in WSL because it thinks it's a container:
-# https://github.com/systemd/systemd/blob/v256.5/src/shared/mount-setup.c#L440
-# Not totally clear why podman needs this as it seems to work without, but this
-# will squelch the warning if nothing else. Can confirm effect with `findmnt -o
-# TARGET,PROPAGATION /` (note that systemd takes a few seconds to start).
-define WSL_MOUNT_PROPAGATION
-[Unit]
-Description=WSL mount propagation
-
-[Service]
-ExecStart=mount --make-rshared /
-
-[Install]
-WantedBy=multi-user.target
-endef
-export WSL_MOUNT_PROPAGATION
-
-WSL_TARGETS:= \
-	wsl-bin wsl-keepalive wsl-mount-network-drive wsl-mount-propagation \
-	wsl-timesyncd xsel-win
-
-wsl:: $(WSL_TARGETS)
+wsl:: wsl-bin wsl-keepalive wsl-mount-network-drive wsl-timesyncd xsel-win
 	$(PRINT)
 ifdef APT # Make sure Ubuntu's open & browser commands point to our custom one
 	sudo update-alternatives --install /usr/bin/x-www-browser x-www-browser ~/.local/bin/open 999
@@ -73,12 +51,6 @@ ifeq "$(shell grep /mnt/s /etc/fstab)" ""
 else
 	$(info Skipping, network drive S: already in fstab)
 endif
-
-wsl-mount-propagation:
-	$(PRINT)
-	sudo tee /etc/systemd/system/wsl-mount-propagation.service >/dev/null <<<"$$WSL_MOUNT_PROPAGATION"
-	sudo systemctl enable wsl-mount-propagation.service
-	sudo systemctl start wsl-mount-propagation.service
 
 # Fixes a bug where the time in WSL gets out of sync with Windows
 wsl-timesyncd:

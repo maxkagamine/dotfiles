@@ -32,7 +32,6 @@ tamriel: \
 	mkvtoolnix \
 	nano \
 	node \
-	podman \
 	python \
 	shellcheck \
 	sqlite \
