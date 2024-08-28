@@ -17,6 +17,7 @@ ifndef PACMAN
 	$(error cron install requires pacman)
 endif
 	$(PACMAN) cronie
+	sudo systemctl enable --now cronie
 ifdef CRONTAB
 	+@printf 'Installing crontab:\n\n%s\n\n' \
 		"$$(fold -w $$(($$(tput cols) - 8)) <<<"$$CRONTAB" | sed 's/^/    /')"
