@@ -13,10 +13,9 @@ alias ffplay='&>/dev/null ffplay.exe -hide_banner -nodisp -autoexit'
 hide() { n "$@" | x wslpath -w | x attrib.exe +h; }
 unhide() { n "$@" | x wslpath -w | x attrib.exe -h; }
 recycle() { n "$@" | x wslpath -w | x nircmdc.exe moverecyclebin; }
-
 hxd() { (n "$@" | x wslpath -w | xx /mnt/c/Program\ Files/HxD/HxD.exe &); }
 
-# Way faster than doing it from Windows
+# Faster than doing it from Windows when there's a ton of little files
 empty-sovngarde-recycle-bin() {
   ssh sovngarde 'rm -rfv /mnt/user/*/\$RECYCLE.BIN/*'
 }

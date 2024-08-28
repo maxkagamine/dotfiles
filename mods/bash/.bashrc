@@ -15,6 +15,7 @@ DOTFILES_DIR=$(realpath -m ~/.bashrc/../../..)
 [[ $- == *i* ]] || return
 
 # Install bash-preexec (https://github.com/rcaloras/bash-preexec)
+unset PROMPT_COMMAND
 # shellcheck source-path=SCRIPTDIR source=.local/lib/bash-preexec.sh
 . ~/.local/lib/bash-preexec.sh
 
@@ -36,10 +37,10 @@ if [[ $TERM_PROGRAM == 'vscode' ]]; then
 fi
 
 # General aliases
+alias .e='code "$DOTFILES_DIR"'
 alias .r='. ~/.bashrc'
 alias cd='>/dev/null cd'
 alias clip='xsel -bi'
-alias dig='dig +noall +answer'
 alias grep='grep --color=auto'
 alias ll='ls -Al'
 alias ls='ls -hv --color=auto --group-directories-first'
@@ -47,12 +48,6 @@ alias tsv="column -ts $'\t' -W0"
 alias unclip='xsel -bo'
 alias x="xargs -d '\n' -L 1"
 alias xx="xargs -d '\n'"
-
-# Open this repo in vscode, jumping to the source of any given commands
-function .e() {
-  n "$@" | x -r which | x -r realpath | xx code "$DOTFILES_DIR"
-}
-complete -c .e
 
 # General-use functions
 mkcd() {
@@ -75,16 +70,6 @@ distinct() {
   # uniq but without needing to be sorted first
   # https://stackoverflow.com/a/11532197
   awk '!x[$0]++'
-}
-
-digg() { # Dig deeper (substitute for "ANY")
-  local x
-  for x in A AAAA AFSDB APL CAA CDNSKEY CDS CERT CNAME CSYNC DHCID DLV DNAME \
-           DNSKEY DS EUI48 EUI64 HINFO HIP HTTPS IPSECKEY KEY KX LOC MX NAPTR \
-           NS NSEC NSEC3 NSEC3PARAM OPENPGPKEY PTR RP SIG SMIMEA SOA SPF SRV \
-           SRV SSHFP SVCB TA TKEY TSLA TSIG TXT URI ZONEMD; do
-    dig "$@" "$x"
-  done | distinct # Only show CNAME once
 }
 
 readclip() { # Like readarray: readclip urls; printf '%s\n' "${urls[@]}"

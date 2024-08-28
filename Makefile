@@ -4,56 +4,61 @@ MAKEFLAGS+=--always-make # This makes all targets "phony"
 APT:=$(shell command -v apt 2>/dev/null)
 PRINT=$(info $(shell printf '\e[32m%-*s\e[m\n' $$(tput cols) $@ | perl -pe 's/(?<= ) /─/g'))
 
+ifneq "$(shell command -v pacman 2>/dev/null)" ""
+PACMAN:=sudo pacman -S --noconfirm --needed
+endif
+
 # Mod lists. Running `make` will install the mod list corresponding to the
 # machine's hostname, thanks to the "default goal" above.
 tamriel: \
-  7zip \
-  bash \
-  bat \
-  clef \
-  docker \
-  exiftool \
-  ffmpeg \
-  fd \
-  fx \
-  fzf \
-  gif-tools \
-  git \
-  gpg \
-  hyperfine \
-  imagemagick \
-  img2pdf \
-  json-tools \
-  misc-utils \
-  mkvtoolnix \
-  nano \
-  node \
-  passwordless-sudo \
-  python3 \
-  shellcheck \
-  sqlite3 \
-  starship \
-  sweetroll \
-  tree \
-  wsl \
-  yt-dlp \
+	bash \
+	bat \
+	cron \
+	dig \
+	docker \
+	exiftool \
+	fd \
+	ffmpeg \
+	fzf \
+	gif-tools \
+	git \
+	gpg \
+	htop \
+	hyperfine \
+	ifconfig \
+	imagemagick \
+	json-tools \
+	man \
+	misc-utils \
+	mkvtoolnix \
+	nano \
+	node \
+	python \
+	shellcheck \
+	sqlite \
+	starship \
+	sudo \
+	sweetroll \
+	tree \
+	wget \
+	wsl \
+	yt-dlp \
 
-oblivion: tamriel # Same, but wsl mod will configure differently
+oblivion: tamriel
 
 sovngarde: \
-  bash \
-  bat \
-  docker \
-  fd \
-  fzf \
-  git \
-  htop \
-  misc-utils \
-  mkvtoolnix \
-  nano \
-  starship \
-  sweetroll \
-  unraid \
+	bash \
+	bat \
+	docker \
+	fd \
+	fzf \
+	git \
+	misc-utils \
+	mkvtoolnix \
+	nano \
+	starship \
+	sweetroll \
+	unraid \
 
 # Create targets for each mod. Double colon targets are separate targets with
 # the same name that run in series; this lets mods define additional install
@@ -70,6 +75,8 @@ stow:
 ifdef APT
 	sudo apt-get update -qq
 	sudo apt-get install -qy stow
+else ifdef PACMAN
+	$(PACMAN) --refresh stow
 else
 # https://gist.github.com/maxkagamine/7e3741b883a272230eb451bdd84a8e23
 # MAKEFLAGS need to be reset to prevent weird behavior in stow's Makefile
@@ -86,7 +93,13 @@ test:
 watch:
 ifeq "$(shell command -v inotifywait 2>/dev/null)" ""
 	$(info Installing inotifywait...)
+ifdef APT
 	@sudo apt-get install -y inotify-tools >/dev/null
+else ifdef PACMAN
+	@$(PACMAN) inotify-tools
+else
+	$(error inotifywait install requires apt or pacman)
+endif
 endif
 	@while $(MAKE) test; inotifywait -qre close_write mods; do :; done
 
@@ -101,7 +114,13 @@ ifeq "$(shell command -v make2graph 2>/dev/null)" ""
 	rm -rf /tmp/make2graph
 endif
 ifeq "$(shell command -v dot 2>/dev/null)" ""
+ifdef APT
 	sudo apt-get install -y graphviz
+else ifdef PACMAN
+	$(PACMAN) graphviz
+else
+	$(error graphviz install requires apt or pacman)
+endif
 endif
 	make -Bnd tamriel sovngarde | \
 		grep -Pv '(stow|Makefile)' | \

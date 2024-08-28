@@ -1,6 +1,9 @@
 hyperfine::
 	$(PRINT)
-ifndef APT
-	$(error hyperfine install requires apt)
-endif
+ifdef APT
 	sudo apt-get install -qy hyperfine
+else ifdef PACMAN
+	$(PACMAN) hyperfine
+else
+	$(error hyperfine install requires apt or pacman)
+endif
