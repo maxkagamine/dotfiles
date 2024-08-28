@@ -53,7 +53,6 @@ sovngarde: \
 	fd \
 	fzf \
 	git \
-	htop \
 	misc-utils \
 	mkvtoolnix \
 	nano \
