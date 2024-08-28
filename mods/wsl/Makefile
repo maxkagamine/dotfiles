@@ -39,8 +39,7 @@ wsl-bin:
 wsl-keepalive:
 	$(PRINT)
 	sudo tee /etc/systemd/system/wsl-keepalive.service >/dev/null <<<"$$WSL_KEEPALIVE"
-	sudo systemctl enable wsl-keepalive.service
-	sudo systemctl start wsl-keepalive.service
+	sudo systemctl enable --now wsl-keepalive.service
 
 wsl-mount-network-drive:
 	$(PRINT)

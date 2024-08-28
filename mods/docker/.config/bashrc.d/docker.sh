@@ -24,4 +24,6 @@ alias ab-av1='dr -v .:/videos -v ab-av1:/root/.cache/ab-av1 ab-av1'
 alias epubcheck='dr -v .:/data:ro epubcheck'
 
 # https://github.com/wagoodman/dive
-alias dive='dr -v /var/run/docker.sock:/var/run/docker.sock:ro wagoodman/dive'
+if ! command -v dive &>/dev/null; then
+  alias dive='dr -v /var/run/docker.sock:/var/run/docker.sock:ro wagoodman/dive'
+fi

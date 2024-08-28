@@ -15,6 +15,7 @@ tamriel: \
 	bat \
 	cron \
 	dig \
+	docker \
 	exiftool \
 	fd \
 	ffmpeg \
