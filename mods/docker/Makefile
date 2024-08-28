@@ -21,8 +21,23 @@ endef
 endif
 export DOCKER_CONFIG
 
+# Laptop's VPN has an MTU of 1420, but the docker0 interface defaults to 1500
+# which results in TLS handshakes hanging when connecting to certain sites via
+# HTTPS (such as GitHub). Figuring this out was a massive wild goose chase.
+define OBLIVION_DOCKER_DAEMON_CONFIG
+{
+	"ip": "127.0.0.1",
+	"mtu": 1420
+}
+endef
+export OBLIVION_DOCKER_DAEMON_CONFIG
+
 docker:: ${DOCKER_CREDENTIAL_HELPER}
 	$(PRINT)
+ifeq "$(shell echo $${HOSTNAME,,})" "oblivion"
+	sudo mkdir -p /etc/docker
+	sudo tee /etc/docker/daemon.json >/dev/null <<<"$$OBLIVION_DOCKER_DAEMON_CONFIG"
+endif
 ifeq "$(shell echo $${HOSTNAME,,})" "sovngarde"
 	$(info skipping docker install on sovngarde)
 else ifdef APT
