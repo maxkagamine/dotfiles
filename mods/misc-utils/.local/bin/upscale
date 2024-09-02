@@ -5,6 +5,9 @@ shopt -s nullglob
 AUTO_HEIGHT=2160
 AUTO_THRESHOLD=1500
 
+HISTMATCH_URL='http://www.fmwconcepts.com/imagemagick/downloadcounter.php?scriptname=histmatch&dirname=histmatch'
+HISTMATCH_HASH='b9180c1cd4a5ce046b31024e092679002ad5e2c8d564d2a88d2213175566d604'
+
 scale=2
 denoise=0
 format=png
@@ -285,9 +288,14 @@ upscale_esrgan() { # <input> <scale>
   if [[ $histmatch ]]; then
     if ! command -v histmatch &>/dev/null; then
       echo 'Downloading histmatch script'
-      curl -fsSL 'http://www.fmwconcepts.com/imagemagick/downloadcounter.php?scriptname=histmatch&dirname=histmatch' \
-        -o ~/.local/bin/histmatch
-      chmod +x "$_"
+      curl -fsSL "$HISTMATCH_URL" -o /tmp/histmatch
+      if ! sha256sum -c <<<"$HISTMATCH_HASH */tmp/histmatch" >/dev/null; then
+        echo 'Checksum failed' >&2
+        rm /tmp/histmatch
+        return 1
+      fi
+      mv /tmp/histmatch ~/.local/bin/histmatch
+      chmod +x ~/.local/bin/histmatch
     fi
 
     output_histmatch=$(create_output_path 'esrgan' "$input" "$scale")
