@@ -18,6 +18,9 @@ alias nis='ni && ns'
 
 alias nc='npx npm-check -su'
 
+# Disable punycode deprecation warning
+export NODE_OPTIONS='--disable-warning=DEP0040'
+
 # Possibly more secure than adding to PATH, but more importantly it suppresses
 # the warning from 'find' when using -execdir
 command_not_found_handle() {
