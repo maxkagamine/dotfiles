@@ -18,8 +18,8 @@ alias nis='ni && ns'
 
 alias nc='npx npm-check -su'
 
-# Disable punycode deprecation warning
-export NODE_OPTIONS='--disable-warning=DEP0040'
+# Disable punycode deprecation & --experimental-strip-types warnings
+export NODE_OPTIONS='--disable-warning=DEP0040 --disable-warning=ExperimentalWarning'
 
 # Possibly more secure than adding to PATH, but more importantly it suppresses
 # the warning from 'find' when using -execdir
