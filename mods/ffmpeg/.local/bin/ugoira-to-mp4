@@ -36,7 +36,11 @@ printf "file '%s'\n" "$last_file" >> animation.txt
 
 # VFR causes glitchiness in XnView, but when using CFR ffmpeg doesn't seem to be
 # able to figure out the input framerate on its own and just defaults to 25 fps.
-fps=$(jq '[1000/.[].delay]|max' animation.json)
+# This finds the greatest common divisor of the frame delays, which represents
+# the largest constant interval on which each frame can be repeated without
+# changing the timings, and converts it to frames per second, capped at 60 fps.
+frame_delays=$(jq -c '[.[].delay]|unique' animation.json)
+fps=$(python -c "import math; print(min(60, 1000 / math.gcd(*${frame_delays})))")
 
 # Switched from AV1 to H.264 here for better image viewer support; XnView MP
 # still doesn't support animated AVIFs, and while it does support video files,
