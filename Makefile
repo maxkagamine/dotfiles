@@ -18,6 +18,7 @@ tamriel: \
 	docker \
 	exiftool \
 	fd \
+	fdupes \
 	ffmpeg \
 	fzf \
 	gif-tools \
