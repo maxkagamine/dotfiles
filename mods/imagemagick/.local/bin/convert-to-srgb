@@ -1,0 +1,110 @@
+#!/bin/bash
+set -eo pipefail
+
+SRGB_ICC_PROFILE=~/.local/share/color/icc/sRGB-IEC61966-2.1.icc
+
+throw() {
+  printf '%s: %s\n' "${0##*/}" "$1" >&2
+  return 1
+}
+
+if [[ $# == 0 || $1 =~ ^(--help|-h)$ ]]; then
+  cat >&2 <<EOF
+Usage: convert-to-srgb [-a] <images...>
+
+For each input image, if it contains a non-sRGB color profile, extracts the
+profile with exiftool (as imagemagick sometimes fails to recognize embedded ICC
+profiles) and converts it to sRGB using the ICC profile at:
+$SRGB_ICC_PROFILE
+
+Output images are saved as PNGs alongside the inputs, with the original
+extension changed to '.srgb.png'.
+
+Options:
+
+  -a    Convert all images to PNG, with the '.srgb.png' suffix, even if they're
+        already sRGB or PNG. Useful to avoid separate code paths in scripts.
+
+  -x    Exit with a non-zero exit code if an image does not need converting.
+        Mutually exclusive with -a.
+EOF
+  exit 1
+fi
+
+paths=()
+all=
+fail=
+while (( $# > 0 )); do
+  case $1 in
+    --)
+      shift
+      paths+=("$@")
+      break
+      ;;
+    -a)
+      all=1
+      ;;
+    -x)
+      fail=1
+      ;;
+    -*)
+      throw "unknown option: $1"
+      ;;
+    *)
+      paths+=("$1")
+      ;;
+  esac
+  shift
+done
+
+skip() {
+  local reason=$1
+  local input=$2
+  local output=$3
+  if [[ ! $all ]]; then
+    printf '  %s, skipping.\n' "$reason"
+    if [[ $fail ]]; then
+      exit 1
+    fi
+    return
+  elif [[ $input == *.png ]]; then
+    printf '  %s, copying as-is...\n' "$reason"
+    cp "$input" "$output"
+  else
+    printf '  %s, converting to png...\n' "$reason"
+    magick "$input" "$output"
+  fi
+  printf '  Saved \e[35m%s\e[m\n' "$output"
+}
+
+for input in "${paths[@]}"; do
+
+  printf '\e[32m%s\e[m\n' "$input"
+
+  output="${input%.*}.srgb.png"
+
+  # Check for non-sRGB color profile
+  profile_desc=$(exiftool -m -b -ICC_Profile:ProfileDescription "$input")
+  if [[ $profile_desc ]]; then
+    printf '  Color profile: \e[36m%s\e[m\n' "$profile_desc"
+    if [[ $profile_desc == sRGB* ]]; then
+      skip 'Input already sRGB' "$input" "$output"
+      continue
+    fi
+  else
+    skip 'Input does not have an embedded color profile' "$input" "$output"
+    continue
+  fi
+
+  # Extract embedded ICC profile
+  echo '  Extracting color profile...'
+  exiftool -q -m -icc_profile -b -w! icc "$input"
+
+  # Convert to sRGB
+  echo '  Converting to sRGB...'
+  magick "$input" -profile "${input%.*}.icc" -profile "$SRGB_ICC_PROFILE" "$output"
+  printf '  Saved \e[35m%s\e[m\n' "$output"
+
+  rm "${input%.*}.icc"
+
+done

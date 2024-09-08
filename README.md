@@ -16,7 +16,7 @@
 &nbsp;|&nbsp;
 **[<img src=".github/images/icons/sweetroll.png" height="14" valign="middle" /> sweetroll](#-sweetroll)**
 &nbsp;|&nbsp;
-[more&hellip;](#docker)
+[more&hellip;](#fzf)
 
 Behold, [GNU Stow][stow]: the mod manager for your Linux home directory! Anyone who's used Vortex or MO2 to mod games like [Skyrim][skyrim] will find this familiar: mod (dot) files are organized into separate folders, and the mod manager (stow) combines them into the game (home) directory using symlinks.
 
@@ -119,7 +119,7 @@ In the end that was too much of a hassle, so I switched to using [usbipd-win](ht
 6. Consider changing the default pacman mirror: https://archlinux.org/mirrorlist/
    - This seemed to help with the timeout issue (and overall download speed), but it might be a good idea to set XferCommand to enable retries [as shown here](https://bbs.archlinux.org/viewtopic.php?id=84619) once the [segfault bug](https://bbs.archlinux.org/viewtopic.php?id=293911) in pacman 6.1 is fixed.
    - Take note: not all of the mirrors listed here are trustworthy. Stick to the universities.
-6. Fix the Yubikey's device permissions so GPG can access it without root (explained above):
+7. Fix the Yubikey's device permissions so GPG can access it without root (explained above):
    ```
    $ sudo pacman -S usbutils # Installs lsusb
    $ lsusb # Confirm yubikey's vendor & product numbers
@@ -127,7 +127,7 @@ In the end that was too much of a hassle, so I switched to using [usbipd-win](ht
    SUBSYSTEM=="usb", ATTR{idVendor}=="1050", ATTR{idProduct}=="0406", MODE="666", OWNER="max", GROUP="max"
    $ gpg --card-status # Should work now without root after detaching & re-attaching the Yubikey
    ```
-7. Import public keys:
+8. Import public keys:
    ```
    $ curl https://github.com/maxkagamine.gpg | gpg --import -
    $ curl https://github.com/web-flow.gpg | gpg --import -
@@ -136,11 +136,11 @@ In the end that was too much of a hassle, so I switched to using [usbipd-win](ht
    ```
    $ gpg --list-keys --fingerprint --keyid-format long | sed -En '/fingerprint/{s/.*=|\s+//g;s/$/:6:/;p}' | gpg --import-ownertrust
    ```
-8. Install the bare minimum needed packages:
+9. Install the bare minimum needed packages:
    ```
    $ sudo pacman -S base-devel git
    ```
-9. Clone using HTTP first, since we need to dotfiles to set up GPG as the SSH agent:
+10. Clone using HTTP first, since we need to dotfiles to set up GPG as the SSH agent:
    ```
    $ mkdir Projects && cd Projects
    $ git clone https://github.com/maxkagamine/dotfiles.git
@@ -148,14 +148,14 @@ In the end that was too much of a hassle, so I switched to using [usbipd-win](ht
    $ rm ~/.bash_profile ~/.bashrc
    $ make
    ```
-10. Check that SSH works now, and then switch the repo to SSH:
+11. Check that SSH works now, and then switch the repo to SSH:
     ```
     $ . ~/.bashrc  # No .r alias yet
     $ gpg-connect-agent reloadagent /bye
     $ ssh git@github.com
     $ git remote set-url origin git@github.com:maxkagamine/dotfiles.git
     ```
-11. Hooray!
+12. Hooray!
 
 </details>
 
@@ -244,6 +244,10 @@ In case you missed it: [**Nuke a git repo with unrelenting force: the FUS RO DAH
 ## [fzf](mods/fzf/.config/bashrc.d/fzf.sh)
 
 Fancy [keyboard shortcuts][fzf keybindings] (also powers the aforementioned [<img src=".github/images/icons/git.svg" height="15" />**git-branch-fzf**](mods/git/.local/bin/git-branch-fzf))
+
+## [imagemagick](mods/imagemagick/)
+
+Contains a [**convert-to-srgb**](mods/imagemagick/.local/bin/convert-to-srgb) script I created to help deal with color profile issues when working with certain images. For each input image, if it contains a non-sRGB color profile, extracts the profile with exiftool (as imagemagick sometimes fails to recognize embedded ICC profiles) and converts it to sRGB. Used by [ugoira-to-mp4](mods/ffmpeg/.local/bin/ugoira-to-mp4).
 
 ## [nano](mods/nano/.config/nano/nanorc)
 

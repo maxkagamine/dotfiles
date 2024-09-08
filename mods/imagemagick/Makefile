@@ -1,4 +1,4 @@
-imagemagick::
+imagemagick:: exiftool # convert-to-srgb script requires exiftool
 	$(PRINT)
 ifdef PACMAN
 	$(PACMAN) imagemagick
