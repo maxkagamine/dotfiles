@@ -13,6 +13,9 @@ EOF
     return 1
   fi
   local grep_opts=()
+  if [[ -t 1 ]]; then
+    grep_opts+=(--color=always)
+  fi
   while (( $# > 0 )); do
     grep_opts+=("$1")
     if [[ $1 != -* ]]; then
@@ -21,5 +24,5 @@ EOF
     fi
     shift
   done
-  fd -tf "$@" -X grep --color=always "${grep_opts[@]}"
+  fd -tf "$@" -X grep "${grep_opts[@]}"
 }
