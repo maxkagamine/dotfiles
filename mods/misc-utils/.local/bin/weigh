@@ -6,20 +6,27 @@ throw() {
   return 1
 }
 
+COLUMNS=$(tput cols)
+
 if [[ $1 =~ ^(--help|-h)$ ]]; then
   cat >&2 <<EOF
-Usage: weigh [-z] [--si] [<file|directory>...]
+Usage: weigh [-z] [--si] [--paths-from-stdin] [<file|directory>...]
 
 Shows the total size of files, directories, or stdin (gzipped if -z).
 
-  -z    Show the gzipped size.
-  --si  Use SI units (1000 B = 1 KB) instead of KiB etc.
+Weighs stdin if neither file/directory paths nor --paths-from-stdin is given,
+or if '-' is given as a path.
+
+  -z                   Show the gzipped size.
+  --si                 Use SI units (1000 B = 1 KB) instead of KiB etc.
+  --paths-from-stdin   Weigh paths from stdin as they're given.
 EOF
   exit 1
 fi
 
 gz=
 to_fmt='iec-i' # KiB etc.
+paths_from_stdin=
 paths=()
 while (( $# > 0 )); do
   case $1 in
@@ -34,7 +41,10 @@ while (( $# > 0 )); do
     --si)
       to_fmt='si'
       ;;
-    -*)
+    --paths-from-stdin)
+      paths_from_stdin=1
+      ;;
+    -?*)
       throw "unknown option: $1"
       ;;
     *)
@@ -44,25 +54,41 @@ while (( $# > 0 )); do
   shift
 done
 
-if [[ ${#paths[@]} == 0 ]]; then
-  # Read stdin if no paths given
-  paths=(-)
-fi
+yield_paths() {
+  # Weigh paths passed as arguments
+  for p in "${paths[@]}"; do
+    echo "$p"
+  done
+
+  # Weigh paths from stdin if flag is set
+  if [[ $paths_from_stdin ]]; then
+    cat
+  fi
+
+  # Read stdin if no paths given (and stdin is not paths)
+  if [[ ${#paths[@]} == 0 && ! $paths_from_stdin ]]; then
+    echo '-'
+  fi
+}
+
+expand_directories() {
+  local p
+  while read -r p; do
+    if [[ -d "$p" ]]; then
+      find "$p" -type f
+    else
+      echo "$p"
+    fi
+  done
+}
 
 # Since stdin in the while is the preceding for loop, save stdin as file
 # descriptor 5 so gzip/wc can access it if needed
 exec 5<&0
 
 # Loop over paths, expanding directories recursively using find
-for p in "${paths[@]}"; do
-  if [[ -d "$p" ]]; then
-    find "$p" -type f
-  else
-    echo "$p"
-  fi
-done | while read -r f; do
+yield_paths | expand_directories | while read -r f; do
   # Show current file being weighed on stderr
-  # Note: some terminals handle rapid line changing better than others
   if [[ $f != - ]]; then
     printf '\e[1;30m%s\e[m' "${f:0:$((COLUMNS-1))}" >&2
   fi
