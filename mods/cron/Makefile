@@ -11,12 +11,13 @@ define CRONTAB
 endef
 endif
 
-cron:: $(CRONTAB_DEPS)
+cron:: $(CRONTAB_DEPS) misc-utils # cron-wrapper uses title-case
 	$(PRINT)
 ifndef PACMAN
 	$(error cron install requires pacman)
 endif
-	$(PACMAN) cronie
+# https://www.gnu.org/fun/jokes/ed-msg.en.html (used by cron-wrapper)
+	$(PACMAN) cronie ed
 	sudo systemctl enable --now cronie
 ifdef CRONTAB
 	+@printf 'Installing crontab:\n\n%s\n\n' \
