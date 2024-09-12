@@ -4,7 +4,10 @@ CDPATH='.:~:~/Projects:/mnt/c/Users/max/Projects:/mnt/s:/mnt/c/Users/max'
 
 export BROWSER=~/.local/bin/open
 
-alias e='open .'
+e() {
+  open "${1:-.}"
+}
+
 alias ee='e; exit'
 alias vs='open *.sln'
 
