@@ -76,7 +76,11 @@ ifdef APT
 	sudo apt-get update -qq
 	sudo apt-get install -qy stow
 else ifdef PACMAN
-	$(PACMAN) --refresh stow
+# Perform a system upgrade before beginning to make sure there are no outdated
+# package dependencies (Arch is designed to update everything in unison, so
+# pacman -S pkg won't simply update pkg's dependencies)
+# https://wiki.archlinux.org/title/System_maintenance#Partial_upgrades_are_unsupported
+	$(PACMAN) -yu stow
 else
 # https://gist.github.com/maxkagamine/7e3741b883a272230eb451bdd84a8e23
 # MAKEFLAGS need to be reset to prevent weird behavior in stow's Makefile
