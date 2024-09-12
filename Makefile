@@ -54,7 +54,6 @@ sovngarde: \
 	fd \
 	fzf \
 	git \
-	misc-utils \
 	mkvtoolnix \
 	nano \
 	starship \

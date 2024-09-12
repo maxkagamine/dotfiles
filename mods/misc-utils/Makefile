@@ -1,13 +1,18 @@
-# TODO: Check the other utils' requirements
+MISC_UTILS_TARGETS:=
+MISC_UTILS_PACKAGES:=
 
-misc-utils::
-	$(PRINT)
+# append-crc
+MISC_UTILS_PACKAGES+=perl-archive-zip
+
+# mkanimereadme
+MISC_UTILS_TARGETS+=python
 
 # weigh
+MISC_UTILS_PACKAGES+=bc
+
+misc-utils:: $(MISC_UTILS_TARGETS)
+	$(PRINT)
 ifndef PACMAN
-ifeq "$(shell command -v bc 2>/dev/null)" ""
-	$(warning bc not installed and pacman not available, weigh command will be work)
+	$(error misc-utils install requires pacman)
 endif
-else
-	$(PACMAN) bc
-endif
+	$(PACMAN) $(MISC_UTILS_PACKAGES)
