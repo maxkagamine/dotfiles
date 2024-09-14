@@ -18,6 +18,8 @@ alias gr='git rebase'
 alias grh='git reset HEAD'
 alias gs='git status'
 
+alias diff='gd --no-index' # Same as diff -u --color but run through less
+
 gg() {
   # Usage: gg [-A] [<git commit options>] [bare message...]
   # Commits everything if -A or nothing staged

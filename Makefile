@@ -35,6 +35,7 @@ tamriel: \
 	nano \
 	node \
 	python \
+	rsync \
 	shellcheck \
 	sqlite \
 	starship \
@@ -42,7 +43,9 @@ tamriel: \
 	sweetroll \
 	tree \
 	wget \
+	whois \
 	wsl \
+	xdelta3 \
 	yt-dlp \
 
 oblivion: tamriel

@@ -2,8 +2,8 @@ CRONTAB_DEPS:=
 export CRONTAB
 
 ifeq "$(shell echo $${HOSTNAME,,})" "tamriel"
-# cron-wrapper is located in misc-utils mod; rclone is used by pull-from-seedbox
-CRONTAB_DEPS:=misc-utils rclone
+# rclone is used by pull-from-seedbox, which is in the wsl mod
+CRONTAB_DEPS:=rclone
 define CRONTAB
 0 0 *   * * docker image prune -f && docker builder prune -f
 0 0 */3 * * /home/max/.local/bin/cron-wrapper /mnt/s/Videos/YouTube\ Playlists/download-youtube-playlists.sh
