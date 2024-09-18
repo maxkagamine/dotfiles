@@ -51,3 +51,7 @@
 [rebase]
   autoStash = true
   autoSquash = true
+[stash]
+  showIncludeUntracked = true
+  showStat = false
+  showPatch = true
