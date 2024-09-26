@@ -17,8 +17,8 @@ tamriel: \
 	dig \
 	docker \
 	exiftool \
+	fclones \
 	fd \
-	fdupes \
 	ffmpeg \
 	fzf \
 	gif-tools \
@@ -54,6 +54,7 @@ sovngarde: \
 	bash \
 	bat \
 	docker \
+	fclones \
 	fd \
 	fzf \
 	git \
