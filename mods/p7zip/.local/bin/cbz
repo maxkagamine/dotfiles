@@ -1,0 +1,34 @@
+#!/bin/bash
+set -eo pipefail
+
+recycle() {
+  if [[ ! -e "$1" ]]; then
+    return
+  elif command -v nircmdc.exe &>/dev/null; then
+    printf 'recycling %s\n' "$1"
+    nircmdc.exe moverecyclebin "$(wslpath -w "$1")"
+  else
+    rm -rv "$1"
+  fi
+}
+
+if [[ $# == 0 || $1 =~ ^(--help|-h)$ ]]; then
+  cat >&2 <<EOF
+Usage: cbz <directories...>
+
+Turns one or more directories into CBZs.
+EOF
+  exit 1
+fi
+
+for dir; do
+  if [[ ! -d $dir ]]; then # Makes it easy to just do `cbz *`
+    echo "Skipping $dir: Not a directory"
+    continue
+  fi
+  pushd "$dir"
+  name=$(basename "$(realpath .)")
+  7z a -tzip -m0=Copy "../$name.cbz" .
+  popd
+  recycle "$dir"
+done

@@ -35,6 +35,7 @@ tamriel: \
 	mkvtoolnix \
 	nano \
 	node \
+	p7zip \
 	python \
 	rsync \
 	shellcheck \
