@@ -74,15 +74,13 @@ distinct() {
   awk '!x[$0]++'
 }
 
-readclip() { # Like readarray: readclip urls; printf '%s\n' "${urls[@]}"
+clips() { # Clipboard monitor, can be fed to xargs or readarray
   local x y
-  declare -n arr="$1"
   x=$(unclip)
   while true; do
     y=$(unclip)
     if [[ $y != "$x" ]]; then
       echo "$y"
-      arr+=("$y")
       x="$y"
     fi
   done
