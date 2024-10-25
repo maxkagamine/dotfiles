@@ -21,6 +21,7 @@ tamriel: \
 	fd \
 	ffmpeg \
 	fzf \
+	gallery-dl \
 	gif-tools \
 	git \
 	gpg \
