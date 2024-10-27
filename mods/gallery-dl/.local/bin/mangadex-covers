@@ -25,38 +25,44 @@ if ! json=$(curl -fsSLg "https://api.mangadex.org/cover?order[volume]=asc&manga[
   exit 1
 fi
 
-images=$(jq -r '
+images_str=$(jq -r '
   .data[] |
   select(.type == "cover_art" and .attributes.locale == "ja") |
   "\(.attributes.volume)\t\(.attributes.fileName)"
 ' <<<"$json")
 
-while IFS=$'\t' read -r volume filename; do
+readarray -t images <<<"$images_str"
+
+for image in "${images[@]}"; do
+  volume=$(cut -d $'\t' -f 1 <<<"$image")
+  filename=$(cut -d $'\t' -f 2 <<<"$image")
+
   url="https://mangadex.org/covers/${manga_id}/${filename}"
   dest="vol ${volume}.${filename##*.}"
 
-  echo "Downloading volume $volume cover: $url"
+  echo "Downloading volume $volume cover"
+
+  if volume_dir=$(find . -maxdepth 1 -type d -name "* vol. $volume \[mangadex\]" | head -n1 | grep .); then
+    if find "$volume_dir" -maxdepth 1 -type f -name '000.*' | grep -q .; then
+      printf '  Not saving to \e[34m%s\e[m because a "000" image already exists there\n' "$volume_dir"
+    else
+      dest="$volume_dir/000.${dest##*.}"
+    fi
+  fi
+
+  printf '  Saving to: \e[32m%s\e[m\n' "$dest"
+
   curl -fsSL "$url" -o "$dest"
 
-  if (( volume == 1 )); then
+  if [[ $volume == 1 ]]; then
     if [[ -f folder.jpg ]]; then
-      echo 'Not copying to folder.jpg as it already exists'
+      echo '  Not copying to folder.jpg as it already exists'
     else
-      echo 'Copying to folder.jpg'
+      echo '  Copying volume 1 cover to folder.jpg'
       cp "$dest" 'folder.jpg'
       if command -v wslpath &>/dev/null; then
         attrib.exe +h 'folder.jpg'
       fi
     fi
   fi
-
-  if volume_dir=$(find . -maxdepth 1 -type d -name "* vol. $volume \[mangadex\]" | head -n1 | grep .); then
-    if find "$volume_dir" -maxdepth 1 -type f -name '000.*' | grep -q .; then
-      echo "Not moving to \"$volume_dir\" because a \"000\" image already exists there"
-    else
-      volume_dir_dest="$volume_dir/000.${dest##*.}"
-      echo "Moving to $volume_dir_dest"
-      mv "$dest" "$volume_dir_dest"
-    fi
-  fi
-done <<<"$images"
+done
