@@ -1,6 +1,12 @@
 # shellcheck shell=bash
 
-CDPATH='.:~:~/Projects:/mnt/c/Users/max/Projects:/mnt/s:/mnt/c/Users/max'
+if [[ $HOSTNAME == 'Oblivion' ]]; then
+  # Omit network drive (S:) so that tab completion doesn't hang when not
+  # connected to VPN
+  CDPATH='.:~:~/Projects:/mnt/c/Users/max/Projects:/mnt/c/Users/max'
+else
+  CDPATH='.:~:~/Projects:/mnt/c/Users/max/Projects:/mnt/s:/mnt/c/Users/max'
+fi
 
 export BROWSER=~/.local/bin/open
 
