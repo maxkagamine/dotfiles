@@ -11,6 +11,7 @@ endif
 # Mod lists. Running `make` will install the mod list corresponding to the
 # machine's hostname, thanks to the "default goal" above.
 tamriel: \
+	archive-tools \
 	bash \
 	bat \
 	cron \
@@ -35,7 +36,6 @@ tamriel: \
 	mkvtoolnix \
 	nano \
 	node \
-	p7zip \
 	python \
 	rsync \
 	shellcheck \

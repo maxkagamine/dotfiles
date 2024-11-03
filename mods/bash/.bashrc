@@ -29,7 +29,6 @@ eval "$(dircolors -b ~/.config/dircolors)"
 HISTSIZE=10000
 HISTTIMEFORMAT='%Y-%m-%d %T  '
 export LESS='-FRX'
-export UNZIP='-O cp932 -DD' # Extract Windows zips using Japanese codepage, don't set timestamp
 
 if [[ $TERM_PROGRAM == 'vscode' ]]; then
   export EDITOR='code -w'
