@@ -26,6 +26,7 @@
   gpgSign = true
 [diff]
   tool = code
+  noPrefix = true
 [diff "json"]
   textconv = python -m json.tool --indent 2 --no-ensure-ascii
 [difftool "code"]
