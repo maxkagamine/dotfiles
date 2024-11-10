@@ -21,6 +21,19 @@ endef
 endif
 export DOCKER_CONFIG
 
+# Installing the nvidia runtime allows for using CUDA in Docker in WSL
+define TAMRIEL_DOCKER_DAEMON_CONFIG
+{
+	"runtimes": {
+		"nvidia": {
+			"path": "/usr/bin/nvidia-container-runtime",
+			"runtimeArgs": []
+		}
+	}
+}
+endef
+export TAMRIEL_DOCKER_DAEMON_CONFIG
+
 # Laptop's VPN has an MTU of 1420, but the docker0 interface defaults to 1500
 # which results in TLS handshakes hanging when connecting to certain sites via
 # HTTPS (such as GitHub). Figuring this out was a massive wild goose chase.
@@ -32,12 +45,30 @@ define OBLIVION_DOCKER_DAEMON_CONFIG
 endef
 export OBLIVION_DOCKER_DAEMON_CONFIG
 
+IGNORE_NVIDIA=IgnorePkg = nvidia-container-toolkit libnvidia-container
+
 docker:: ${DOCKER_CREDENTIAL_HELPER}
 	$(PRINT)
+
+ifeq "$(shell echo $${HOSTNAME,,})" "tamriel"
+# Need to install the latest version that supports the installed CUDA (NVIDIA
+# Control Panel > Help > System Information > Components)
+# https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/release-notes.html
+	sudo pacman -U --noconfirm \
+		https://archive.archlinux.org/packages/l/libnvidia-container/libnvidia-container-1.17.0-1-x86_64.pkg.tar.zst \
+		https://archive.archlinux.org/packages/n/nvidia-container-toolkit/nvidia-container-toolkit-1.17.0-1-x86_64.pkg.tar.zst
+	grep -qF '$(IGNORE_NVIDIA)' /etc/pacman.conf || \
+		sudo awk -i inplace '/^IgnorePkg/ { print; print "$(IGNORE_NVIDIA)"; next } 1' /etc/pacman.conf
+
+	sudo mkdir -p /etc/docker
+	sudo tee /etc/docker/daemon.json >/dev/null <<<"$$TAMRIEL_DOCKER_DAEMON_CONFIG"
+endif
+
 ifeq "$(shell echo $${HOSTNAME,,})" "oblivion"
 	sudo mkdir -p /etc/docker
 	sudo tee /etc/docker/daemon.json >/dev/null <<<"$$OBLIVION_DOCKER_DAEMON_CONFIG"
 endif
+
 ifeq "$(shell echo $${HOSTNAME,,})" "sovngarde"
 	$(info skipping docker install on sovngarde)
 else ifdef APT
@@ -63,6 +94,7 @@ else ifdef PACMAN
 else
 	$(error docker install requires apt or pacman)
 endif
+
 	mkdir -p ~/.docker
 	tee ~/.docker/config.json >/dev/null <<<"$$DOCKER_CONFIG"
 
