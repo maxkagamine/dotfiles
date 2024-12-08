@@ -3,14 +3,17 @@
     "mangadex": {
       "lang": "en",
       "directory": ["{manga} vol. {volume} [mangadex]"],
-      "filename": "c{chapter:>03}{chapter_minor}{title:? //} p{page:>03} [{group:J, /}].{extension}"
+      "filename": "c{chapter:>03}{chapter_minor}{title:? //} p{page:>03} [{group|_lit[No Group]!S}].{extension}"
     },
     "pixiv": {
-      "filename": "{title} [{user[name]}] [pixiv {filename}].{extension}",
+      "filename": "\fF {title} [{re.sub('[@＠].*', '', user['name'])}] [pixiv {filename}].{extension}",
       "ugoira": "original"
     },
     "twitter": {
       "filename": "{date:%Y-%m-%d}{content:? //} [@{user[name]}] [twitter {tweet_id}_p{num}].{extension}"
+    },
+    "mastodon": {
+      "filename": "{date:%Y-%m-%d}{content!H:? //R# /#/} [@{account[username]}] [{instance} {id}_p{num}].{extension}"
     },
     "base-directory": ".",
     "directory": [],
