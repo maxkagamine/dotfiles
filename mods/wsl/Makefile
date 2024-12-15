@@ -17,7 +17,13 @@ ConditionVirtualization=
 endef
 export WSL_TIMESYNCD_OVERRIDE
 
-wsl:: wsl-bin wsl-keepalive wsl-mount-network-drive wsl-timesyncd xsel-win
+define WSL_JOURNALD_CONF
+[Journal]
+SystemMaxUse=100M
+endef
+export WSL_JOURNALD_CONF
+
+wsl:: wsl-bin wsl-journald-conf wsl-keepalive wsl-mount-network-drive wsl-timesyncd xsel-win
 	$(PRINT)
 ifdef APT # Make sure Ubuntu's open & browser commands point to our custom one
 	sudo update-alternatives --install /usr/bin/x-www-browser x-www-browser ~/.local/bin/open 999
@@ -35,6 +41,12 @@ wsl-bin:
 	ln -sf \
 		"$$(pwd)/vendor/wsl-notify-send/wsl-notify-send.exe" \
 		~/.local/bin/notify-send
+
+wsl-journald-conf:
+	$(PRINT)
+	sudo mkdir -p /etc/systemd/journald.conf.d
+	sudo tee /etc/systemd/journald.conf.d/wsl.conf >/dev/null <<<"$$WSL_JOURNALD_CONF"
+	sudo systemctl restart systemd-journald
 
 wsl-keepalive:
 	$(PRINT)
