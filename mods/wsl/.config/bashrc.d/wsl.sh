@@ -14,8 +14,21 @@ e() {
   open "${1:-.}"
 }
 
-alias ee='e; exit'
-alias vs='open *.sln'
+ee() {
+  open "${1:-.}" && exit
+}
+
+vs() {
+  if sln=$(find . -maxdepth 1 -iname '*.sln' -print -quit | grep .); then
+    realpath "$sln"
+    open "$sln"
+  elif [[ $PWD == '/' ]]; then
+    echo 'No solution file' >&2
+    return 1
+  else
+    (cd .. && vs)
+  fi
+}
 
 alias ffplay='&>/dev/null ffplay.exe -hide_banner -nodisp -autoexit'
 
