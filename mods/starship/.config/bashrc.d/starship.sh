@@ -1,8 +1,10 @@
-# shellcheck shell=bash disable=SC2034
+# shellcheck shell=bash disable=SC2034,SC2154
 
-eval "$(starship init bash)"
+if [[ ${preexec_functions[*]} != *starship* ]]; then
+  eval "$(starship init bash)"
+fi
 
-_starship_precmd_user_func(){
+_starship_precmd_user_func() {
   local dir=${PWD##*/}
   [[ $PWD == "$HOME" ]] && dir='~'
   echo -ne "\e]0;${dir}\a"

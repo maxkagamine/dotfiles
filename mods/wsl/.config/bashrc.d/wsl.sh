@@ -57,4 +57,6 @@ __paste_wslpath() {
 windows_terminal_precmd() {
   printf "\e]9;9;%s\e\\" "$(wslpath -w "$PWD")"
 }
-precmd_functions+=(windows_terminal_precmd)
+if [[ ${precmd_functions[*]} != *windows_terminal_precmd* ]]; then
+  precmd_functions+=(windows_terminal_precmd)
+fi
