@@ -60,3 +60,14 @@ windows_terminal_precmd() {
 if [[ ${precmd_functions[*]} != *windows_terminal_precmd* ]]; then
   precmd_functions+=(windows_terminal_precmd)
 fi
+
+# dotnet bash completion (dotnet is aliased to the Windows version, via a
+# wrapper so starship can see it, since I mainly target Linux through docker
+# containers and haven't yet needed the Linux version installed)
+function _dotnet_bash_complete() {
+  local cur="${COMP_WORDS[COMP_CWORD]}" IFS=$'\r\n'
+  local candidates
+  read -d '' -ra candidates < <(dotnet complete --position "${COMP_POINT}" "${COMP_LINE}" 2>/dev/null)
+  read -d '' -ra COMPREPLY < <(compgen -W "${candidates[*]:-}" -- "$cur")
+}
+complete -f -F _dotnet_bash_complete dotnet
