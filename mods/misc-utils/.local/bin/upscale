@@ -14,7 +14,7 @@ format=png
 upscalers=()
 dry_run=
 verbose=
-histmatch=
+histmatch=1
 
 if [[ $WSL_DISTRO_NAME ]]; then
   # Leaving them here for now. Using Windows binary to take advantage of GPU.
@@ -61,8 +61,9 @@ OPTIONS
 
   -f <format>    png/jpg/webp (default=png)
 
-  --histmatch    esrgan only, attempts to undo the brightening using Fred
-                 Weinhaus' histmatch script
+  --no-histmatch (esrgan only) by default, upscale attempts to undo the
+                 brightening caused by esrgan using Fred Weinhaus' histmatch
+                 script and compositing with imagemagick
 
   --dry-run      Print what would be upscaled but do nothing. Implies --verbose.
 
@@ -123,9 +124,9 @@ while (( $# > 0 )); do
     -f*)
       format=${1#-f}
       ;;
-    # histmatch
-    --histmatch)
-      histmatch=1
+    # no histmatch
+    --no-histmatch)
+      histmatch=
       ;;
     # debugging
     --dry-run)
@@ -158,7 +159,6 @@ done
 if (( ${#upscalers[@]} == 0 )); then
   if [[ $scale == 'auto' ]]; then
     upscalers=(waifu2x esrgan)
-    histmatch=1
   else
     throw 'no upscalers specified (try --all or --auto?)'
   fi
@@ -223,17 +223,18 @@ run_ncnn() { # <binary> <input> <output> <options...>
   fi
 }
 
-create_output_path() { # <upscaler> <input> <scale>
+create_output_path() { # <upscaler> <input> <scale> [<extra>]
   local upscaler=$1
   local input=$2
   local scale=$3
+  local extra=$4
 
   local upscale_info="[${scale}x, ${upscaler}"
   if [[ $upscaler != 'esrgan' && $denoise != 0 ]]; then
     upscale_info+=", denoise ${denoise}"
   fi
-  if [[ $upscaler == 'esrgan' && $histmatch ]]; then
-    upscale_info+=', histmatch'
+  if [[ $extra ]]; then
+    upscale_info+=", $extra"
   fi
   upscale_info+=']'
 
@@ -277,7 +278,7 @@ upscale_esrgan() { # <input> <scale>
     scale=4
   fi
 
-  output=$(histmatch='' create_output_path 'esrgan' "$input" "$scale")
+  output=$(create_output_path 'esrgan' "$input" "$scale")
 
   run_ncnn realesrgan-ncnn-vulkan \
     "$input" \
@@ -298,11 +299,17 @@ upscale_esrgan() { # <input> <scale>
       chmod +x ~/.local/bin/histmatch
     fi
 
-    output_histmatch=$(create_output_path 'esrgan' "$input" "$scale")
+    output_histmatch=$(create_output_path 'esrgan' "$input" "$scale" 'histmatch')
+    output_histmatch_composite=$(create_output_path 'esrgan' "$input" "$scale" 'histmatch composite')
 
     echo 'Running histmatch'
     histmatch -c rgb "$input" "$output" "$output_histmatch" 2>&1 >/dev/null |
       grep -Pv '^\s*$|^WARNING: The convert command is deprecated' || true
+
+    echo 'Compositing'
+    magick "$output" \
+      \( "$output_histmatch" "$output" -alpha off -compose CopyOpacity -composite \) \
+      -compose Over -composite "$output_histmatch_composite"
   fi
 }
 
