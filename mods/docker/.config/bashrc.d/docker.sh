@@ -23,6 +23,9 @@ alias ab-av1='dr -v .:/videos -v ab-av1:/root/.cache/ab-av1 ab-av1'
 # https://github.com/w3c/epubcheck (image must be built locally)
 alias epubcheck='dr -v .:/data:ro epubcheck'
 
+# https://github.com/apngasm/apngasm (custom dockerfile)
+alias apngasm='dr -v .:/srv apngasm'
+
 # https://github.com/wagoodman/dive
 if ! command -v dive &>/dev/null; then
   alias dive='dr -v /var/run/docker.sock:/var/run/docker.sock:ro wagoodman/dive'
