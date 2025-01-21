@@ -20,3 +20,6 @@ disabled = true
 
 [gcloud]
 disabled = true
+
+[aws]
+disabled = true
