@@ -30,7 +30,7 @@ ifdef APT # Make sure Ubuntu's open & browser commands point to our custom one
 	sudo update-alternatives --install /usr/bin/www-browser www-browser ~/.local/bin/open 999
 	sudo update-alternatives --install /usr/bin/open open ~/.local/bin/open 999
 endif
-	sudo ln -s /mnt/c/Windows/Fonts /usr/local/share/fonts
+	sudo ln -sfT /mnt/c/Windows/Fonts /usr/local/share/fonts
 
 wsl-bin:
 	$(PRINT)
