@@ -36,6 +36,7 @@ tamriel: \
 	mkvtoolnix \
 	nano \
 	node \
+	pv \
 	python \
 	rsync \
 	shellcheck \
@@ -72,6 +73,7 @@ server: \
 	git \
 	htop \
 	nano \
+	pv \
 	starship \
 	tree \
 
