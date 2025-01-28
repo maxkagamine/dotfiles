@@ -66,6 +66,15 @@ sovngarde: \
 	sweetroll \
 	unraid \
 
+server: \
+	bash \
+	docker \
+	git \
+	htop \
+	nano \
+	starship \
+	tree \
+
 # Create targets for each mod. Double colon targets are separate targets with
 # the same name that run in series; this lets mods define additional install
 # steps or depend upon other mods via their included Makefile.
