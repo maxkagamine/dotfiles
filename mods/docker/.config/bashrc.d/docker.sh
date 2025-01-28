@@ -9,8 +9,12 @@ alias dcd='dc down'
 alias dcr='dcu --build --force-recreate --remove-orphans'
 
 ds() { # "docker status"
-  d ps -a; echo
-  d images -a
+  docker ps -a; echo
+  if command -v unbuffer &>/dev/null; then
+    unbuffer docker image ls --tree | grep -Pv '^$|WARNING:'
+  else
+    docker image ls --tree
+  fi
 }
 
 # https://github.com/maxkagamine/sqlarserver

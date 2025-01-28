@@ -53,7 +53,7 @@ export OBLIVION_DOCKER_DAEMON_CONFIG
 
 IGNORE_NVIDIA=IgnorePkg = nvidia-container-toolkit libnvidia-container
 
-docker:: ${DOCKER_CREDENTIAL_HELPER}
+docker:: ${DOCKER_CREDENTIAL_HELPER} unbuffer
 	$(PRINT)
 
 ifeq "$(shell echo $${HOSTNAME,,})" "tamriel"
@@ -109,3 +109,13 @@ docker-credential-wincred:
 	sudo curl -fsSL https://github.com/docker/docker-credential-helpers/releases/download/v0.8.2/docker-credential-wincred-v0.8.2.windows-amd64.exe \
 		-o /usr/local/bin/docker-credential-wincred
 	sudo chmod +x /usr/local/bin/docker-credential-wincred
+
+unbuffer: # Used in docker.sh
+	$(PRINT)
+ifdef PACMAN
+	$(PACMAN) expect
+else ifdef APT
+	sudo apt-get install -qy expect
+else
+	$(warning skipping unbuffer, no apt or pacman)
+endif
