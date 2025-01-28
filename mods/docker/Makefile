@@ -29,6 +29,9 @@ define TAMRIEL_DOCKER_DAEMON_CONFIG
 			"path": "/usr/bin/nvidia-container-runtime",
 			"runtimeArgs": []
 		}
+	},
+	"features": {
+		"containerd-snapshotter": true
 	}
 }
 endef
@@ -40,7 +43,10 @@ export TAMRIEL_DOCKER_DAEMON_CONFIG
 define OBLIVION_DOCKER_DAEMON_CONFIG
 {
 	"ip": "127.0.0.1",
-	"mtu": 1420
+	"mtu": 1420,
+	"features": {
+		"containerd-snapshotter": true
+	}
 }
 endef
 export OBLIVION_DOCKER_DAEMON_CONFIG
