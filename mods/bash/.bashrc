@@ -95,6 +95,18 @@ parallel() {
   fi
 }
 
+colors() { # Prints a grid of ansi color & text style escapes
+  local s c x
+  for s in '' {1..5} 7 9 {40..47}; do
+    [[ $s ]] && s+=';'
+    for c in {30..37}; do
+      x=2; (( ${#s} == 3 )) && x=1
+      printf '\e[%s%sm%-8s\e[m%'$x's' "$s" "$c" "$(printf '\\e[%s%sm' "$s" "$c")" ''
+    done
+    echo
+  done
+}
+
 # For dry runs / printing arrays
 q() { printf '%q ' "$@"; printf '\n'; }
 n() { printf '%s\n' "$@"; }
