@@ -6,6 +6,8 @@
 export FZF_CTRL_T_OPTS="
   --ansi
   --bind 'ctrl-t:reload(fd --hidden --exclude .git --color always .)'
+  --cycle
+  --height=~66%
 "
 export FZF_CTRL_T_COMMAND='ls -vAN --color=always --group-directories-first'
 
