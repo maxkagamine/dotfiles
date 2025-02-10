@@ -36,6 +36,29 @@ if [[ $TERM_PROGRAM == 'vscode' ]]; then
   export EDITOR='code -w'
 fi
 
+# Automatically try .exe extension and node modules (like npx) if not in PATH
+command_not_found_handle() {
+  if command -v "$1.exe" &>/dev/null; then # Windows
+    "$1.exe" "${@:2}"
+  elif [[ -x "./node_modules/.bin/$1" ]]; then # Node
+    "./node_modules/.bin/$1" "${@:2}"
+  elif [[ -x /usr/lib/command-not-found ]]; then # Ubuntu
+    /usr/lib/command-not-found -- "$1"
+  else
+    printf -- '-bash: %s: command not found\n' "$1" >&2
+    return 127
+  fi
+}
+
+__command_completion() {
+  # shellcheck disable=SC2312
+  readarray -t COMPREPLY < <(
+    compgen -c "${COMP_WORDS[COMP_CWORD]}" | grep -Piv '\.dll$' | sed 's/\.exe$//i'
+    PATH="node_modules/.bin" compgen -c "${COMP_WORDS[COMP_CWORD]}" | grep -Pv '\.(exe|cmd|ps1)$')
+}
+
+complete -I -d -F __command_completion
+
 # General aliases
 alias .e='code "$DOTFILES_DIR"'
 alias .r='. ~/.bashrc'
