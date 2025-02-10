@@ -59,7 +59,9 @@ Also, check out [<img src=".github/images/icons/git.svg" height="15" />**git-bra
 
 For "Tamriel," my main machine running the [Windows Subsystem for Linux][wsl], because I can't computer without a command line but also can't not Windows.
 
-[**This Alt+V keybind to paste Windows paths as Linux paths**](mods/wsl/.config/bashrc.d/wsl.sh) should be useful to any WSL users. `unclip` is an alias for `xsel -bo`, for which I've written [a WSL shim](https://github.com/maxkagamine/xsel-win) (less janky than using PowerShell for this), which lets commands like [`npx serve`](https://www.npmjs.com/package/serve) that aren't WSL-aware copy things to your Windows clipboard.
+[This Alt+V keybind to paste Windows paths as Linux paths](mods/wsl/.config/bashrc.d/wsl.sh) should be useful to any WSL users. `unclip` is an alias for `xsel -bo`, for which I've written [a WSL shim](https://github.com/maxkagamine/xsel-win) (less janky than using PowerShell for this), which lets commands like [`npx serve`](https://www.npmjs.com/package/serve) that aren't WSL-aware copy things to your Windows clipboard.
+
+I've also found it helpful to [define a command_not_found_handle](mods/bash/.bashrc) so that I can run Windows exe's without the .exe extension. (Note the `complete -I` below it, which overrides bash's default command tab completion to remove the unnecessary ".exe". Both of these also check in node modules, so I can run npm package commands without having to prefix them with "npx".)
 
 <details open>
 <summary><h3>Using Yubikey for GPG & SSH in WSL</h3></summary>
