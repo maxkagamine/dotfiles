@@ -18,24 +18,26 @@ ee() {
   open "${1:-.}" && exit
 }
 
-vs() {
-  if sln=$(find . -maxdepth 1 -iname '*.sln' -print -quit | grep .); then
-    realpath "$sln"
-    open "$sln"
-  elif [[ $PWD == '/' ]]; then
-    echo 'No solution file' >&2
-    return 1
-  else
-    (cd .. && vs)
-  fi
-}
-
 alias ffplay='&>/dev/null ffplay.exe -hide_banner -nodisp -autoexit'
+alias vs='open *.sln'
 
 hide() { n "$@" | x wslpath -w | x attrib.exe +h; }
 unhide() { n "$@" | x wslpath -w | x attrib.exe -h; }
 recycle() { n "$@" | x wslpath -w | x nircmdc.exe moverecyclebin; }
 hxd() { (n "$@" | x wslpath -w | xx /mnt/c/Program\ Files/HxD/HxD.exe &); }
+
+__usbipd_yubikey() {
+  local id
+  if id=$(set -eo pipefail; usbipd list | awk '/Smartcard Reader/{print $2}' | grep .); then
+    usbipd.exe "$@" -i "$id"
+  else
+    echo 'Yubikey not plugged in.' >&2
+    return 1
+  fi
+}
+
+alias yubikey-attach='__usbipd_yubikey attach -w'
+alias yubikey-detach='__usbipd_yubikey detach'
 
 # Faster than doing it from Windows when there's a ton of little files
 empty-sovngarde-recycle-bin() {
