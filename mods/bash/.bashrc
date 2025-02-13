@@ -51,10 +51,15 @@ command_not_found_handle() {
 }
 
 __command_completion() {
+  local word=${COMP_WORDS[COMP_CWORD]}
   # shellcheck disable=SC2312
-  readarray -t COMPREPLY < <(
-    compgen -c "${COMP_WORDS[COMP_CWORD]}" | grep -Piv '\.dll$' | sed 's/\.exe$//i'
-    PATH="node_modules/.bin" compgen -c "${COMP_WORDS[COMP_CWORD]}" | grep -Pv '\.(exe|cmd|ps1)$')
+  if [[ $word == */* ]]; then
+    readarray -t COMPREPLY < <(compgen -c "$word")
+  else
+    readarray -t COMPREPLY < <(
+      compgen -c "${COMP_WORDS[COMP_CWORD]}" | grep -Piv '\.dll$' | sed 's/\.exe$//i'
+      PATH="node_modules/.bin" compgen -c "${COMP_WORDS[COMP_CWORD]}" | grep -Pv '\.(exe|cmd|ps1)$')
+  fi
 }
 
 complete -I -d -F __command_completion
