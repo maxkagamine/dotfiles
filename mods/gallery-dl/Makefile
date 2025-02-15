@@ -1,3 +1,5 @@
-gallery-dl:: python json-tools # mangadex-covers script uses jq
+gallery-dl:: json-tools # mangadex-covers script uses jq
 	$(PRINT)
-	sudo -H pip install --break-system-packages --root-user-action=ignore gallery-dl
+	sudo curl -fsSL https://github.com/mikf/gallery-dl/releases/latest/download/gallery-dl.bin \
+		-o /usr/local/bin/gallery-dl
+	sudo chmod +x /usr/local/bin/gallery-dl
