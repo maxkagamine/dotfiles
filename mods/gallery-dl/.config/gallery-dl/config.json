@@ -7,7 +7,18 @@
     },
     "pixiv": {
       "filename": "\fF {title} [{re.sub('[@＠].*', '', user['name'])}] [pixiv {filename}].{extension}",
-      "ugoira": "original"
+      "ugoira": "original",
+      "postprocessors": [
+        {
+          "name": "ugoira",
+          "mode": "archive",
+          "mtime": false
+        },
+        {
+          "name": "exec",
+          "command": "mv -n {} \"$(perl -pe 's/_ugoira\\d+\\]\\.zip$/].zip/' <<<{})\""
+        }
+      ]
     },
     "twitter": {
       "filename": "{date:%Y-%m-%d}{content:? //} [@{user[name]}] [twitter {tweet_id}_p{num}].{extension}"
