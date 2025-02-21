@@ -5,7 +5,7 @@
 # First Ctrl+T shows contents of current dir; pressing again recurses
 export FZF_CTRL_T_OPTS="
   --ansi
-  --bind 'ctrl-t:reload(fd --hidden --exclude .git --color always .)'
+  --bind 'ctrl-t:reload(fd -u -E .git -E node_modules -E bin -E obj -E .venv -E .python --color always .)'
   --cycle
   --height=~66%
 "
