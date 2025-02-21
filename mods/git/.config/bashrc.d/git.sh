@@ -59,6 +59,25 @@ fus() {
   sweetroll $?
 }
 
+fzf-commit() {
+  ( set -o pipefail
+    git log --pretty='%H %C(auto)%h%(decorate) %s' --no-show-signature --color=always |
+      fzf --ansi --with-nth=2.. --no-sort --layout=reverse-list --no-hscroll |
+      awk '{ print $1 }' )
+}
+
+fixup() { # [<commit>]
+  local commit=${1:-$(fzf-commit)}
+  if [[ ! $commit ]]; then
+    return 1
+  fi
+  git merge-base --is-ancestor "$commit" HEAD || {
+    (( $? == 1 )) && echo 'Commit is not an ancestor of HEAD' >&2
+    return 1
+  }
+  gg fixup! "$commit" && gr -i --committer-date-is-author-date "$commit"~
+}
+
 # shellcheck disable=SC1091
 if source /usr/share/bash-completion/completions/git 2>/dev/null; then
   __git_complete g __git_main
