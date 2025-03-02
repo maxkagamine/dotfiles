@@ -103,16 +103,22 @@ distinct() {
   awk '!x[$0]++'
 }
 
-clips() { # Clipboard monitor, can be fed to xargs or readarray
-  local x y
-  x=$(unclip)
-  while true; do
-    y=$(unclip)
-    if [[ $y != "$x" ]]; then
-      echo "$y"
-      x="$y"
-    fi
-  done
+clips() {
+  # Clipboard monitor, can be fed to xargs, or a variable name can be given as
+  # an argument to readarray the copied lines into an array.
+  if [[ $1 ]]; then
+    readarray -t "$1" < <(clips | tee /dev/stderr)
+  else
+    local x y
+    x=$(unclip)
+    while true; do
+      y=$(unclip)
+      if [[ $y != "$x" ]]; then
+        echo "$y"
+        x="$y"
+      fi
+    done
+  fi
 }
 
 parallel() {
