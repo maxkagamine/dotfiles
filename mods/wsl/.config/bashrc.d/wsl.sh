@@ -38,6 +38,8 @@ __usbipd_yubikey() {
 
 alias yubikey-attach='__usbipd_yubikey attach -w'
 alias yubikey-detach='__usbipd_yubikey detach'
+alias ya='yubikey-attach'
+alias yd='yubikey-detach'
 
 # Faster than doing it from Windows when there's a ton of little files
 empty-sovngarde-recycle-bin() {
