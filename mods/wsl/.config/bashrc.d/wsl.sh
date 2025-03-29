@@ -23,7 +23,6 @@ alias vs='open *.sln'
 
 hide() { n "$@" | x wslpath -w | x attrib.exe +h; }
 unhide() { n "$@" | x wslpath -w | x attrib.exe -h; }
-recycle() { n "$@" | x wslpath -w | x nircmdc.exe moverecyclebin; }
 hxd() { (n "$@" | x wslpath -w | xx /mnt/c/Program\ Files/HxD/HxD.exe &); }
 
 __usbipd_yubikey() {

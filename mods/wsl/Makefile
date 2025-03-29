@@ -23,7 +23,7 @@ SystemMaxUse=100M
 endef
 export WSL_JOURNALD_CONF
 
-wsl:: wsl-bin wsl-journald-conf wsl-keepalive wsl-mount-network-drive wsl-timesyncd xsel-win
+wsl:: wsl-bin wsl-journald-conf wsl-keepalive wsl-mount-network-drive wsl-timesyncd
 	$(PRINT)
 ifdef APT # Make sure Ubuntu's open & browser commands point to our custom one
 	sudo update-alternatives --install /usr/bin/x-www-browser x-www-browser ~/.local/bin/open 999
@@ -35,9 +35,7 @@ endif
 wsl-bin:
 	$(PRINT)
 	mkdir -p ~/.local/bin
-	ln -sft ~/.local/bin \
-		"$$(pwd)/vendor/cmdmp3/cmdmp3.exe" \
-		"$$(pwd)/vendor/nircmd/nircmdc.exe"
+	ln -sft ~/.local/bin "$$(pwd)/vendor/cmdmp3/cmdmp3.exe"
 # WSL can run Windows exe's without the .exe extension, no wrapper needed!
 	ln -sf \
 		"$$(pwd)/vendor/wsl-notify-send/wsl-notify-send.exe" \
@@ -77,8 +75,3 @@ endif
 	sudo tee /etc/systemd/system/systemd-timesyncd.service.d/override.conf >/dev/null <<<"$$WSL_TIMESYNCD_OVERRIDE"
 	sudo systemctl daemon-reload
 	sudo systemctl start systemd-timesyncd
-
-xsel-win:
-	$(PRINT)
-	sudo curl -fsSL https://github.com/maxkagamine/xsel-win/releases/latest/download/xsel -o /usr/local/bin/xsel
-	sudo chmod 755 /usr/local/bin/xsel

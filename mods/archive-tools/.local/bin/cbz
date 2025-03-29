@@ -1,14 +1,11 @@
 #!/bin/bash
 set -eo pipefail
 
-recycle() {
-  if [[ ! -e "$1" ]]; then
-    return
-  elif command -v nircmdc.exe &>/dev/null; then
-    printf 'recycling %s\n' "$1"
-    nircmdc.exe moverecyclebin "$(wslpath -w "$1")"
+delete() {
+  if command -v recycle &>/dev/null; then
+    recycle -fv "$1"
   else
-    rm -rv "$1"
+    rm -fv "$1"
   fi
 }
 
@@ -30,5 +27,5 @@ for dir; do
   name=$(basename "$(realpath .)")
   7z a -tzip -m0=Copy "../$name.cbz" .
   popd
-  recycle "$dir"
+  delete "$dir"
 done
