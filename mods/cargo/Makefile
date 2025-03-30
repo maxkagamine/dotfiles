@@ -6,6 +6,7 @@ cargo::
 ifdef PACMAN
 	$(PACMAN) mingw-w64-gcc
 	rustup target add x86_64-pc-windows-gnu
+	cargo install cargo-expand
 else
-	$(warning no pacman, mingw-w64 will not be available for cross-compiling to Windows)
+	$(warning no pacman, not setting up rust dev environment)
 endif
