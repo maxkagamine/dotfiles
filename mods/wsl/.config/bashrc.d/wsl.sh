@@ -8,7 +8,8 @@ else
   CDPATH='.:~:~/Projects:/mnt/c/Users/max/Projects:/mnt/s:/mnt/c/Users/max'
 fi
 
-export BROWSER=~/.local/bin/open
+# https://github.com/maxkagamine/wsl-tools
+export BROWSER='/mnt/c/Program Files/wsl-tools/open'
 
 e() {
   open "${1:-.}"

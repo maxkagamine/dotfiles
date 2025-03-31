@@ -1,8 +1,0 @@
-#!/bin/bash
-
-for arg; do
-  if [[ $arg != *://* ]]; then
-    arg=$(wslpath -aw "$arg")
-  fi
-  powershell.exe -noprofile start "'${arg//\'/\'\'}'"
-done
