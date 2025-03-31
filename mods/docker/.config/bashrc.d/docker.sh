@@ -32,5 +32,5 @@ alias apngasm='dr -v .:/srv apngasm'
 
 # https://github.com/wagoodman/dive
 if ! command -v dive &>/dev/null; then
-  alias dive='dr -v /var/run/docker.sock:/var/run/docker.sock:ro wagoodman/dive'
+  alias dive='dr -v /var/run/docker.sock:/var/run/docker.sock:ro -v ~/.config/dive/dive.yml:/root/.dive.yml wagoodman/dive'
 fi

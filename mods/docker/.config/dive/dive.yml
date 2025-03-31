@@ -1,0 +1,13 @@
+# https://github.com/wagoodman/dive#ui-configuration
+
+keybinding:
+  filter-files: ctrl+w
+
+diff:
+  hide:
+    - unmodified
+
+# This is broken due to this commit commenting out the relevant lines in RequestedSize (view/filetree.go)
+# https://github.com/wagoodman/dive/commit/8818b9934f74032d7c1baaeedb4b80a2a1fc103a#diff-7e42e7a72c948cbf51957162409857a01483fac6d146d8c3fd169089763ac1cc
+filetree:
+  pane-width: 0.75
