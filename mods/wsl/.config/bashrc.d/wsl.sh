@@ -9,7 +9,7 @@ else
 fi
 
 # https://github.com/maxkagamine/wsl-tools
-export BROWSER='/mnt/c/Program Files/wsl-tools/open'
+export BROWSER='open'
 
 e() {
   open "${1:-.}"
