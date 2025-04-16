@@ -100,6 +100,9 @@ In the end that was too much of a hassle, so I switched to using [usbipd-win](ht
 <details open>
 <summary><h3>Setting up Arch in WSL</h3></summary>
 
+
+**Update: Arch is [now officially supported](https://antiz.fr/blog/archlinux-official-wsl-image/), so some or all of the first 5 steps (depending on how they set it up) may be different/unnecessary.**
+
 1. [Download the ArchWSL zip](https://github.com/yuk7/ArchWSL/releases/latest), extract to %localappdata%\Arch (or wherever), and run the exe
 2. Set the root password, create your own user, add it to the wheel group, and set its password:
    ```
@@ -143,13 +146,13 @@ In the end that was too much of a hassle, so I switched to using [usbipd-win](ht
    $ sudo pacman -S base-devel git
    ```
 10. Clone using HTTP first, since we need to dotfiles to set up GPG as the SSH agent:
-   ```
-   $ mkdir Projects && cd Projects
-   $ git clone https://github.com/maxkagamine/dotfiles.git
-   $ cd dotfiles
-   $ rm ~/.bash_profile ~/.bashrc
-   $ make
-   ```
+    ```
+    $ mkdir Projects && cd Projects
+    $ git clone https://github.com/maxkagamine/dotfiles.git
+    $ cd dotfiles
+    $ rm ~/.bash_profile ~/.bashrc
+    $ make
+    ```
 11. Check that SSH works now, and then switch the repo to SSH:
     ```
     $ . ~/.bashrc  # No .r alias yet
