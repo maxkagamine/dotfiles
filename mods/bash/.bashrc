@@ -1,4 +1,4 @@
-# shellcheck shell=bash
+# shellcheck shell=bash disable=SC2120,SC2119
 
 if [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
   PATH="$HOME/.local/bin:$PATH"
@@ -74,11 +74,12 @@ alias ll='ls -Al'
 alias ls='ls -hv --color=auto --group-directories-first'
 alias tsv="column -ts $'\t' -W0"
 alias unclip='xsel -bo'
-alias x="xargs -d '\n' -L 1"
-alias xx="xargs -d '\n'"
+alias x="xargs -d '\n' -L 1 "
+alias xx="xargs -d '\n' "
 
-# Causes aliases to be resolved when running sudo
+# Causes aliases to be resolved when running sudo or xargs (trailing space on x & xx above as well)
 alias sudo='sudo '
+alias xargs='xargs '
 
 # General-use functions
 mkcd() {
@@ -87,6 +88,41 @@ mkcd() {
 
 tclip() {
   tee >(clip)
+}
+
+clips() {
+  # Clipboard monitor. Can be fed to xargs, or a variable name can be given as
+  # an argument to readarray the copied lines into an array.
+  #
+  # Examples:
+  #   clips | xx gal                  # alias for xargs -d '\n' gallery-dl
+  #   clips urls && gal "${urls[@]}"
+  if [[ $1 ]]; then
+    local output
+    output=$(clips) && readarray -t "$1" <<<"$output"
+  else
+    (
+      ok=
+      n=0
+      trap 'stty echo; [[ $ok ]] || printf "\e[2;7;31m Canceled \e[m\n" >&2' EXIT
+      stty -echo # read -s only prevents echo for the brief moment that read is executing
+      printf '\e[2;7;32m Press any key when done, ctrl+c to cancel \e[m\n' >&2
+      x=$(unclip) || return 1
+      while ! read -r -t 0.01 -N 1; do
+        y=$(unclip < /dev/null) || return 1
+        if [[ $y && $y != "$x" ]]; then
+          echo "$y"
+          if [[ ! -t 1 ]]; then # stdout redirected
+            echo "$y" >&2
+          fi
+          x="$y"
+          (( ++n ))
+        fi
+      done
+      ok=1
+      printf '\e[2;7;32m -- %s clips -- \e[m\n' "$n" >&2
+    )
+  fi
 }
 
 wtfismyip() {
@@ -101,24 +137,6 @@ distinct() {
   # uniq but without needing to be sorted first
   # https://stackoverflow.com/a/11532197
   awk '!x[$0]++'
-}
-
-clips() {
-  # Clipboard monitor, can be fed to xargs, or a variable name can be given as
-  # an argument to readarray the copied lines into an array.
-  if [[ $1 ]]; then
-    readarray -t "$1" < <(clips | tee /dev/stderr)
-  else
-    local x y
-    x=$(unclip)
-    while true; do
-      y=$(unclip)
-      if [[ $y != "$x" ]]; then
-        echo "$y"
-        x="$y"
-      fi
-    done
-  fi
 }
 
 parallel() {
