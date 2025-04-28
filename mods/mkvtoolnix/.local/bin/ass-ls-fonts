@@ -1,0 +1,23 @@
+#!/bin/bash
+set -eo pipefail
+
+if [[ $1 =~ ^(--help|-h)$ ]]; then
+  cat >&2 <<'EOF'
+Usage: ass-ls-fonts [<subs>]
+
+Lists all unique fonts referenced in the subs via either `Style:` or `\fn`.
+
+<subs> defaults to `*.ass`.
+EOF
+  exit 1
+fi
+
+subs=("$@")
+if (( $# == 0 )); then
+  subs=(*.ass)
+fi
+
+perl -ne '
+  /^Style:.*?,([^,]+)/ && print "$1\n";
+  print "$1\n" while /\\fn([^\\\}]+)/g;
+' "${subs[@]}" | sort -u

@@ -226,6 +226,7 @@ Additional tools:
 - [**mkv-extract-fonts**](mods/mkvtoolnix/.local/bin/mkv-extract-fonts) — Batch extracts all unique fonts (by filename) from the given MKVs.
 - [**mkv-rm-cover**](mods/mkvtoolnix/.local/bin/mkv-rm-cover) — Removes all image/jpeg and image/png attachments from the given MKVs.
 - [**mkv-clean**](mods/mkvtoolnix/.local/bin/mkv-clean) — Removes the title and video track name (both used occasionally just to advertise the encoding group), cover image (some groups plaster the series cover on every episode), and common Windows system fonts (which are often unnecessarily included with subs and do nothing but waste space) from the given MKVs.
+- [**ass-ls-fonts**](mods/mkvtoolnix/.local/bin/ass-ls-fonts) - Lists all unique fonts referenced in the subs via either `Style:` or `\fn`.
 
 ## ⚙&hairsp;[misc utils](mods/misc-utils/.local/bin)
 
