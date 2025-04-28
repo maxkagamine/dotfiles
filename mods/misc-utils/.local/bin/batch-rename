@@ -1,0 +1,67 @@
+#!/bin/bash
+set -eo pipefail
+
+throw() {
+  printf '%s: %s\n' "${0##*/}" "$1" >&2
+  return 1
+}
+
+help() {
+  cat >&2 <<'EOF'
+Usage: batch-rename [-n] <perl expression> <files...>
+
+Helper for quickly applying a perl substitution to filenames.
+
+Equivalent to:
+
+  for f in <files...>; do
+    mv -nv "$f" "$(perl -pe <perl expression> <<<"$f")" || break
+  done
+
+Files are passed to perl as given, including directories.
+
+Options:
+
+  -n    Dry run.
+EOF
+  exit 1
+}
+
+args=()
+dry_run=
+while (( $# > 0 )); do
+  case $1 in
+    --)
+      shift
+      args+=("$@")
+      break
+      ;;
+    -n)
+      dry_run=1
+      ;;
+    -h|--help)
+      help
+      ;;
+    -*)
+      throw "unknown option: $1"
+      ;;
+    *)
+      args+=("$1")
+      ;;
+  esac
+  shift
+done
+
+if (( ${#args[@]} < 2 )); then
+  help
+fi
+
+for f in "${args[@]:1}"; do
+  dest=$(perl -pe "${args[0]}" <<<"$f")
+
+  if [[ $dry_run ]]; then
+    printf "would rename '%s' -> '%s'\n" "$f" "$dest"
+  else
+    mv -nv "$f" "$dest"
+  fi
+done
