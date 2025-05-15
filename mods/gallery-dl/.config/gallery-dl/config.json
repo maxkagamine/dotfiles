@@ -9,6 +9,10 @@
       "directory": ["{manga} vol. {volume} [batoto]"],
       "filename": "c{chapter:>03}{chapter_minor}{title:? //} p{page:>03}.{extension}"
     },
+    "dynastyscans": {
+      "directory": ["{manga} [dynasty-scans]"],
+      "filename": "c{chapter:>03}{chapter_minor}{title:? //} p{page:>03} [{group|_lit[No Group]!S}].{extension}"
+    },
     "pixiv": {
       "filename": "\fF {title} [{re.sub('[@＠].*', '', user['name'])}] [pixiv {filename}].{extension}",
       "ugoira": "original",
