@@ -225,7 +225,7 @@ run_ncnn() { # <binary> <input> <output> <options...>
 
 create_output_path() { # <upscaler> <input> <scale> [<extra>]
   local upscaler=$1
-  local input=$2
+  local input=${2/.srgb/} # convert-to-srgb
   local scale=$3
   local extra=$4
 
@@ -320,10 +320,20 @@ for input in "${paths[@]}"; do
     continue
   fi
 
+  converted_to_srgb=
+  if [[ $input =~ \.jpe?g$ ]] && convert-to-srgb -x "$input" | sed 's/^/\c[[2mconvert-to-srgb:\c[[m /' >&2; then
+    input="${input%.*}.srgb.png"
+    converted_to_srgb=1
+  fi
+
   for upscaler in "${upscalers[@]}"; do
     printf 'Upscaling \e[32m%s\e[m to \e[33m%s\e[mx using \e[32m%s\e[m\n' \
       "$input" "$input_scale" "$upscaler"
 
     upscale_"$upscaler" "$input" "$input_scale"
   done
+
+  if [[ $converted_to_srgb ]]; then
+    rm "$input"
+  fi
 done
