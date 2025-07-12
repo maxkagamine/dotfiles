@@ -35,6 +35,7 @@ tamriel: \
 	misc-utils \
 	mkvtoolnix \
 	nano \
+	ncdu \
 	node \
 	pv \
 	python \
@@ -63,6 +64,7 @@ sovngarde: \
 	git \
 	mkvtoolnix \
 	nano \
+	ncdu \
 	starship \
 	sweetroll \
 	unraid \
@@ -73,6 +75,7 @@ server: \
 	git \
 	htop \
 	nano \
+	ncdu \
 	pv \
 	starship \
 	tree \

@@ -1,0 +1,4 @@
+--extended
+--show-mtime
+--color dark
+--exclude-kernfs
