@@ -7,7 +7,7 @@
     },
     "batoto": {
       "directory": ["{manga} vol. {volume} [batoto]"],
-      "filename": "c{chapter:>03}{chapter_minor}{title:? //} p{page:>03}.{extension}"
+      "filename": "c{chapter_url:>03}{title|chapter_string:? //} p{page:>03}.{extension}"
     },
     "dynastyscans": {
       "directory": ["{manga} [dynasty-scans]"],
