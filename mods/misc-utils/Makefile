@@ -7,6 +7,9 @@ MISC_UTILS_PACKAGES+=perl-archive-zip
 # mkanimereadme
 MISC_UTILS_TARGETS+=python
 
+# upscale
+MISC_UTILS_TARGETS+=imagemagick
+
 # weigh
 MISC_UTILS_PACKAGES+=bc
 

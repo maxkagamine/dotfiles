@@ -321,7 +321,7 @@ for input in "${paths[@]}"; do
   fi
 
   converted_to_srgb=
-  if [[ $input =~ \.jpe?g$ ]] && convert-to-srgb -x "$input" | sed 's/^/\c[[2mconvert-to-srgb:\c[[m /' >&2; then
+  if convert-to-srgb -x "$input" | sed 's/^/\c[[2mconvert-to-srgb:\c[[m /' >&2; then
     input="${input%.*}.srgb.png"
     converted_to_srgb=1
   fi
