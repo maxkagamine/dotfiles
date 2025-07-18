@@ -1,0 +1,52 @@
+#!/usr/bin/perl
+#
+# Organizes uBlock Origin filter lists by blocked domains first, then global
+# cosmetic filters, then grouped by domain name (without tld or subdomains).
+#
+# Usage: unclip | ubo-sort | clip
+#
+use strict;
+use warnings;
+
+sub remove_tld {
+  my ($domain) = @_;
+  # https://github.com/miguelmota/is-valid-domain/blob/master/data/second_level_domains.csv
+  $domain =~ s/\.((com|net|gov|org|mil)\.ac|(co|net|gov|ac|sch|org|mil|pro|name)\.ae|(com|edu|gov|net|org)\.af|(com|edu|gov|mil|net|org)\.al|(ed|gv|og|co|pb|it)\.ao|(com|edu|gob|gov|gov|int|mil|net|org|tur)\.ar|(gv|ac|co|or)\.at|(com|net|org|edu|gov|csiro|asn|id|vic|sa|wa|nt|tas|qld|act|conf|oz)\.au|(org|net|edu|gov|mil|unsa|untz|unmo|unbi|unze|co|com|rs)\.ba|(co|com|net|org|gov|edu|info|store|tv|biz)\.bb|(com|info|cc|edu|biz|net|org|gov)\.bh|(com|edu|gov|net|org)\.bn|(com|net|org|tv|mil|int|gob|gov|edu)\.bo|(adm|adv|agr|am|arq|art|ato|b|bio|blog|bmd|cim|cng|cnt|com|coop|ecn|edu|eng|esp|etc|eti|far|flog|fm|fnd|fot|fst|g12|ggf|gov|imb|ind|inf|jor|jus|lel|mat|med|mil|mus|net|nom|not|ntr|odo|org|ppg|pro|psc|psi|qsl|rec|slg|srv|tmp|trd|tur|tv|vet|vlog|wiki|zlg)\.br|(com|net|org|edu|gov)\.bs|(bz|bz|bz|bz|bz)\.bz|(ab|bc|mb|nb|nf|nl|ns|nt|nu|on|pe|qc|sk|yk)\.ca|(co|org|edu|gov|net|gen|biz|info)\.ck|(ac|com|edu|gov|mil|net|org|ah|bj|cq|fj|gd|gs|gz|gx|ha|hb|he|hi|hl|hn|jl|js|jx|ln|nm|nx|qh|sc|sd|sh|sn|sx|tj|tw|xj|xz|yn|zj)\.cn|(com|org|edu|gov|net|mil|nom)\.co|(ac|co|ed|fi|go|or|sa|cr)\.cr|(ac|net|gov|org|pro|name|ekloges|tm|ltd|biz|press|parliament|com)\.cy|(edu|gob|gov|com|sld|org|net|web|mil|art)\.do|(com|org|net|gov|edu|asso|pol|art)\.dz|(com|info|net|fin|med|pro|org|edu|gov|mil)\.ec|(com|edu|eun|gov|mil|name|net|org|sci)\.eg|(com|edu|gov|mil|net|org|ind|rochest|w)\.er|(com|nom|org|gob|edu)\.es|(com|gov|org|edu|net|biz|name|info)\.et|(ac|biz|com|info|mil|name|net|org|pro)\.fj|(co|org|gov|ac|nom|net)\.fk|(fr|tm|asso|nom|prd|presse|com|gouv)\.fr|(co|net|org)\.gg|(com|edu|gov|org|mil)\.gh|(co|com|edu|net|org)\.gl|(com|ac|gov|org|net)\.gn|(com|edu|net|org|gov|mil)\.gr|(com|edu|net|gob|org|mil|ind)\.gt|(com|net|gov|org|edu)\.gu|(com|edu|gov|idv|net|org)\.hk|(2000|agrar|bolt|casino|city|co|erotica|erotika|film|forum|games|hotel|info|ingatlan|jogasz|konyvelo|lakas|media|news|org|priv|reklam|sex|shop|sport|suli|szex|tm|tozsde|utazas|video)\.hu|(ac|co|net|or|web|sch|mil|go|war|my|biz)\.id|(ac|co|org|net|k12|gov|muni|idf)\.il|(in|4fd|co|firm|net|org|gen|ind|ac|edu|res|ernet|gov|mil|nic|nic)\.in|(iq|gov|edu|com|mil|org|net)\.iq|(ir|ac|co|gov|id|net|org|sch|dnssec)\.ir|(gov|edu)\.it|(co|net|org)\.je|(com|net|gov|edu|org|mil|name|sch)\.jo|(ac|ad|co|ed|go|gr|lg|ne|or)\.jp|(co|or|ne|go|ac|sc|me|mobi|info)\.ke|(per|com|edu|gov|mil|net|org)\.kh|(com|biz|de|net|info|org|gov|edu|mob|tel)\.ki|(km|com|coop|asso|nom|presse|tm|medecin|notaires|pharmaciens|veterinaire|edu|gouv|mil)\.km|(net|org|edu|gov)\.kn|(kr|co|ne|or|re|pe|go|mil|ac|hs|ms|es|sc|kg|seoul|busan|daegu|incheon|gwangju|daejeon|ulsan|gyeonggi|gangwon|chungbuk|chungnam|jeonbuk|jeonnam|gyeongbuk|gyeongnam|jeju)\.kr|(edu|com|net|org|gov)\.kw|(com|org|net|edu|gov)\.ky|(com|edu|gov|mil|net|org)\.kz|(com|edu|gov|net|org)\.lb|(gov|sch|net|int|com|org|edu|ngo|soc|web|ltd|assn|grp|hotel)\.lk|(com|edu|gov|org|net)\.lr|(com|edu|gov|org|mil|id|net|asn|conf)\.lv|(com|net|gov|plc|edu|sch|med|org|id)\.ly|(ma|net|ac|org|gov|press|co)\.ma|(tm|asso)\.mc|(co|net|org|edu|ac|gov|its|priv)\.me|(org|nom|gov|prd|tm|edu|mil|com)\.mg|(com|org|net|edu|gov|inf|name|pro)\.mk|(com|net|org|edu|gov|presse)\.ml|(gov|edu|org)\.mn|(com|edu|gov|net|org)\.mo|(com|org|net|edu|gov)\.mt|(aero|biz|com|coop|edu|gov|info|int|mil|museum|name|net|org|pro)\.mv|(ac|co|com|coop|edu|gov|int|museum|net|org)\.mw|(com|net|org|edu|gob)\.mx|(com|net|org|gov|edu|sch|mil|name)\.my|(com|net|arts|store|web|firm|info|other|per|rec)\.nf|(com|org|gov|edu|net|sch|name|mobi|biz|mil)\.ng|(gob|co|com|ac|edu|org|nom|net|mil)\.ni|(com|edu|gov|org|mil|net)\.np|(edu|gov|biz|info|net|org|com)\.nr|(com|co|edu|ac|sch|gov|net|org|mil|museum|biz|pro|med)\.om|(edu|gob|nom|mil|sld|org|com|net)\.pe|(com|net|org|mil|ngo|i|gov|edu)\.ph|(com|net|edu|org|fam|biz|web|gov|gob|gok|gon|gop|gos)\.pk|(pwr|com|biz|net|art|edu|org|ngo|gov|info|mil|waw|warszawa|wroc|wroclaw|krakow|katowice|poznan|lodz|gda|gdansk|slupsk|radom|szczecin|lublin|bialystok|olsztyn|torun|gorzow|zgora)\.pl|(biz|com|edu|gov|info|isla|name|net|org|pro|est|prof|ac)\.pr|(com|net|org|edu|gov|plo|sec)\.ps|(co|ne|or|ed|go|belau)\.pw|(arts|com|firm|info|nom|nt|org|rec|store|tm|www)\.ro|(co|org|edu|ac|gov|in)\.rs|(com|net|edu|org|gov)\.sb|(com|net|edu|gov|org)\.sc|(co|com|org|gov|edu|net|nom)\.sh|(com|net|org|edu|gov)\.sl|(gov|saotome|principe|consulado|embaixada|org|edu|net|com|store|mil|co)\.st|(edu|gob|com|org|red)\.sv|(co|ac|org)\.sz|(com|gen|org|biz|info|av|dr|pol|bel|tsk|bbs|k12|edu|name|net|gov|web|tel|tv)\.tr|(co|com|org|net|biz|info|pro|int|coop|jobs|mobi|travel|museum|aero|cat|tel|name|mil|edu|gov)\.tt|(edu|gov|mil|com|net|org|idv|game|ebiz|club)\.tw|(com|gov|net|org|ac|co|or)\.mu|(ac|co|edu|org|gov)\.mz|(com|co)\.na|(ac|co|cri|geek|gen|govt|health|iwi|maori|mil|net|org|parliament|school)\.nz|(abo|ac|com|edu|gob|ing|med|net|nom|org|sld)\.pa|(com|edu|gov|int|net|nome|org|publ)\.pt|(com|edu|gov|mil|net|org)\.py|(com|edu|gov|mil|net|org)\.qa|(asso|com|nom)\.re|(ac|adygeya|altai|amur|arkhangelsk|astrakhan|bashkiria|belgorod|bir|bryansk|buryatia|cbg|chel|chelyabinsk|chita|chita|chukotka|chuvashia|com|dagestan|e-burg|edu|gov|grozny|int|irkutsk|ivanovo|izhevsk|jar|joshkar-ola|kalmykia|kaluga|kamchatka|karelia|kazan|kchr|kemerovo|khabarovsk|khakassia|khv|kirov|koenig|komi|kostroma|kranoyarsk|kuban|kurgan|kursk|lipetsk|magadan|mari|mari-el|marine|mil|mordovia|mosreg|msk|murmansk|nalchik|net|nnov|nov|novosibirsk|nsk|omsk|orenburg|org|oryol|penza|perm|pp|pskov|ptz|rnd|ryazan|sakhalin|samara|saratov|simbirsk|smolensk|spb|stavropol|stv|surgut|tambov|tatarstan|tom|tomsk|tsaritsyn|tsk|tula|tuva|tver|tyumen|udm|udmurtia|ulan-ude|vladikavkaz|vladimir|vladivostok|volgograd|vologda|voronezh|vrn|vyatka|yakutia|yamal|yekaterinburg|yuzhno-sakhalinsk)\.ru|(ac|co|com|edu|gouv|gov|int|mil|net)\.rw|(com|edu|gov|med|net|org|pub|sch)\.sa|(com|edu|gov|info|med|net|org|tv)\.sd|(a|ac|b|bd|c|d|e|f|g|h|i|k|l|m|n|o|org|p|parti|pp|press|r|s|t|tm|u|w|x|y|z)\.se|(com|edu|gov|idn|net|org|per)\.sg|(art|com|edu|gouv|org|perso|univ)\.sn|(com|edu|gov|mil|net|news|org)\.sy|(ac|co|go|in|mi|net|or)\.th|(ac|biz|co|com|edu|go|gov|info|int|mil|name|net|nic|org|test|web)\.tj|(agrinet|com|defense|edunet|ens|fin|gov|ind|info|intl|mincom|nat|net|org|perso|rnrt|rns|rnu|tourism)\.tn|(ac|co|go|ne|or)\.tz|(biz|cherkassy|chernigov|chernovtsy|ck|cn|co|com|crimea|cv|dn|dnepropetrovsk|donetsk|dp|edu|gov|if|in|ivano-frankivsk|kh|kharkov|kherson|khmelnitskiy|kiev|kirovograd|km|kr|ks|kv|lg|lugansk|lutsk|lviv|me|mk|net|nikolaev|od|odessa|org|pl|poltava|pp|rovno|rv|sebastopol|sumy|te|ternopil|uzhgorod|vinnica|vn|zaporizhzhe|zhitomir|zp|zt)\.ua|(ac|co|go|ne|or|org|sc)\.ug|(ac|bl|british-library|co|cym|gov|govt|icnet|jet|lea|ltd|me|mil|mod|mod|national-library-scotland|nel|net|nhs|nhs|nic|nls|org|orgn|parliament|parliament|plc|police|sch|scot|soc)\.uk|(4fd|dni|fed|isa|kids|nsn)\.us|(com|edu|gub|mil|net|org)\.uy|(co|com|edu|gob|info|mil|net|org|web)\.ve|(co|com|k12|net|org)\.vi|(ac|biz|com|edu|gov|health|info|int|name|net|org|pro)\.vn|(co|com|gov|ltd|me|net|org|plc)\.ye|(ac|co|edu|gov|org)\.yu|(ac|agric|alt|bourse|city|co|cybernet|db|ecape|edu|fs|gov|gp|grondar|iaccess|imt|inca|kzn|landesign|law|lp|mil|mpm|ncape|net|ngo|nis|nom|nw|olivetti|org|pix|school|tm|wcape|web)\.za|(ac|co|com|edu|gov|net|org|sch)\.zm|[^\.]+)$//;
+  return $domain;
+}
+
+sub extract_key {
+  my ($line) = @_;
+
+  # Blocked domains
+  if ($line !~ /[@|#\/^]/) {
+    return "\000";
+  }
+
+  # Global cosmetic filters
+  if ($line =~ /^##/) {
+    return "\001";
+  }
+
+  # Group remainder by domain name, without tld or subdomains
+  my $domain = $line =~ s/^[@|]*([^#\/^]+).*/$1/r;
+  $domain = remove_tld($domain);
+  return (split(/\./, $domain))[-1];
+}
+
+my %groups;
+
+while (<>) {
+  chomp;
+  next if /^!|^# |^\s*$/; # Remove comments
+  my $key = extract_key($_);
+  $groups{$key}{$_} = 1; # Using a hash to filter out duplicates as we go
+}
+
+# Print each group sorted and separated by newline
+my @keys = sort keys %groups;
+for my $i (0 .. $#keys) {
+  my $key = $keys[$i];
+  print "$_\n" for sort keys %{$groups{$key}};
+  print "\n" if $i < $#keys;
+}
