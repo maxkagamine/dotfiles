@@ -112,7 +112,7 @@ In the end that was too much of a hassle, so I switched to using [usbipd-win](ht
    ```
    Fun fact: I looked up the origin of the "wheel" name. It comes from "big wheel" which is an older way of saying "head honcho." According to Ngram the phrase had a surgence in popularity in the late 40s through the 50s. So the term "wheel" is basically 1960s-programmer slang for "Administrator." The more you know!
 3. `EDITOR=nano visudo` and uncomment the %wheel line towards the bottom to allow admins to sudo.
-   - The reason we're not adding a sudoers.d file here like the ArchWSL setup guide suggests is we want to be able to override this with our own sudoers file, but they're evaluated in lexigraphical order and we don't want a file starting with "w" overriding us. Sudoers files should also always be edited using visudo.
+   - The reason we're not adding a sudoers.d file here like the ArchWSL setup guide suggests is we want to be able to override this with our own sudoers file, but they're evaluated in lexicographical order and we don't want a file starting with "w" overriding us. Sudoers files should also always be edited using visudo.
 4. Exit out of WSL and `Arch.exe config --default-user max`.
 5. Initialize the pacman keyring (this is the last step from the setup guide; everything after this is custom):
    ```
@@ -145,7 +145,7 @@ In the end that was too much of a hassle, so I switched to using [usbipd-win](ht
    ```
    $ sudo pacman -S base-devel git
    ```
-10. Clone using HTTP first, since we need to dotfiles to set up GPG as the SSH agent:
+10. Clone using HTTP first, since we need the dotfiles to set up GPG as the SSH agent:
     ```
     $ mkdir Projects && cd Projects
     $ git clone https://github.com/maxkagamine/dotfiles.git
@@ -234,11 +234,12 @@ Miscellaneous utilities:
 
 - [**append-crc**](mods/misc-utils/.local/bin/append-crc) — Adds (or updates) a file's crc32 hash to its filename.
 - [**batch-rename**](mods/misc-utils/.local/bin/batch-rename) - Helper for quickly applying a perl substitution to filenames.
-- [**cron-wrapper**](mods/misc-utils/.local/bin/cron-wrapper) — Wrapper script for cronjobs that prevents multiple instances, handles logging, and triggers a notification on error. Used for [**pull-from-seedbox**](mods/wsl/.local/bin/pull-from-seedbox) and another script that runs yt-dlp to backup YouTube playlists.
 - [**flatten**](mods/misc-utils/.local/bin/flatten) - Flattens the contents of a directory such that "foo/bar/file.jpg" is renamed to "foo - bar - file.jpg", with an optional prefix/suffix added to the filenames.
 - [**intersect-csvs**](mods/misc-utils/.local/bin/intersect-csvs) — Creates CSVs containing only rows that exist in two or more of the given CSVs. For example, given A.csv, B.csv, and C.csv, creates A+B.csv, A+C.csv, B+C.csv, and A+B+C.csv. I used this to create [a map](https://www.google.com/maps/d/viewer?mid=1kaE2O2LTjoS5Bf2YUCQ6OFJlXuert8U) of arcades in Tokyo that have my favorite games.
 - [**mkanimedir**](mods/misc-utils/.local/bin/mkanimedir) — Turns a MAL link and a bunch of episodes into a nice folder.
 - [**mkmoviedir**](mods/misc-utils/.local/bin/mkmoviedir) — Like mkanimedir but for an IMDb link.
+- [**title-case**](mods/misc-utils/.local/bin/title-case) — Converts text to properly-capitalized title case.
+- [**ubo-sort**](mods/misc-utils/.local/bin/ubo-sort) — Organizes uBlock Origin filter lists.
 - [**upscale**](mods/misc-utils/.local/bin/upscale) — Wrapper for several AI image upscalers, with options for automatic batch processing.
 - [**weigh**](mods/misc-utils/.local/bin/weigh) — Shows the total size of files, directories, or stdin (optionally gzipped).
 
@@ -248,13 +249,17 @@ _I need to ask you to stop. That... committing... is making people nervous._
 
 In case you missed it: [**Nuke a git repo with unrelenting force: the FUS RO DAH command**][fus-ro-dah]
 
+## [cron](mods/cron/)
+
+Contains a [**cron-wrapper**](mods/cron/.local/bin/cron-wrapper) script for cronjobs that prevents multiple instances, handles logging, and triggers a notification on error. Used for [pull-from-seedbox](mods/wsl/.local/bin/pull-from-seedbox) and another script that runs yt-dlp to backup YouTube playlists.
+
 ## [fzf](mods/fzf/.config/bashrc.d/fzf.sh)
 
 Fancy [keyboard shortcuts][fzf keybindings] (also powers the aforementioned [<img src=".github/images/icons/git.svg" height="15" />**git-branch-fzf**](mods/git/.local/bin/git-branch-fzf))
 
 ## [imagemagick](mods/imagemagick/)
 
-Contains a [**convert-to-srgb**](mods/imagemagick/.local/bin/convert-to-srgb) script I created to help deal with color profile issues when working with certain images. For each input image, if it contains a non-sRGB color profile, extracts the profile with exiftool (as imagemagick sometimes fails to recognize embedded ICC profiles) and converts it to sRGB. Used by [ugoira-to-mp4](mods/ffmpeg/.local/bin/ugoira-to-mp4).
+Contains a [**convert-to-srgb**](mods/imagemagick/.local/bin/convert-to-srgb) script I created to help deal with color profile issues when working with certain images. For each input image, if it contains a non-sRGB color profile, extracts the profile with exiftool (as imagemagick sometimes fails to recognize embedded ICC profiles) and converts it to sRGB. Used by [ugoira-to-mp4](mods/ffmpeg/.local/bin/ugoira-to-mp4) and [upscale](mods/misc-utils/.local/bin/upscale).
 
 ## [nano](mods/nano/.config/nano/nanorc)
 
