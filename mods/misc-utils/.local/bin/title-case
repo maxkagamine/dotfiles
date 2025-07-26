@@ -1,8 +1,16 @@
-#!/bin/bash
-perl -pe '
+#!/usr/bin/perl
+#
+# Converts each argument or line in stdin from lowercase, Sentence case,
+# kebab-case, and snake_case to properly-capitalized Title Case.
+#
+use strict;
+use warnings;
+
+for (@ARGV ? @ARGV : map { chomp; $_ } <STDIN>) {
   s/[-_]/ /g;
   s/^.|(?<=[ ([])./\U$&/g;
   s/ (a|an|and|as|at|but|by|for|if|in|nor|of|off|on|or|per|so|the|to|up|via|yet)(?= )/\L$&/ig;
   s/Javascript/JavaScript/g;
   s/Youtube/YouTube/g;
-' <<<"${1:-$(cat)}"
+  print "$_\n";
+}
