@@ -1,0 +1,16 @@
+#!/bin/bash
+set -eo pipefail
+
+if (( $# < 2 )) || [[ $1 =~ ^(--help|-h)$ ]]; then
+  cat >&2 <<EOF
+Usage: mangadex <title> <url> [<gallery-dl args...>]
+
+Creates a directory named <title> and runs gallery-dl & mangadex-covers in it.
+EOF
+  exit 1
+fi
+
+mkdir -v "$1"
+cd "$1"
+gallery-dl "${@:3}" "$2"
+mangadex-covers "$2"
