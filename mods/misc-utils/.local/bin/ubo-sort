@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# Organizes uBlock Origin filter lists by blocked domains first, then global
+# Organizes uBlock Origin filter lists by (un)blocked domains first, then global
 # cosmetic filters, then grouped by domain name (without tld or subdomains).
 #
 # Usage: unclip | ubo-sort | clip
@@ -18,8 +18,8 @@ sub remove_tld {
 sub extract_key {
   my ($line) = @_;
 
-  # Blocked domains
-  if ($line !~ /[@|#\/^]/) {
+  # (Un)blocked domains
+  if ($line =~ /^\|{0,2}[^#\/^\$]+\^?(\$all)?$/) {
     return "\000";
   }
 
