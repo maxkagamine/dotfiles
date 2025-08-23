@@ -21,6 +21,7 @@ ee() {
 
 alias ffplay='&>/dev/null ffplay.exe -hide_banner -nodisp -autoexit'
 alias vs='open *.sln'
+alias edit='open -e'
 
 hide() { n "$@" | x wslpath -w | x attrib.exe +h; }
 unhide() { n "$@" | x wslpath -w | x attrib.exe -h; }
