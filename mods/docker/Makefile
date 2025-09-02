@@ -37,13 +37,15 @@ define TAMRIEL_DOCKER_DAEMON_CONFIG
 endef
 export TAMRIEL_DOCKER_DAEMON_CONFIG
 
-# Laptop's VPN has an MTU of 1420, but the docker0 interface defaults to 1500
-# which results in TLS handshakes hanging when connecting to certain sites via
-# HTTPS (such as GitHub). Figuring this out was a massive wild goose chase.
+# Laptop's VPN has an MTU of 1280 (reduced from the default 1420 due to issues
+# with public wifi causing ssh to hang at "expecting SSH2_MSG_KEX_ECDH_REPLY"),
+# but the docker0 interface defaults to 1500 which results in TLS handshakes
+# hanging when connecting to certain sites via HTTPS (such as GitHub). Figuring
+# this out was a massive wild goose chase.
 define OBLIVION_DOCKER_DAEMON_CONFIG
 {
 	"ip": "127.0.0.1",
-	"mtu": 1420,
+	"mtu": 1280,
 	"features": {
 		"containerd-snapshotter": true
 	}
