@@ -226,15 +226,16 @@ Additional tools:
 - [**mkv-extract-fonts**](mods/mkvtoolnix/.local/bin/mkv-extract-fonts) — Batch extracts all unique fonts (by filename) from the given MKVs.
 - [**mkv-rm-cover**](mods/mkvtoolnix/.local/bin/mkv-rm-cover) — Removes all image/jpeg and image/png attachments from the given MKVs.
 - [**mkv-clean**](mods/mkvtoolnix/.local/bin/mkv-clean) — Removes the title and video track name (both used occasionally just to advertise the encoding group), cover image (some groups plaster the series cover on every episode), and common Windows system fonts (which are often unnecessarily included with subs and do nothing but waste space) from the given MKVs.
-- [**ass-ls-fonts**](mods/mkvtoolnix/.local/bin/ass-ls-fonts) - Lists all unique fonts referenced in the subs via either `Style:` or `\fn`.
+- [**ass-ls-fonts**](mods/mkvtoolnix/.local/bin/ass-ls-fonts) — Lists all unique fonts referenced in the subs via either `Style:` or `\fn`.
+- [**ass-to-txt**](mods/mkvtoolnix/.local/bin/ass-to-txt) — Strips out everything but the dialogue to make diffing subtitles easier.
 
 ## ⚙&hairsp;[misc utils](mods/misc-utils/.local/bin)
 
 Miscellaneous utilities:
 
 - [**append-crc**](mods/misc-utils/.local/bin/append-crc) — Adds (or updates) a file's crc32 hash to its filename.
-- [**batch-rename**](mods/misc-utils/.local/bin/batch-rename) - Helper for quickly applying a perl substitution to filenames.
-- [**flatten**](mods/misc-utils/.local/bin/flatten) - Flattens the contents of a directory such that "foo/bar/file.jpg" is renamed to "foo - bar - file.jpg", with an optional prefix/suffix added to the filenames.
+- [**batch-rename**](mods/misc-utils/.local/bin/batch-rename) — Helper for quickly applying a perl substitution to filenames.
+- [**flatten**](mods/misc-utils/.local/bin/flatten) — Flattens the contents of a directory such that "foo/bar/file.jpg" is renamed to "foo - bar - file.jpg", with an optional prefix/suffix added to the filenames.
 - [**intersect-csvs**](mods/misc-utils/.local/bin/intersect-csvs) — Creates CSVs containing only rows that exist in two or more of the given CSVs. For example, given A.csv, B.csv, and C.csv, creates A+B.csv, A+C.csv, B+C.csv, and A+B+C.csv. I used this to create [a map](https://www.google.com/maps/d/viewer?mid=1kaE2O2LTjoS5Bf2YUCQ6OFJlXuert8U) of arcades in Tokyo that have my favorite games.
 - [**mkanimedir**](mods/misc-utils/.local/bin/mkanimedir) — Turns a MAL link and a bunch of episodes into a nice folder.
 - [**mkmoviedir**](mods/misc-utils/.local/bin/mkmoviedir) — Like mkanimedir but for an IMDb link.

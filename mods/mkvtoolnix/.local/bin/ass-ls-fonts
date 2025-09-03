@@ -1,5 +1,11 @@
 #!/bin/bash
 set -eo pipefail
+shopt -s nullglob
+
+throw() {
+  printf '%s: %s\n' "${0##*/}" "$1" >&2
+  return 1
+}
 
 if [[ $1 =~ ^(--help|-h)$ ]]; then
   cat >&2 <<'EOF'
@@ -15,6 +21,9 @@ fi
 subs=("$@")
 if (( $# == 0 )); then
   subs=(*.ass)
+fi
+if (( ${#subs[@]} == 0 )); then
+  throw 'no files to process'
 fi
 
 perl -ne '

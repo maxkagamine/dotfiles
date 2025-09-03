@@ -1,0 +1,77 @@
+#!/bin/bash
+set -eo pipefail
+shopt -s nullglob
+
+throw() {
+  printf '%s: %s\n' "${0##*/}" "$1" >&2
+  return 1
+}
+
+delete() {
+  if command -v recycle &>/dev/null; then
+    recycle --rm -fv "$@"
+  else
+    rm -fv "$@"
+  fi
+}
+
+if [[ $1 =~ ^(--help|-h)$ ]]; then
+  cat >&2 <<'EOF'
+Usage: ass-to-txt [-k] [<subs>]
+
+Strips out everything but the dialogue to make diffing subtitles easier. Inline
+formatting is left as is.
+
+<subs> defaults to `*.ass`.
+
+Options:
+
+  -k    Keep the .ass files. By default, the subs are removed or recycled and
+        replaced with .txt files.
+EOF
+  exit 1
+fi
+
+paths=()
+keep=
+while (( $# > 0 )); do
+  case $1 in
+    --)
+      shift
+      paths+=("$@")
+      break
+      ;;
+    -k)
+      shift
+      keep=1
+      ;;
+    -*)
+      throw "unknown option: $1"
+      ;;
+    *)
+      paths+=("$1")
+      ;;
+  esac
+  shift
+done
+if (( ${#paths[@]} == 0 )); then
+  paths=(*.ass)
+fi
+if (( ${#paths[@]} == 0 )); then
+  throw 'no files to process'
+fi
+
+for f in "${paths[@]}"; do
+  output="${f%.*}.txt"
+  printf 'Converting \e[32m%s\e[m\n' "$f"
+
+  if ! grep -P '^Dialogue:' "$f" | cut -d, -f10- > "$output"; then
+    printf '\e[31mInvalid file: %s\e[m\n' "$f" >&2
+    rm "$output"
+    exit 1
+  fi
+done
+
+if [[ ! $keep ]]; then
+  delete "${paths[@]}"
+fi
