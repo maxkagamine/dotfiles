@@ -60,6 +60,9 @@ while (( $# > 0 )); do
   esac
   shift
 done
+if [[ ! $mal_id ]]; then
+  throw 'no mal url given'
+fi
 
 # Get mal info
 if ! json=$(curl -sSL "https://api.jikan.moe/v4/anime/$mal_id"); then
