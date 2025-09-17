@@ -68,15 +68,16 @@ I've also found it helpful to [define a command_not_found_handle](mods/bash/.bas
 
 In the past, I was using [wsl2-ssh-pageant](https://github.com/BlackReloaded/wsl2-ssh-pageant) which uses `socat` to replace the gpg-agent socket with one that runs an exe that bridges Gpg4win. The bridge itself worked well (with a [small fix](https://github.com/maxkagamine/dotfiles/commit/fddf1ee8def1667b04f465f5a52e7a6f4c73bc30)), but despite [my best efforts](https://github.com/maxkagamine/dotfiles/commit/2f61b2820019fc591b33a2d6a47dcb6622cf1eee) I could never get the socket shenanigans to work reliably.
 
-In the end that was too much of a hassle, so I switched to using [usbipd-win](https://github.com/dorssel/usbipd-win) which connects the Yubikey directly to Linux. So far, this has proved much simpler. The downside is that connecting a device to WSL means disconnecting it from Windows; if you need the Yubikey to log into a website, you'll have to temporarily detach it from WSL.
+In the end that was too much of a hassle, so I switched to using [usbipd-win](https://github.com/dorssel/usbipd-win) which connects the Yubikey directly to Linux. This has proved to be much simpler. The downside is that connecting a device to WSL means disconnecting it from Windows; if you need the Yubikey to log into a website, you'll have to temporarily detach it from WSL. (I defined [aliases](mods/wsl/.config/bashrc.d/wsl.sh) to make this easy.)
 
-1. Install [WSL USB Manager](https://gitlab.com/alelec/wsl-usb-gui).
-   - This will install usbipd-win & WSL dependencies automatically. (If on first run you get an error about the `usbipd wsl` command being removed, exit WSL USB Manager from the system tray and restart it to make it realize you have the new version.)
-   - Move the shortcut from `%appdata%\Microsoft\Windows\Start Menu\Programs` into Startup so it runs at login.
-2. Right click on the Yubikey in the device list (should say "Smartcard Reader") and Attach to WSL. The Yubikey should show up now if you run `lsusb` in WSL. (Arch users: `sudo pacman -S usbutils`)
-3. Right click again and choose "Auto-Attach Device", then "Device".
-4. Ubuntu users: `sudo apt install scdaemon` (Arch users can skip this, as it's included in the gnupg package.)
-5. If you run `gpg --card-status` now in WSL, it'll give you an error that says "gpg: selecting card failed: No such device" unless you run gpg as root. This has to do with the permissions of the usb device in /dev. There are two ways to fix this:
+1. Open a terminal as admin
+2. `winget.exe install --exact dorssel.usbipd-win`
+3. Once installed, run `usbipd.exe list` and note the Yubikey's VID:PID (should say "Smartcard Reader")
+4. Bind the device using `usbipd.exe bind --hardware-id <VID:PID>`. You only have to do this once per device.
+5. Attach it to WSL using `usbipd.exe attach -wi <VID:PID>`. The Yubikey should show up now if you run `lsusb` in WSL. (Arch users: `sudo pacman -S usbutils`)
+   - _Note: If in the future you ever get an error saying your kernel doesn't support USBIP and to run `wsl --update`, but you already ran `wsl --update`, try running the winget command to update usbipd-win instead. I've only had this happen once and it was due to a major version upgrade._
+7. Ubuntu users: `sudo apt install scdaemon` (Arch users can skip this, as it's included in the gnupg package.)
+8. If you run `gpg --card-status` now in WSL, it'll give you an error that says "gpg: selecting card failed: No such device" unless you run gpg as root. This has to do with the permissions of the usb device in /dev. There are two ways to fix this:
    - What was working for me until I tried upgrading to Ubuntu 24.04 ("noble") was to install `pcscd` in addition to `scdaemon`. This is a separate daemon that handles communication with smartcards. Ubuntu 24.04 however introduced some kind of security policy change that broke it. Incidentally, this was the final straw that got me to finally switch to Arch, so unfortunately I don't have a solution. It might work for you, but I suggest trying the below first; you may not need pcscd at all:
    - Add a udev rule to fix the device permissions:
      1. Check the Yubikey's vendor &amp; product numbers in `lsusb` (the part after "ID").
@@ -88,12 +89,12 @@ In the end that was too much of a hassle, so I switched to using [usbipd-win](ht
         _Note: I found different versions of this online, but setting all three of those was what finally worked for me. If you want to dig into the udev syntax, see [Writing udev rules](https://reactivated.net/writing_udev_rules.html) and [udev(7)](https://man7.org/linux/man-pages/man7/udev.7.html)._
      4. Unplug the Yubikey and plug it back in, or detach & re-attach from WSL USB Manager.
      5. `gpg --card-status` should work without root now. Run the `ls` again to confirm the new permissions (check `lsusb` again, as the device ID may have changed).
-6. Set `SSH_AUTH_SOCK` and `GPG_TTY` in your .bashrc [as shown here](mods/gpg/.config/bashrc.d/gpg.sh).
-7. Add `enable-ssh-support` to [~/.gnupg/gpg-agent.conf](mods/gpg/.gnupg/gpg-agent.conf)
-8. Add `Match host * exec "gpg-connect-agent updatestartuptty /bye"` to [~/.ssh/config](mods/gpg/.ssh/config)
-   - Explanation for why `updatestartuptty` is necessary [here](https://stackoverflow.com/a/72427213); running it via ssh config comes from [this answer](https://unix.stackexchange.com/a/587691). Supposedly `GPG_TTY` is enough, but for whatever reason on my machine that only worked for gpg signing and not the ssh agent ¯\\\_(ツ)\_/¯
-   - Note: Without a GUI pinentry program, some Git features in VSCode (like auto-fetch) won't work until you've unlocked the card in a terminal (e.g. by running `git fetch` yourself).
-9. Assuming you've added your GPG key as an SSH key in GitHub (`gpg --export-ssh-key <key id>`), `ssh git@github.com` should work now!
+9. Set `SSH_AUTH_SOCK` and `GPG_TTY` in your .bashrc [as shown here](mods/gpg/.config/bashrc.d/gpg.sh).
+10. Add `enable-ssh-support` to [~/.gnupg/gpg-agent.conf](mods/gpg/.gnupg/gpg-agent.conf)
+11. Add `Match host * exec "gpg-connect-agent updatestartuptty /bye"` to [~/.ssh/config](mods/gpg/.ssh/config)
+    - Explanation for why `updatestartuptty` is necessary [here](https://stackoverflow.com/a/72427213); running it via ssh config comes from [this answer](https://unix.stackexchange.com/a/587691). Supposedly `GPG_TTY` is enough, but for whatever reason on my machine that only worked for gpg signing and not the ssh agent ¯\\\_(ツ)\_/¯
+    - Note: Without a GUI pinentry program, some Git features in VSCode (like auto-fetch) won't work until you've unlocked the card in a terminal (e.g. by running `git fetch` yourself).
+11. Assuming you've added your GPG key as an SSH key in GitHub (`gpg --export-ssh-key <key id>`), `ssh git@github.com` should work now!
 
 </details>
 
