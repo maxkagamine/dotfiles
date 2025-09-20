@@ -72,7 +72,7 @@ In the end that was too much of a hassle, so I switched to using [usbipd-win](ht
 
 1. Open a terminal as admin
 2. `winget.exe install --exact dorssel.usbipd-win`
-3. Once installed, restart the terminal (as admin again) and run `usbipd.exe list` and note the Yubikey's VID:PID (should say "Smartcard Reader")
+3. Once installed, restart the terminal (as admin again), then run `usbipd.exe list` and note the Yubikey's VID:PID (should say "Smartcard Reader")
 4. Bind the device using `usbipd.exe bind --hardware-id <VID:PID>`. You only have to do this once per device.
 5. Attach it to WSL using `usbipd.exe attach -wi <VID:PID>`. The Yubikey should show up now if you run `lsusb` in WSL. (Arch users: `sudo pacman -S usbutils`)
    - _Note: If in the future you ever get an error saying your kernel doesn't support USBIP and to run `wsl --update`, but you already ran `wsl --update`, try running the winget command to update usbipd-win instead. I've only had this happen once and it was due to a major version upgrade._
@@ -98,7 +98,8 @@ In the end that was too much of a hassle, so I switched to using [usbipd-win](ht
 11. Add `Match host * exec "gpg-connect-agent updatestartuptty /bye"` to [~/.ssh/config](mods/gpg/.ssh/config)
     - Explanation for why `updatestartuptty` is necessary [here](https://stackoverflow.com/a/72427213); running it via ssh config comes from [this answer](https://unix.stackexchange.com/a/587691). Supposedly `GPG_TTY` is enough, but for whatever reason on my machine that only worked for gpg signing and not the ssh agent ¯\\\_(ツ)\_/¯
     - Note: Without a GUI pinentry program, some Git features in VSCode (like auto-fetch) won't work until you've unlocked the card in a terminal (e.g. by running `git fetch` yourself).
-11. Assuming you've added your GPG key as an SSH key in GitHub (`gpg --export-ssh-key <key id>`), `ssh git@github.com` should work now!
+      - I ended up pulling out the Windows build of pinentry-qt5 from Gpg4win so that it can be used standalone from WSL with the Linux version of gpg; see [commit 0a5abfc](https://github.com/maxkagamine/dotfiles/commit/0a5abfc234302e36f1e683bed7ed60716cc74681).
+12. Assuming you've added your GPG key as an SSH key in GitHub (`gpg --export-ssh-key <key id>`), `ssh git@github.com` should work now!
 
 </details>
 
