@@ -111,7 +111,7 @@ In the end that was too much of a hassle, so I switched to using [usbipd-win](ht
 
 1. [Download the ArchWSL zip](https://github.com/yuk7/ArchWSL/releases/latest), extract to %localappdata%\Arch (or wherever), and run the exe
 2. Set the root password, create your own user, add it to the wheel group, and set its password:
-   ```
+   ```console
    # passwd
    # useradd -m -G wheel -s /bin/bash max
    # passwd max
@@ -121,38 +121,37 @@ In the end that was too much of a hassle, so I switched to using [usbipd-win](ht
    - The reason we're not adding a sudoers.d file here like the ArchWSL setup guide suggests is we want to be able to override this with our own sudoers file, but they're evaluated in lexicographical order and we don't want a file starting with "w" overriding us. Sudoers files should also always be edited using visudo.
 4. Exit out of WSL and `Arch.exe config --default-user max`.
 5. Initialize the pacman keyring (this is the last step from the setup guide; everything after this is custom):
-   ```
+   ```console
    $ sudo pacman-key --init
    $ sudo pacman-key --populate
    $ sudo pacman -Sy archlinux-keyring
    $ sudo pacman -Su
    ```
-6. Consider changing the default pacman mirror: https://archlinux.org/mirrorlist/
+6. Consider changing the default pacman mirror: https://archlinux.org/mirrorlist/ or [rate-mirrors](https://github.com/westandskif/rate-mirrors)
    - This seemed to help with the timeout issue (and overall download speed), but it might be a good idea to set XferCommand to enable retries [as shown here](https://bbs.archlinux.org/viewtopic.php?id=84619) once the [segfault bug](https://bbs.archlinux.org/viewtopic.php?id=293911) in pacman 6.1 is fixed.
-   - Take note: not all of the mirrors listed here are trustworthy. Stick to the universities.
-7. Fix the Yubikey's device permissions so GPG can access it without root (explained above):
-   ```
+7. Fix the Yubikey's device permissions so GPG can access it without root (explained [above](#using-yubikey-for-gpg--ssh-in-wsl)):
+   ```console
    $ sudo pacman -S usbutils # Installs lsusb
-   $ lsusb # Confirm yubikey's vendor & product numbers
-   $ sudo nano /lib/udev/rules.d/yubikey.rules
-   SUBSYSTEM=="usb", ATTR{idVendor}=="1050", ATTR{idProduct}=="0406", MODE="666", OWNER="max", GROUP="max"
+   $ lsusb # Confirm yubikey attached to WSL (follow the initial steps in the Yubikey setup guide to install usbipd if on a new device)
+   $ sudo nano /usr/lib/udev/rules.d/yubikey.rules
+   SUBSYSTEM=="usb", ATTR{idVendor}=="*", ATTR{idProduct}=="*", MODE="666"
    $ gpg --card-status # Should work now without root after detaching & re-attaching the Yubikey
    ```
 8. Import public keys:
-   ```
+   ```console
    $ curl https://github.com/maxkagamine.gpg | gpg --import -
    $ curl https://github.com/web-flow.gpg | gpg --import -
    ```
    One-liner to set the trust for all keys to "ultimate":
-   ```
+   ```console
    $ gpg --list-keys --fingerprint --keyid-format long | sed -En '/fingerprint/{s/.*=|\s+//g;s/$/:6:/;p}' | gpg --import-ownertrust
    ```
 9. Install the bare minimum needed packages:
-   ```
+   ```console
    $ sudo pacman -S base-devel git
    ```
 10. Clone using HTTP first, since we need the dotfiles to set up GPG as the SSH agent:
-    ```
+    ```console
     $ mkdir Projects && cd Projects
     $ git clone https://github.com/maxkagamine/dotfiles.git
     $ cd dotfiles
@@ -160,8 +159,8 @@ In the end that was too much of a hassle, so I switched to using [usbipd-win](ht
     $ make
     ```
 11. Check that SSH works now, and then switch the repo to SSH:
-    ```
-    $ . ~/.bashrc  # No .r alias yet
+    ```console
+    $ . ~/.bashrc # No .r alias yet
     $ gpg-connect-agent reloadagent /bye
     $ ssh git@github.com
     $ git remote set-url origin git@github.com:maxkagamine/dotfiles.git
