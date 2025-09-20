@@ -72,23 +72,27 @@ In the end that was too much of a hassle, so I switched to using [usbipd-win](ht
 
 1. Open a terminal as admin
 2. `winget.exe install --exact dorssel.usbipd-win`
-3. Once installed, run `usbipd.exe list` and note the Yubikey's VID:PID (should say "Smartcard Reader")
+3. Once installed, restart the terminal (as admin again) and run `usbipd.exe list` and note the Yubikey's VID:PID (should say "Smartcard Reader")
 4. Bind the device using `usbipd.exe bind --hardware-id <VID:PID>`. You only have to do this once per device.
 5. Attach it to WSL using `usbipd.exe attach -wi <VID:PID>`. The Yubikey should show up now if you run `lsusb` in WSL. (Arch users: `sudo pacman -S usbutils`)
    - _Note: If in the future you ever get an error saying your kernel doesn't support USBIP and to run `wsl --update`, but you already ran `wsl --update`, try running the winget command to update usbipd-win instead. I've only had this happen once and it was due to a major version upgrade._
 7. Ubuntu users: `sudo apt install scdaemon` (Arch users can skip this, as it's included in the gnupg package.)
 8. If you run `gpg --card-status` now in WSL, it'll give you an error that says "gpg: selecting card failed: No such device" unless you run gpg as root. This has to do with the permissions of the usb device in /dev. There are two ways to fix this:
    - What was working for me until I tried upgrading to Ubuntu 24.04 ("noble") was to install `pcscd` in addition to `scdaemon`. This is a separate daemon that handles communication with smartcards. Ubuntu 24.04 however introduced some kind of security policy change that broke it. Incidentally, this was the final straw that got me to finally switch to Arch, so unfortunately I don't have a solution. It might work for you, but I suggest trying the below first; you may not need pcscd at all:
-   - Add a udev rule to fix the device permissions:
-     1. Check the Yubikey's vendor &amp; product numbers in `lsusb` (the part after "ID").
-     2. You can see the current permissions using `ls -l /dev/bus/usb/<bus id>/<device id>`.
-     3. `sudo nano /lib/udev/rules.d/yubikey.rules` and add the following, substituting in your Yubikey's vendor &amp; product numbers and your username:
+   - _**Preferred way:**_ Add a udev rule to fix the device permissions:
+     1. `sudo nano /usr/lib/udev/rules.d/yubikey.rules` and add the following:
         ```
-        SUBSYSTEM=="usb", ATTR{idVendor}=="1050", ATTR{idProduct}=="0406", MODE="666", OWNER="max", GROUP="max"
+        SUBSYSTEM=="usb", ATTR{idVendor}=="*", ATTR{idProduct}=="*", MODE="666"
         ```
-        _Note: I found different versions of this online, but setting all three of those was what finally worked for me. If you want to dig into the udev syntax, see [Writing udev rules](https://reactivated.net/writing_udev_rules.html) and [udev(7)](https://man7.org/linux/man-pages/man7/udev.7.html)._
-     4. Unplug the Yubikey and plug it back in, or detach & re-attach from WSL USB Manager.
-     5. `gpg --card-status` should work without root now. Run the `ls` again to confirm the new permissions (check `lsusb` again, as the device ID may have changed).
+        Some notes:
+        - This will simply make all USB devices accessible to all users, which for WSL purposes is fine.
+        - The _correct way_, it seems, is to [apply the `uaccess` tag as shown here](https://wiki.archlinux.org/title/Udev#Allowing_regular_users_to_use_devices) and let systemd handle permissions instead.
+        - Originally I was assigning my own user and group to the device with `SUBSYSTEM=="usb", ATTR{idVendor}=="1050", ATTR{idProduct}=="0406", MODE="666", OWNER="max", GROUP="max"`, but this stopped working after a system update. Running `udevadm test $(udevadm info --query=path --name=/dev/usb/hiddev0)` revealed an error "User 'max' is not a system user, ignoring."
+          - Removing the `OWNER` and using `GROUP="wheel"` _did_ work (as `wheel` is a "system group," of which my user is a member), so that's another option if you want it to be a bit more restricted but the `uaccess` approach doesn't work for you (set `MODE="660"` in that case).
+        - If you want to dig into the udev syntax, see [Writing udev rules](https://reactivated.net/writing_udev_rules.html) and [udev(7)](https://man7.org/linux/man-pages/man7/udev.7.html).
+        - You can see the device's permissions with `ls -l /dev/bus/usb/$(lsusb | perl -ne '/Bus (\d+) Device (\d+).*Yubikey/ && printf "$1/$2"')`.
+     3. Detach the Yubikey from WSL and re-attach it.
+     4. `gpg --card-status` should work without root now.
 9. Set `SSH_AUTH_SOCK` and `GPG_TTY` in your .bashrc [as shown here](mods/gpg/.config/bashrc.d/gpg.sh).
 10. Add `enable-ssh-support` to [~/.gnupg/gpg-agent.conf](mods/gpg/.gnupg/gpg-agent.conf)
 11. Add `Match host * exec "gpg-connect-agent updatestartuptty /bye"` to [~/.ssh/config](mods/gpg/.ssh/config)
