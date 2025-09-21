@@ -8,13 +8,18 @@ alias dcu='dc up --wait'
 alias dcd='dc down'
 alias dcr='dcu --build --force-recreate --remove-orphans'
 
-ds() { # "docker status"
-  docker ps -a; echo
-  if command -v unbuffer &>/dev/null; then
-    unbuffer docker image ls --tree | grep -Pv '^$|WARNING:'
-  else
-    docker image ls --tree
-  fi
+ds() { # docker status
+  (
+    set -eo pipefail
+    {
+      docker ps -a; echo
+      if command -v unbuffer &>/dev/null; then
+        unbuffer docker image ls --tree | grep -Pv '^$|WARNING:'
+      else
+        docker image ls --tree
+      fi
+    } | less
+  )
 }
 
 # https://github.com/maxkagamine/sqlarserver
