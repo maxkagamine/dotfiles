@@ -87,7 +87,7 @@ mkcd() {
 }
 
 tclip() {
-  tee >(clip)
+  tee >(clip "$@")
 }
 
 clips() {
@@ -157,6 +157,16 @@ colors() { # Prints a grid of ansi color & text style escapes
     done
     echo
   done
+}
+
+guid() { # Prints & copies (or writes plain to stdout if pipe) a new UUID
+  local uuid; uuid=$(uuidgen "$@") || return $?
+  if [[ -t 1 && $uuid != *Usage* ]]; then
+    xsel -bi --trim <<<"$uuid"
+    printf '%s \e[1;3;30m(copied)\e[m\n' "$uuid"
+  else
+    echo "$uuid"
+  fi
 }
 
 # For dry runs / printing arrays
