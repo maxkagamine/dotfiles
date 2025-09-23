@@ -148,12 +148,12 @@ parallel() {
 }
 
 colors() { # Prints a grid of ansi color & text style escapes
-  local s c x
+  local s c x l
   for s in '' {1..5} 7 9 {40..47}; do
-    [[ $s ]] && s+=';'
-    for c in {30..37}; do
-      x=2; (( ${#s} == 3 )) && x=1
-      printf '\e[%s%sm%-8s\e[m%'$x's' "$s" "$c" "$(printf '\\e[%s%sm' "$s" "$c")" ''
+    for c in '' {30..37}; do
+      [[ $c ]] && l=5 || l=2
+      [[ $s && $c ]] && x="$s;$c" || x="$s$c"
+      printf '\e[%sm\\e[%sm\e[m%'$(( l - ${#x} + 1 ))'s' "$x" "$x" ''
     done
     echo
   done
