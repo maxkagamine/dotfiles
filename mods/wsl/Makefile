@@ -31,6 +31,7 @@ ifdef APT # Make sure Ubuntu's open & browser commands point to the open command
 	sudo update-alternatives --install /usr/bin/open open '/mnt/c/Program Files/wsl-tools/open' 999
 endif
 	sudo ln -sfT /mnt/c/Windows/Fonts /usr/local/share/fonts
+	$(PACMAN) dos2unix
 
 wsl-bin:
 	$(PRINT)
