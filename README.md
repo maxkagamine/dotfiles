@@ -100,6 +100,8 @@ In the end that was too much of a hassle, so I switched to using [usbipd-win](ht
     - Note: Without a GUI pinentry program, some Git features in VSCode (like auto-fetch) won't work until you've unlocked the card in a terminal (e.g. by running `git fetch` yourself).
       - I ended up pulling out the Windows build of pinentry-qt5 from Gpg4win so that it can be used standalone from WSL with the Linux version of gpg; see [commit 0a5abfc](https://github.com/maxkagamine/dotfiles/commit/0a5abfc234302e36f1e683bed7ed60716cc74681).
 12. Assuming you've added your GPG key as an SSH key in GitHub (`gpg --export-ssh-key <key id>`), `ssh git@github.com` should work now!
+    - If when trying to export the SSH public key for a newly-generated key you get an error saying it's invalid, make sure you've added an authentication subkey.
+    - If you get an "error in libcrypto," you may need to run [the command shown here](https://security.stackexchange.com/questions/276688/now-that-sshcontrol-has-been-deprecated-how-to-use-gpg-key-for-ssh-authentica#:~:text=Get%20the%20keygrip,ssh%3A%20true%27%20/bye) to tell gpg to use the key for SSH.
 
 </details>
 
@@ -127,15 +129,13 @@ In the end that was too much of a hassle, so I switched to using [usbipd-win](ht
    $ sudo pacman -Sy archlinux-keyring
    $ sudo pacman -Su
    ```
-6. Consider changing the default pacman mirror: https://archlinux.org/mirrorlist/
-   - This seemed to help with the timeout issue (and overall download speed), but it might be a good idea to set XferCommand to enable retries [as shown here](https://bbs.archlinux.org/viewtopic.php?id=84619) once the [segfault bug](https://bbs.archlinux.org/viewtopic.php?id=293911) in pacman 6.1 is fixed.
-   - Take note: not all of the mirrors listed here are trustworthy. Stick to the universities.
-7. Fix the Yubikey's device permissions so GPG can access it without root (explained above):
+6. Consider changing the default pacman mirror: https://archlinux.org/mirrorlist/ or [rate-mirrors](https://github.com/westandskif/rate-mirrors) (this helped with the timeout issue & slow download speed I was experiencing).
+7. Fix the Yubikey's device permissions so GPG can access it without root ([explained above](#using-yubikey-for-gpg--ssh-in-wsl)):
    ```
    $ sudo pacman -S usbutils # Installs lsusb
    $ lsusb # Confirm yubikey's vendor & product numbers
    $ sudo nano /lib/udev/rules.d/yubikey.rules
-   SUBSYSTEM=="usb", ATTR{idVendor}=="1050", ATTR{idProduct}=="0406", MODE="666", OWNER="max", GROUP="max"
+   SUBSYSTEM=="usb", ATTR{idVendor}=="*", ATTR{idProduct}=="*", MODE="666"
    $ gpg --card-status # Should work now without root after detaching & re-attaching the Yubikey
    ```
 8. Import public keys:
