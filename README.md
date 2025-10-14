@@ -108,8 +108,11 @@ In the end that was too much of a hassle, so I switched to using [usbipd-win](ht
 <details open>
 <summary><h3>Setting up Arch in WSL</h3></summary>
 
+**Update:** Arch is [now officially supported](https://antiz.fr/blog/archlinux-official-wsl-image/), so some or all of the first 5 steps (depending on how they set it up) may be different/unnecessary. Notes:
 
-**Update: Arch is [now officially supported](https://antiz.fr/blog/archlinux-official-wsl-image/), so some or all of the first 5 steps (depending on how they set it up) may be different/unnecessary.**
+- The official Arch install disables color & progress bars in pacman. Uncomment "Color" and comment "NoProgressBar" in /etc/pacman.conf.
+
+---
 
 1. [Download the ArchWSL zip](https://github.com/yuk7/ArchWSL/releases/latest), extract to %localappdata%\Arch (or wherever), and run the exe
 2. Set the root password, create your own user, add it to the wheel group, and set its password:
