@@ -163,6 +163,33 @@ guid() { # Prints & copies (or writes plain to stdout if pipe) a new UUID
   fi
 }
 
+rate() {
+  # Usage: rate <num> [<suffix>]
+  #
+  # Rate-limits a pipe. <num> and <suffix> may be two args or one, with or
+  # without a space. <suffix> is seconds (default), minutes, or hours, or some
+  # abbreviation thereof, plural or singular. Decimals aren't supported.
+  #
+  # Example:
+  #   tail -f urls.txt | rate 5s | x wget  # DL's urls no faster than every 5s
+  local interval sleep_until=0 sleep_duration line
+  if ! interval=$(perl -pe '
+      s/^(\d+)\s*(s(ec(ond)?s?)?)?$/$1 sec/ ||
+      s/^(\d+)\s*m(in(ute)?s?)?$/$1 min/ ||
+      s/^(\d+)\s*h((ou)?rs?)?$/$1 hour/ || exit 1' <<<"$*"); then
+    printf "rate: invalid interval '%s'\n" "$*" >&2
+    return 1
+  fi
+  while read -r line; do
+    sleep_duration=$(( sleep_until - $(date +%s) ))
+    if (( sleep_duration > 0 )); then
+      sleep "$sleep_duration"
+    fi
+    sleep_until=$(date -d "+$interval" +%s)
+    echo "$line"
+  done
+}
+
 # Linq
 append() { cat; echo "$@"; }
 average() { datamash mean "${1:-1}" "${@:2}"; }
