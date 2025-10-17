@@ -133,12 +133,6 @@ wherethehellami() {
   curl -Ss ipinfo.io/"$1" | jq -r '[.city,.region,.country]|join(", ")'
 }
 
-distinct() {
-  # uniq but without needing to be sorted first
-  # https://stackoverflow.com/a/11532197
-  awk '!x[$0]++'
-}
-
 parallel() {
   # Helper function for running N tasks in parallel (defaults to number of
   # cores). Example: for f in *; do somejob & parallel; done; wait
@@ -168,6 +162,24 @@ guid() { # Prints & copies (or writes plain to stdout if pipe) a new UUID
     echo "$uuid"
   fi
 }
+
+# Linq
+append() { cat; echo "$@"; }
+average() { datamash mean "${1:-1}" "${@:2}"; }
+distinct() { awk '!x[$0]++'; } # uniq but without needing to be sorted first (https://stackoverflow.com/a/11532197)
+first() { take 1 | grep --color=never .; }
+firstordefault() { take 1; }
+last() { takelast 1 | grep --color=never .; }
+lastordefault() { takelast 1; }
+max() { datamash max "${1:-1}" "${@:2}"; }
+min() { datamash min "${1:-1}" "${@:2}"; }
+prepend() { echo "$@"; cat; }
+range() { seq "$1" "$(( $1 + $2 - 1 ))"; }
+skip() { tail -n "+$(( $1 + 1 ))" "${@:2}"; }
+skiplast() { head -n "-$1" "${@:2}"; }
+sum() { datamash sum "${1:-1}" "${@:2}"; }
+take() { head -n "$@"; }
+takelast() { tail -n "$@"; }
 
 # For dry runs / printing arrays
 q() { printf '%q ' "$@"; printf '\n'; }
