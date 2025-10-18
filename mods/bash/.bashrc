@@ -22,7 +22,8 @@ if [[ ! $bash_preexec_imported ]]; then
 fi
 
 # Shell config
-shopt -s histappend globstar
+set -o pipefail
+shopt -s histappend globstar failglob
 bind 'set completion-ignore-case on'
 #bind 'set colored-stats on'
 bind '"\e[3;5~": kill-word' # Ctrl+Del

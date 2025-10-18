@@ -60,10 +60,9 @@ fus() {
 }
 
 fzf-commit() {
-  ( set -o pipefail
-    git log --pretty='%H %C(auto)%h%(decorate) %s' --no-show-signature --color=always |
-      fzf --ansi --with-nth=2.. --no-sort --layout=reverse-list --no-hscroll |
-      awk '{ print $1 }' )
+  git log --pretty='%H %C(auto)%h%(decorate) %s' --no-show-signature --color=always |
+    fzf --ansi --with-nth=2.. --no-sort --layout=reverse-list --no-hscroll |
+    awk '{ print $1 }'
 }
 
 fixup() { # [<commit>]

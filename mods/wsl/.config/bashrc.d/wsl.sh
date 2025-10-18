@@ -29,7 +29,7 @@ hxd() { (n "$@" | x wslpath -w | xx /mnt/c/Program\ Files/HxD/HxD.exe &); }
 
 __usbipd_yubikey() {
   local id
-  if id=$(set -eo pipefail; usbipd list | awk '/Smartcard Reader/{print $2}' | grep .); then
+  if id=$(usbipd list | awk '/Smartcard Reader/{print $2}' | grep .); then
     usbipd.exe "$@" -i "$id"
   else
     echo 'Yubikey not plugged in.' >&2
