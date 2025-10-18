@@ -1,0 +1,36 @@
+#!/bin/bash
+set -eo pipefail
+
+if [[ $# == 0 || $1 =~ ^(--help|-h)$ ]]; then
+  cat >&2 <<EOF
+Usage: rate <num> [<suffix>]
+
+Rate-limits a pipe. <num> and <suffix> may be two args or one, with or without
+a space. <suffix> is seconds (default), minutes, or hours, or some abbreviation
+thereof, plural or singular. Decimals aren't supported.
+
+Example:
+  tail -f urls.txt | rate 5s | x wget  # DL's urls no faster than every 5 sec
+EOF
+  exit 1
+fi
+
+
+if ! interval=$(perl -pe '
+    s/^(\d+)\s*(s(ec(ond)?s?)?)?$/$1 sec/ ||
+    s/^(\d+)\s*m(in(ute)?s?)?$/$1 min/ ||
+    s/^(\d+)\s*h((ou)?rs?)?$/$1 hour/ || exit 1' <<<"$*"); then
+  printf "rate: invalid interval '%s'\n" "$*" >&2
+  exit 1
+fi
+
+sleep_until=0
+
+while read -r line; do
+  sleep_duration=$(( sleep_until - $(date +%s) ))
+  if (( sleep_duration > 0 )); then
+    sleep "$sleep_duration"
+  fi
+  sleep_until=$(date -d "+$interval" +%s)
+  echo "$line"
+done
