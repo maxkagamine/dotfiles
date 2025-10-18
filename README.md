@@ -34,6 +34,8 @@ Applies the convention of loading configuration files from a directory to bashrc
 
 > (Psst: if you want to change your ls colors, [my file](mods/bash/.config/dircolors) might be an easier starting-off point than `--print-database`. I spent the time formatting it so you don't have to.)
 
+There's also a suite of [Linq functions](https://github.com/maxkagamine/dotfiles/blob/master/mods/bash/.bashrc#:~:text=Linq) tucked away here which .NET devs will find familiar.
+
 ## <img src=".github/images/icons/git.svg" align="top" height="30" /> [git](mods/git)
 
 [Git aliases](mods/git/.config/bashrc.d/git.sh) and [aliases](mods/git/.config/git/config) (including my favorite: the alias alias, `git alias`) + the "gg" function I use so much [I wrote an article about it][gg-faster-git-commits], and of course what would be a _Max Kagamine_ system without a myriad of [Skyrim references][fus-ro-dah] (brace yourself).
