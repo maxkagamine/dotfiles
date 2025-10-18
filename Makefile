@@ -8,6 +8,9 @@ ifneq "$(shell command -v pacman 2>/dev/null)" ""
 PACMAN:=sudo pacman -S --noconfirm --needed
 endif
 
+BASHRC_FILES:=mods/bash/.bashrc $(wildcard mods/*/.config/bashrc.d/*)
+SHELL_SCRIPTS:=$(shell find mods -type f -exec awk '/^#!.*sh/{print FILENAME}{nextfile}' {} +)
+
 # Mod lists. Running `make` will install the mod list corresponding to the
 # machine's hostname, thanks to the "default goal" above.
 tamriel: \
@@ -111,8 +114,9 @@ endif
 
 # Shellcheck (see .vscode/tasks.json)
 test:
-	@find mods -type f -exec awk '/^#.*sh/{printf "%s\0",FILENAME}{nextfile}' {} + | \
-	 xargs -r0 shellcheck -xf gcc
+	@{ echo '#!/bin/bash'; printf '. %s\n' $(BASHRC_FILES); } | \
+	 shellcheck -axf gcc - $(SHELL_SCRIPTS) | \
+	 grep -v '^/'
 
 watch:
 ifeq "$(shell command -v inotifywait 2>/dev/null)" ""
