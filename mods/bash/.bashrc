@@ -75,8 +75,8 @@ alias ll='ls -Al'
 alias ls='ls -hv --color=auto --group-directories-first'
 alias tsv="column -ts $'\t' -W0"
 alias unclip='xsel -bo'
-alias x="xargs -d '\n' -L 1 "
-alias xx="xargs -d '\n' "
+alias x="xargs -r -d '\n' -L 1 "
+alias xx="xargs -r -d '\n' "
 
 # Causes aliases to be resolved when running sudo or xargs (trailing space on x & xx above as well)
 alias sudo='sudo '
