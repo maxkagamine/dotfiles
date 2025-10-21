@@ -1,4 +1,5 @@
 {
+  "$docs": "https://gdl-org.github.io/docs/configuration.html",
   "extractor": {
     "mangadex": {
       "lang": "en",
@@ -33,6 +34,9 @@
     },
     "mastodon": {
       "filename": "{date:%Y-%m-%d}{content!H:? //R# /#/} [@{account[username]}] [{instance} {id}_p{num}].{extension}"
+    },
+    "seiga": {
+      "filename": "{title} [{user[name]}] [seiga im{image_id}].{extension}"
     },
     "base-directory": ".",
     "directory": [],
