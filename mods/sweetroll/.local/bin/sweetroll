@@ -22,6 +22,8 @@ play <sound>
   Plays the specified mp3 from ${DATA_DIR/$HOME/\~}.
   Available sounds: $available_sounds
 
+  Set SWEETROLL_STOLEN=1 to silence.
+
 skill <name>
   Increases the specified skill XP and plays the level up sound every $XP_PER_LEVEL XP.
 EOF
@@ -34,6 +36,9 @@ throw() {
 }
 
 sweetroll_play() { # <sound>
+  if [[ $SWEETROLL_STOLEN ]]; then
+    return
+  fi
   local path="$DATA_DIR/$1.mp3"
   if [[ ! -f $path ]]; then
     throw "sound does not exist: $path"
