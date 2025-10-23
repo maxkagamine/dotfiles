@@ -79,9 +79,9 @@ opts=(
 )
 
 for font in "${SYSTEM_FONTS[@]}"; do
-  lowercase=$(tr A-Z a-z <<<"$font")
-  uppercase=$(tr a-z A-Z <<<"$font")
-  titlecase="$(tr a-z A-Z <<<"${font:0:1}")$(tr A-Z a-z <<<"${font:1}")"
+  lowercase=${font,,}
+  uppercase=${font^^}
+  titlecase=${lowercase^}
 
   opts+=(--delete-attachment name:"$font")
   [[ $font == "$lowercase" ]] || opts+=(--delete-attachment name:"$lowercase")

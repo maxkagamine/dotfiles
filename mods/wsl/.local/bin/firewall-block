@@ -11,21 +11,17 @@ EOF
   exit 1
 fi
 
-netsh() {
-  netsh.exe "$@" | tr -d $'\r'
-}
-
 for path; do
   if [[ -d $path ]]; then
     find "$path" -type f -iname '*.exe' -print0 | xargs -0 "$0"
     continue
   fi
   exe=$(wslpath -aw "$path")
-  if netsh advfirewall firewall show rule name="$exe" dir=out | grep -q '^Action:\s*Block'; then
+  if netsh.exe advfirewall firewall show rule name="$exe" dir=out | dos2unix | grep -q '^Action:\s*Block'; then
     echo "Already blocked: $exe"
     continue
   fi
-  if ! output=$(netsh advfirewall firewall add rule name="$exe" dir=out action=block program="$exe"); then
+  if ! output=$(netsh.exe advfirewall firewall add rule name="$exe" dir=out action=block program="$exe" | dos2unix); then
     echo "$output" >&2
     exit 1
   fi

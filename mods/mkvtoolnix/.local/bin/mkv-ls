@@ -99,7 +99,8 @@ else
   grouped_tracks=()
 
   for f in "${paths[@]}"; do
-    printf '\e[30;1m%s\e[m' "${f:0:$(tput cols)}"
+    cols=$(tput cols)
+    printf '\e[30;1m%s\e[m' "${f:0:$cols}"
 
     track_list=$(list_tracks "$f")
     escaped_name=$(printf '%q' "$f")

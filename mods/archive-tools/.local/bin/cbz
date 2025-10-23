@@ -24,7 +24,8 @@ for dir; do
     continue
   fi
   pushd "$dir"
-  name=$(basename "$(realpath .)")
+  path=$(realpath .)
+  name=$(basename "$path")
   7z a -tzip -m0=Copy "../$name.cbz" .
   popd
   delete "$dir"

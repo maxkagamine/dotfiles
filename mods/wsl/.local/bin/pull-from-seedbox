@@ -16,7 +16,7 @@
 # Install rclone (https://rclone.org/downloads/) and run `rclone config` to set
 # the remote's login credentials.
 #
-set -e
+set -eo pipefail
 
 REMOTE_NAME='seedbox'
 REMOTE_DIR='downloads/sync'
@@ -45,6 +45,7 @@ backoff=2
 backoff_factor=2
 attempts_left=4
 while (( attempts_left-- > 0 )); do
+  # shellcheck disable=SC2310 # set -e suppressed
   if run_rclone; then
     break
   elif (( attempts_left == 0 )) || [[ $output == *unable\ to\ authenticate* ]]; then
@@ -89,6 +90,6 @@ box() {
 printf '%s\n\n%s\n' "$title" "$description" | box 75 | sed 's/^/ /'
 
 notify-send \
-  --appId "$(basename "${BASH_SOURCE[0]}" | title-case)" \
+  --appId 'Pull From Seedbox' \
   --category "$title" \
   "$description"

@@ -6,10 +6,6 @@ throw() {
   return 1
 }
 
-html_unescape() {
-  python3 -c 'import html,sys;print(html.unescape(sys.stdin.read()),end="")'
-}
-
 if [[ $# == 0 || $1 =~ ^(--help|-h)$ ]]; then
   cat >&2 <<EOF
 Usage: mkanimereadme <nyaa link> [<dir>]
@@ -48,9 +44,9 @@ fi
 if ! nyaa_html=$(curl -fsSLk --compressed "$nyaa_url"); then
   throw 'failed to fetch nyaa url'
 fi
-if ! nyaa_desc=$(grep -Pzo '(?s)(?<=id="torrent-description">).*?(?=</div>)' <<<"$nyaa_html" | tr -d '\0' | html_unescape) ||
+if ! nyaa_desc=$(grep -Pzo '(?s)(?<=id="torrent-description">).*?(?=</div>)' <<<"$nyaa_html" | tr -d '\0' | html-unescape) ||
    ! nyaa_hash=$(grep -Po '(?<=<kbd>)[0-9a-f]{40}(?=</kbd>)' <<<"$nyaa_html") ||
-   ! nyaa_title=$(grep -Po '(?<=<title>).*?(?= :: )' <<<"$nyaa_html" | html_unescape); then
+   ! nyaa_title=$(grep -Po '(?<=<title>).*?(?= :: )' <<<"$nyaa_html" | html-unescape); then
    throw 'failed to parse nyaa html'
 fi
 

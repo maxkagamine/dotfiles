@@ -34,6 +34,7 @@ create_pairs() {
   for a; do
     for b; do
       c="$(tr + '\n' <<<"$(basename "$a" .csv)+$(basename "$b" .csv)" | sort -u | paste -sd+ -).csv"
+      # shellcheck disable=SC2310,SC2312
       if ! is_already_created "$c"; then
         printf '\e[31m%s\e[m ∩ \e[32m%s\e[m = \e[35m%s\e[m\n' "$a" "$b" "$c"
 

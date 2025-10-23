@@ -24,14 +24,13 @@ gg() {
   # Usage: gg [-A] [<git commit options>] [bare message...]
   # Commits everything if -A or nothing staged
   # https://kagamine.dev/en/gg-faster-git-commits/
-  git rev-parse --is-inside-work-tree > /dev/null || return
-  local opts=()
-  local staged=$(git diff --cached --quiet)$?
+  local root opts=() all= unstaged_changes
+  root=$(git rev-parse --show-toplevel) || return
   while [[ ${1::1} == '-' ]]; do
     if [[ $1 == '--' ]]; then
       shift; break
     elif [[ $1 == '-A' ]]; then
-      staged=0; shift
+      all=1; shift
     else
       opts+=("$1"); shift
     fi
@@ -39,11 +38,12 @@ gg() {
   if (( $# > 0 )); then
     opts+=(-m "$*")
   fi
-  if [[ $staged == 0 ]]; then
+  if [[ $all ]] || git diff --cached --quiet; then
     git add -A || return
-  elif [[ $(git diff-files; git ls-files -o --exclude-standard "$(git rev-parse --show-toplevel)") ]]; then
-    # Only some changes staged
-    echo 'Committing only staged changes.'
+  else
+    # Check if only some changes are staged
+    unstaged_changes=$(git diff-files && git ls-files -o --exclude-standard "$root") || return
+    [[ $unstaged_changes ]] && echo 'Committing only staged changes.'
   fi
   git commit "${opts[@]}" && sweetroll skill Committing
 }
@@ -53,7 +53,7 @@ fus() {
   if [[ $* =~ ^ro\ dah ]]; then
     git nuke && sweetroll play fusrodah
   else
-    ( cd "$(git rev-parse --show-toplevel)" && # git clean operates in current dir
+    ( root=$(git rev-parse --show-toplevel) && cd "$root" && # git clean operates in current dir
       git reset --hard && git clean -fd && sweetroll play fus )
   fi
   sweetroll $?

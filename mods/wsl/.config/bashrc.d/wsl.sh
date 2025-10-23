@@ -52,15 +52,17 @@ bind -x '"\ev": __paste_wslpath'
 __paste_wslpath() {
   local before="${READLINE_LINE:0:$READLINE_POINT}"
   local after="${READLINE_LINE:$READLINE_POINT}"
-  local insert
-  insert=$(printf '%q' "$(wslpath "$(unclip | sed -E 's/^"|"$//g')")")
+  local insert path
+  path=$(unclip | sed -E 's/^"|"$//g' | x wslpath) || return
+  insert=$(printf '%q' "$path") || return
   READLINE_LINE="${before}${insert}${after}"
   ((READLINE_POINT += ${#insert}))
 }
 
 # https://learn.microsoft.com/en-us/windows/terminal/tutorials/new-tab-same-directory
 windows_terminal_precmd() {
-  printf "\e]9;9;%s\e\\" "$(wslpath -w "$PWD")"
+  local path; path=$(wslpath -w "$PWD")
+  printf "\e]9;9;%s\e\\" "$path"
 }
 if [[ ${precmd_functions[*]} != *windows_terminal_precmd* ]]; then
   precmd_functions+=(windows_terminal_precmd)
@@ -69,10 +71,10 @@ fi
 # dotnet bash completion (dotnet is aliased to the Windows version, via a
 # wrapper so starship can see it, since I mainly target Linux through docker
 # containers and haven't yet needed the Linux version installed)
-function _dotnet_bash_complete() {
+_dotnet_bash_complete() {
   local cur="${COMP_WORDS[COMP_CWORD]}" IFS=$'\r\n'
   local candidates
-  read -d '' -ra candidates < <(dotnet complete --position "${COMP_POINT}" "${COMP_LINE}" 2>/dev/null)
-  read -d '' -ra COMPREPLY < <(compgen -W "${candidates[*]:-}" -- "$cur")
+  read -d '' -ra candidates < <(dotnet complete --position "$COMP_POINT" "$COMP_LINE" 2>/dev/null || true)
+  read -d '' -ra COMPREPLY < <(compgen -W "${candidates[*]:-}" -- "$cur" || true)
 }
 complete -f -F _dotnet_bash_complete dotnet

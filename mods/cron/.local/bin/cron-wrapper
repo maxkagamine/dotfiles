@@ -40,7 +40,7 @@ LOG="$HOME/.cache/$SCRIPT_ID.log"
 LOG_LINES=3000
 LOCKFILE="/tmp/$SCRIPT_ID.lock"
 
-if [[ -f $LOCKFILE && -d /proc/$(cat "$LOCKFILE") ]]; then
+if pgrep -F "$LOCKFILE" &>/dev/null; then
   exit
 fi
 
@@ -65,7 +65,8 @@ then
     crontab -l | sed "/^[^#].*${SCRIPT_ID/./\\.}.*/s/^/# /" | crontab -
   fi
 
-  if [[ $(notify-send --version) == wsl-notify-send* ]]; then
+  notify_send_version=$(notify-send --version)
+  if [[ $notify_send_version == *wsl-notify-send* ]]; then
     notify-send --appId "$SCRIPT_NAME" --category "$title" "$message"
   else
     notify-send --category "$SCRIPT_NAME" "$title. $message"

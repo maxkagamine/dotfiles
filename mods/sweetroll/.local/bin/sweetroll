@@ -6,6 +6,8 @@ STATS_FILE="$DATA_DIR/stats.json"
 QUOTES_FILE="$DATA_DIR/quotes"
 XP_PER_LEVEL=50
 
+available_sounds=$(basename -s .mp3 "$DATA_DIR"/*.mp3 | xargs printf ', %s' | cut -c3-)
+
 if [[ $1 =~ ^(--help|-h)$ ]]; then
   cat >&2 <<EOF
 Usage: sweetroll [<exit code>]
@@ -18,10 +20,10 @@ Usage: sweetroll [<exit code>]
 
 play <sound>
   Plays the specified mp3 from ${DATA_DIR/$HOME/\~}.
-  Available sounds: $(basename -s .mp3 "$DATA_DIR"/*.mp3 | xargs printf ', %s' | cut -c3-)
+  Available sounds: $available_sounds
 
 skill <name>
-  Increases the specified skill XP and plays the level up sound every ${XP_PER_LEVEL} XP.
+  Increases the specified skill XP and plays the level up sound every $XP_PER_LEVEL XP.
 EOF
   exit 1
 fi
@@ -37,7 +39,7 @@ sweetroll_play() { # <sound>
     throw "sound does not exist: $path"
   fi
   if command -v cmdmp3.exe &>/dev/null; then
-    ( cmdmp3.exe "$(wslpath -w "$path")" &>/dev/null & )
+    ( w=$(wslpath -w "$path") && cmdmp3.exe "$w" &>/dev/null & )
   elif command -v ffplay &>/dev/null; then
     ( ffplay -nodisp -autoexit "$path" &>/dev/null & )
   fi

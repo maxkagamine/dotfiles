@@ -1,7 +1,7 @@
 # shellcheck shell=bash disable=SC2034,SC2154
 
 if [[ ${preexec_functions[*]} != *starship* ]]; then
-  eval "$(starship init bash)"
+  eval "$(starship init bash || true)"
 fi
 
 _starship_precmd_user_func() {

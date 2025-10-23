@@ -28,7 +28,7 @@ bind 'set completion-ignore-case on'
 #bind 'set colored-stats on'
 bind '"\e[3;5~": kill-word' # Ctrl+Del
 bind '"\C-H": backward-kill-word' # Ctrl+Backspace (note: some terminals send a regular backspace when ctrl+backspace is pressed)
-eval "$(dircolors -b ~/.config/dircolors)"
+eval "$(dircolors -b ~/.config/dircolors || true)"
 HISTSIZE=10000
 HISTTIMEFORMAT='%Y-%m-%d %T  '
 export LESS='-FRX'
@@ -88,7 +88,8 @@ mkcd() {
 }
 
 tclip() {
-  tee >(clip "$@")
+  # shellcheck disable=SC2312 # Handled by wait $! (bash 4.4+)
+  tee >(clip "$@") && wait $!
 }
 
 clips() {
@@ -137,7 +138,9 @@ wherethehellami() {
 parallel() {
   # Helper function for running N tasks in parallel (defaults to number of
   # cores). Example: for f in *; do somejob & parallel; done; wait
-  if (( $(jobs -rp | wc -l) >= ${1:-$(nproc)} )); then
+  local cur_jobs; cur_jobs=$(jobs -rp | wc -l)
+  local max_jobs; max_jobs=${1:-$(nproc)}
+  if (( cur_jobs >= max_jobs )); then
     wait -n
   fi
 }
@@ -155,7 +158,7 @@ colors() { # Prints a grid of ansi color & text style escapes
 }
 
 guid() { # Prints & copies (or writes plain to stdout if pipe) a new UUID
-  local uuid; uuid=$(uuidgen "$@") || return $?
+  local uuid; uuid=$(uuidgen "$@") || return
   if [[ -t 1 && $uuid != *Usage* ]]; then
     xsel -bi --trim <<<"$uuid"
     printf '%s \e[1;3;30m(copied)\e[m\n' "$uuid"

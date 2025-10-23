@@ -174,7 +174,7 @@ calculate_auto_scale() {
 
   image_height=$(identify -format '%h' "$input")
   if (( image_height >= AUTO_THRESHOLD )); then
-    return 1
+    echo 0
   fi
 
   minimum_scale=$(( (AUTO_HEIGHT + image_height - 1) / image_height ))
@@ -202,7 +202,8 @@ run_ncnn() { # <binary> <input> <output> <options...>
   if [[ $WSL_DISTRO_NAME ]]; then
     binary+='.exe'
     input=$(wslpath -w "$input")
-    output="$(wslpath -w "$(dirname "$output")")\\$(basename "$output")"
+    output=$(wslpath -w "$(dirname "$output")")
+    output+="\\$(basename "$output")"
   fi
 
   cmd=("$binary" -i "$input" -o "$output" "${opts[@]}")
@@ -315,9 +316,12 @@ upscale_esrgan() { # <input> <scale>
 
 for input in "${paths[@]}"; do
   input_scale=$scale
-  if [[ $scale == 'auto' ]] && ! input_scale=$(calculate_auto_scale "$input"); then
-    printf 'Skipping \e[32m%s\e[m (height exceeds threshold)\n' "$input"
-    continue
+  if [[ $scale == 'auto' ]]; then
+    input_scale=$(calculate_auto_scale "$input")
+    if [[ $input_scale == 0 ]]; then
+      printf 'Skipping \e[32m%s\e[m (height exceeds threshold)\n' "$input"
+      continue
+    fi
   fi
 
   converted_to_srgb=

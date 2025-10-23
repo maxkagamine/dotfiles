@@ -16,10 +16,6 @@ sanitize_filename() {
   perl -pe 's/[<>:"\/\\|?*]/ /g; s/ +/ /g; s/^ +|[ \.]+$//g' <<<"$1"
 }
 
-html_unescape() {
-  python3 -c 'import html,sys;print(html.unescape(sys.stdin.read()),end="")'
-}
-
 if [[ $# == 0 || $1 =~ ^(--help|-h)$ ]]; then
   cat >&2 <<EOF
 Usage: mkmoviedir <imdb or mydramalist url> [<file>]
@@ -68,7 +64,7 @@ fetch_data() { # <url> <title suffix>, sets $html, $title, $image
     throw 'failed to fetch page'
   fi
 
-  if ! title=$(grep -Po '(?<=<title>).*?(?='"$title_suffix"')' <<<"$html" | head -n1 | html_unescape); then
+  if ! title=$(grep -Po '(?<=<title>).*?(?='"$title_suffix"')' <<<"$html" | head -n1 | html-unescape); then
     throw 'failed to extract title'
   fi
 
@@ -89,14 +85,17 @@ dir=$(sanitize_filename "$title")
 
 mkdir -pv "$dir"
 
-if [[ -e "$dir/folder.jpg" ]]; then
+folderjpg="$dir/folder.jpg"
+
+if [[ -e "$folderjpg" ]]; then
   echo 'folder.jpg already exists' >&2
 else
-  curl "${CURL_OPTS[@]}" -fsSL "$image" -o "$dir/folder.jpg"
+  curl "${CURL_OPTS[@]}" -fsSL "$image" -o "$folderjpg"
 
   # Hide folder.jpg if on Windows
   if command -v wslpath &>/dev/null; then
-    attrib.exe +h "$(wslpath -w "$dir/folder.jpg")"
+    folderjpg_win=$(wslpath -w "$folderjpg")
+    attrib.exe +h "$folderjpg_win"
     echo "Downloaded folder.jpg (and set as hidden)"
   else
     echo "Downloaded folder.jpg"

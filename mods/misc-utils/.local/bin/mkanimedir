@@ -73,7 +73,7 @@ title=$(jq -r .data.title <<<"$json")
 image=$(jq -r .data.images.jpg.large_image_url <<<"$json")
 
 if [[ ! $title || $title == 'null' ]]; then
-  throw "$(printf 'unexpected response from jikan.moe:\n\n%s' "$(jq -C . <<<"$json" 2>/dev/null || echo "$json")")"
+  throw "$(printf 'unexpected response from jikan.moe:\n\n%s' "$(jq -C . <<<"$json" 2>/dev/null || echo "$json" || true)")"
 fi
 
 # Create or rename directory
@@ -101,7 +101,8 @@ if [[ $image && $image != 'null' ]]; then
 
   # Hide folder.jpg if on Windows
   if command -v wslpath &>/dev/null; then
-    attrib.exe +h "$(wslpath -w "$folderjpg")"
+    folderjpg_win=$(wslpath -w "$folderjpg")
+    attrib.exe +h "$folderjpg_win"
     echo "Downloaded folder.jpg (and set as hidden)"
   else
     echo "Downloaded folder.jpg"

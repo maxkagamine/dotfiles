@@ -132,7 +132,10 @@ while read -r orig_path; do
 
   printf 'Renaming \e[32m%s\e[m\n' "$orig_path"
   printf '      to \e[32m%s\e[m\n' "$new_path"
+
+  # shellcheck disable=SC2312 # Handled by wait $! (bash 4.4+)
   mv -n "$full_orig_path" "$full_new_path" 2> >(sed $'s/.*/\e[31m&\e[m/')
+  wait $!
 done <<<"$file_list"
 
 echo
