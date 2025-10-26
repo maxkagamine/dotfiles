@@ -13,9 +13,35 @@ ds() { # docker status
     docker ps -a || return $?
     echo
     if command -v unbuffer &>/dev/null; then
-      unbuffer docker image ls --tree | grep -Pv '^$|WARNING:'
+      unbuffer docker image ls --tree |
+        sed '/IMAGE/,$!d' |
+        awk '
+          function complete_last_image() {
+            if (buffer == "") {
+              return;
+            }
+            if (gsub(/\033\[39m[├└]/, "&", buffer) > 1) {
+              sub(/\n$/, "", buffer);
+              images[i++] = buffer;
+            } else {
+              split(buffer, lines, "\n");
+              images[i++] = lines[1];
+            }
+            buffer = "";
+          }
+          NR == 1 { print; next; }
+          /^\033\[34m\033\[1m/ { complete_last_image(); }
+          /^\033\[34m\033\[1m|^\033\[39m/ { buffer = buffer $0 "\n"; }
+          END {
+            complete_last_image();
+            asort(images);
+            for (i in images) {
+              print images[i];
+            }
+          }
+        '
     else
-      docker image ls --tree
+      docker image ls
     fi
   } | less
 }
