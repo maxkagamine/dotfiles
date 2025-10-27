@@ -202,8 +202,7 @@ run_ncnn() { # <binary> <input> <output> <options...>
   if [[ $WSL_DISTRO_NAME ]]; then
     binary+='.exe'
     input=$(wslpath -w "$input")
-    output=$(wslpath -w "$(dirname "$output")")
-    output+="\\$(basename "$output")"
+    output=$(wslpath -w "$output")
   fi
 
   cmd=("$binary" -i "$input" -o "$output" "${opts[@]}")
