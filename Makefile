@@ -115,8 +115,7 @@ endif
 # Shellcheck (see .vscode/tasks.json)
 test:
 	@{ echo '#!/bin/bash'; printf '. %s\n' $(BASHRC_FILES); } | \
-	 shellcheck -axf gcc - $(SHELL_SCRIPTS) | \
-	 grep -v '^/'
+	 shellcheck -axf gcc - $(SHELL_SCRIPTS)
 
 watch:
 ifeq "$(shell command -v inotifywait 2>/dev/null)" ""

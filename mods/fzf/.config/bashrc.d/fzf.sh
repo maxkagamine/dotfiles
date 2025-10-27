@@ -1,5 +1,6 @@
 # shellcheck shell=bash
 
+# shellcheck source=/dev/null
 . /usr/share/fzf/key-bindings.bash
 
 # First Ctrl+T shows contents of current dir; pressing again recurses

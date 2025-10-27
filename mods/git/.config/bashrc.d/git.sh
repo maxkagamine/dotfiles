@@ -77,8 +77,8 @@ fixup() { # [<commit>]
   gg fixup! "$commit" && gr -i --committer-date-is-author-date "$commit"~
 }
 
-# shellcheck disable=SC1091
-if source /usr/share/bash-completion/completions/git 2>/dev/null; then
+# shellcheck source=/dev/null
+if . /usr/share/bash-completion/completions/git 2>/dev/null; then
   __git_complete g __git_main
   __git_complete gb _git_branch
   __git_complete gco _git_checkout
