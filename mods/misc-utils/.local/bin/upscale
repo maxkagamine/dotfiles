@@ -1,20 +1,23 @@
 #!/bin/bash
+#
+# Copyright (c) Max Kagamine
+# Licensed under the Apache License, Version 2.0
+#
 set -eo pipefail
 shopt -s nullglob
+
+# shellcheck source=mods/bash/.local/lib/common.sh
+. ~/.local/lib/common.sh
 
 AUTO_HEIGHT=2160
 AUTO_THRESHOLD=1500
 
+DEFAULT_SCALE=2
+DEFAULT_DENOISE=0
+DEFAULT_FORMAT=png
+
 HISTMATCH_URL='http://www.fmwconcepts.com/imagemagick/downloadcounter.php?scriptname=histmatch&dirname=histmatch'
 HISTMATCH_HASH='b9180c1cd4a5ce046b31024e092679002ad5e2c8d564d2a88d2213175566d604'
-
-scale=2
-denoise=0
-format=png
-upscalers=()
-dry_run=
-verbose=
-histmatch=1
 
 if [[ $WSL_DISTRO_NAME ]]; then
   # Leaving them here for now. Using Windows binary to take advantage of GPU.
@@ -24,13 +27,13 @@ if [[ $WSL_DISTRO_NAME ]]; then
   done
 fi
 
-if [[ $# == 0 || $1 =~ ^(--help|-h)$ ]]; then
+help() {
   cat >&2 <<EOF
 Usage: upscale (<upscalers> | --all) [-s <scale> | --auto] [-n <denoise>]
-               [-f png|jpg|webp] [--histmatch] [--dry-run] [--verbose]
+               [-f png|jpg|webp] [--no-histmatch] [--dry-run] [-v|--verbose]
                <image or directory>...
 
-UPSCALERS
+Upscalers:
 
   --all          + Laziest
                  - Slowest
@@ -49,17 +52,17 @@ UPSCALERS
                  Note: Uses the default animevideov3 model. The x4plus models
                  have too many issues with quality for general use.
 
-OPTIONS
+Options:
 
   --auto         Upscales images <${AUTO_THRESHOLD}px tall to ${AUTO_HEIGHT}p+, using waifu2x and
                  esrgan+histmatch unless upscalers are specifed explicitly.
 
   -s <scale>     1/2/4/8/16/32 for waifu2x & cugan; 2/3/4 for esrgan. Mutually
-                 exclusive with --auto. (default=2)
+                 exclusive with --auto. (default=${DEFAULT_SCALE})
 
-  -n <denoise>   -1/0/1/2/3 for waifu2x & cugan; ignored for esrgan. (default=0)
+  -n <denoise>   -1/0/1/2/3 for waifu2x & cugan; ignored for esrgan. (default=${DEFAULT_DENOISE})
 
-  -f <format>    png/jpg/webp (default=png)
+  -f <format>    png/jpg/webp (default=${DEFAULT_FORMAT})
 
   --no-histmatch (esrgan only) by default, upscale attempts to undo the
                  brightening caused by esrgan using Fred Weinhaus' histmatch
@@ -67,93 +70,54 @@ OPTIONS
 
   --dry-run      Print what would be upscaled but do nothing. Implies --verbose.
 
-  --verbose      Print the commands being run.
+  -v, --verbose  Print the commands being run.
 
   <image or directory>  One or more images to process. Upscaled images are saved
                         alongside the input. Directories are expanded to
                         containing png/jpg/jpeg/jfif files (non-recursively).
 EOF
   exit 1
-fi
-
-throw() {
-  printf '%s: %s\n' "${0##*/}" "$1" >&2
-  return 1
 }
 
-paths=()
-while (( $# > 0 )); do
-  case $1 in
-    # upscaler
-    --all)
-      upscalers=(waifu2x cugan esrgan)
-      ;;
-    --waifu2x)
-      upscalers+=(waifu2x)
-      ;;
-    --cugan)
-      upscalers+=(cugan)
-      ;;
-    --esrgan)
-      upscalers+=(esrgan)
-      ;;
-    # scale
-    -s)
-      shift
-      scale=$1
-      ;;
-    -s*)
-      scale=${1#-s}
-      ;;
-    --auto)
-      scale=auto
-      ;;
-    # denoise
-    -n)
-      shift
-      denoise=$1
-      ;;
-    -n*)
-      denoise=${1#-n}
-      ;;
-    # format
-    -f)
-      shift
-      format=$1
-      ;;
-    -f*)
-      format=${1#-f}
-      ;;
-    # no histmatch
-    --no-histmatch)
-      histmatch=
-      ;;
-    # debugging
-    --dry-run)
-      dry_run=1
-      verbose=1
-      ;;
-    --verbose)
-      verbose=1
-      ;;
-    # non-option
-    --)
-      shift
-      paths+=("$@")
-      break
-      ;;
-    -*)
-      throw "unknown option: $1"
-      ;;
-    *)
-      if [[ -d $1 ]]; then
-        paths+=("$1"/*.{png,jpg,jpeg,jfif,PNG,JPG,JPEG,JFIF})
-      else
-        paths+=("$1")
-      fi
-      ;;
-  esac
-  shift
+parse_args \
+  --all \
+  --waifu2x \
+  --cugan \
+  --esrgan \
+  --auto \
+  -s= \
+  -n= \
+  -f= \
+  --no-histmatch \
+  --dry-run \
+  -v,--verbose \
+  -h,--help \
+  -- "$@"
+
+if [[ ${OPTS[s]} && ${OPTS[auto]} ]]; then
+  throw '-s and --auto are mutually exclusive'
+fi
+
+scale=${OPTS[s]:-$DEFAULT_SCALE}
+denoise=${OPTS[n]:-$DEFAULT_DENOISE}
+format=${OPTS[f]:-$DEFAULT_FORMAT}
+upscalers=()
+dry_run=${OPTS[dry-run]}
+verbose=${OPTS[dry-run]:-${OPTS[verbose]}}
+no_histmatch=${OPTS[no-histmatch]}
+
+[[ ${OPTS[all]} ]] && upscalers=(waifu2x cugan esrgan)
+[[ ${OPTS[waifu2x]} ]] && upscalers+=(waifu2x)
+[[ ${OPTS[cugan]} ]] && upscalers+=(cugan)
+[[ ${OPTS[esrgan]} ]] && upscalers+=(esrgan)
+[[ ${OPTS[auto]} ]] && scale=auto
+
+for path in "${REST[@]}"; do
+  if [[ -d $path ]]; then
+    paths+=("$path"/*.{png,jpg,jpeg,jfif,PNG,JPG,JPEG,JFIF})
+  else
+    paths+=("$path")
+  fi
 done
 
 if (( ${#upscalers[@]} == 0 )); then
@@ -286,7 +250,7 @@ upscale_esrgan() { # <input> <scale>
     -s "$scale" \
     -f "$format"
 
-  if [[ $histmatch ]]; then
+  if [[ ! $no_histmatch ]]; then
     if ! command -v histmatch &>/dev/null; then
       echo 'Downloading histmatch script'
       curl -fsSL "$HISTMATCH_URL" -o /tmp/histmatch

@@ -1,16 +1,18 @@
 #!/bin/bash
+#
+# Copyright (c) Max Kagamine
+# Licensed under the Apache License, Version 2.0
+#
 set -eo pipefail
 
 SRGB_ICC_PROFILE=~/.local/share/color/icc/sRGB-IEC61966-2.1.icc
 
-throw() {
-  printf '%s: %s\n' "${0##*/}" "$1" >&2
-  return 1
-}
+# shellcheck source=mods/bash/.local/lib/common.sh
+. ~/.local/lib/common.sh
 
-if [[ $# == 0 || $1 =~ ^(--help|-h)$ ]]; then
+help() {
   cat >&2 <<EOF
-Usage: convert-to-srgb [-a] <images...>
+Usage: convert-to-srgb [-a | -x] <images...>
 
 For each input image, if it contains a non-sRGB color profile, extracts the
 profile with exiftool (as imagemagick sometimes fails to recognize embedded ICC
@@ -29,33 +31,21 @@ Options:
         Mutually exclusive with -a.
 EOF
   exit 1
-fi
+}
 
-paths=()
-all=
-fail=
-while (( $# > 0 )); do
-  case $1 in
-    --)
-      shift
-      paths+=("$@")
-      break
-      ;;
-    -a)
-      all=1
-      ;;
-    -x)
-      fail=1
-      ;;
-    -*)
-      throw "unknown option: $1"
-      ;;
-    *)
-      paths+=("$1")
-      ;;
-  esac
-  shift
-done
+parse_args \
+  -a \
+  -x \
+  -h,--help \
+  -- "$@"
+
+all=${OPTS[a]}
+fail=${OPTS[x]}
+paths=("${REST[@]}")
+
+if [[ $all && $fail ]]; then
+  throw '-a and -x are mutually exclusive'
+fi
 
 skip() {
   local reason=$1
