@@ -132,7 +132,19 @@ parse_args() {
 
       # Call help() automatically if --help or any of its aliases are given
       if [[ $x == 'help' ]] && declare -F help >/dev/null; then
-        help
+        if [[ (-t 2 || $FORCE_COLOR) && ! $NO_COLOR ]]; then
+          # Auto-colorize options and headers (cargo-style)
+          help 2>&1 | perl -e '
+            my $pattern = join("|", sort { length $b <=> length $a } @ARGV);
+            while (<STDIN>) {
+              s/$pattern/\e[36m$&\e[m/g;
+              s/^[A-Z].*?:/\e[32m$&\e[m/;
+              print;
+            }
+          ' -- "${flags[@]}" "${params[@]}" >&2
+        else
+          help
+        fi
       fi
     done
   done
