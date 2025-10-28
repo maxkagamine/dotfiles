@@ -33,19 +33,14 @@ EOF
   exit 1
 }
 
+all=
+fail=
+
 parse_args \
-  -a \
-  -x \
+  -a 'all=1' \
+  -x 'fail=1' \
   -h,--help \
   -- "$@"
-
-all=${OPTS[a]}
-fail=${OPTS[x]}
-paths=("${REST[@]}")
-
-if [[ $all && $fail ]]; then
-  throw '-a and -x are mutually exclusive'
-fi
 
 skip() {
   local reason=$1
@@ -67,7 +62,7 @@ skip() {
   printf '  Saved \e[35m%s\e[m\n' "$output"
 }
 
-for input in "${paths[@]}"; do
+for input in "${REST[@]}"; do
 
   printf '\e[32m%s\e[m\n' "$input"
 

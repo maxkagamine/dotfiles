@@ -9,10 +9,12 @@ throw() {
 }
 
 parse_args() {
-  local flags=()
-  local params=()
+  declare -A flags
+  declare -A params
   declare -A aliases
+  declare -A callbacks
   local descriptor
+  local callback
   local arg
   local option
   local value
@@ -30,6 +32,18 @@ parse_args() {
       break
     fi
 
+    # The option descriptor may optionally be followed by a callback to be
+    # eval'd upon encountering the option. This can simplify assigning values to
+    # named variables and makes it possible to override an option previously
+    # given, e.g. in the case of aliases. --help is given special treatment, so
+    # it doesn't need a callback; see below.
+    if [[ $# != 0 && $1 != -* ]]; then
+      callback=$1
+      shift
+    else
+      callback=
+    fi
+
     IFS=, read -ra names <<<"${descriptor%=}"
     for x in "${names[@]}"; do
       # Validate option descriptor
@@ -45,11 +59,21 @@ parse_args() {
         throw "${FUNCNAME[0]}: short options can only be a single character (in '$descriptor')"
       fi
 
+      # Create a map of aliases so that we can access an option from OPTS using
+      # any of its names, regardless of which was actually used
       aliases[$x]=${names[*]}
+
+      # Using associative arrays as hashsets to simplify checking the option
+      # type below, since bash doesn't have a proper "indexOf"
       if [[ $descriptor == *= ]]; then
-        params+=("$x")
+        params[$x]=1
       else
-        flags+=("$x")
+        flags[$x]=1
+      fi
+
+      # Map each alias to the callback
+      if [[ $callback ]]; then
+        callbacks[$x]=$callback
       fi
     done
   done
@@ -87,22 +111,11 @@ parse_args() {
     esac
 
     # Determine if option is valid and if it expects a value or not
-    type=
-    for x in "${flags[@]}"; do
-      if [[ $x == "$option" ]]; then
-        type=flag
-        break
-      fi
-    done
-    if [[ ! $type ]]; then
-      for x in "${params[@]}"; do
-        if [[ $x == "$option" ]]; then
-          type=param
-          break
-        fi
-      done
-    fi
-    if [[ ! $type ]]; then
+    if [[ ${flags[$option]} ]]; then
+      type=flag
+    elif [[ ${params[$option]} ]]; then
+      type=param
+    else
       throw "unknown option: $option"
     fi
 
@@ -124,6 +137,13 @@ parse_args() {
       shift
     fi
 
+    # Run the callback if there is one. "{}" will be replaced with $value (which
+    # is also in scope, but shellcheck will complain about using a variable in
+    # a single-quoted string; this way looks cleaner anyway)
+    if [[ ${callbacks[$option]} ]]; then
+      eval "${callbacks[$option]//\{\}/\$value}"
+    fi
+
     # shellcheck disable=SC2034 # OPTS appears unused
     for x in ${aliases[$option]}; do
       x=${x#-}
@@ -141,7 +161,7 @@ parse_args() {
               s/^[A-Z].*?:/\e[32m$&\e[m/;
               print;
             }
-          ' -- "${flags[@]}" "${params[@]}" >&2
+          ' -- "${!aliases[@]}" >&2
         else
           help
         fi

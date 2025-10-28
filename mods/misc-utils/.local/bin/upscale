@@ -79,38 +79,29 @@ EOF
   exit 1
 }
 
+scale=$DEFAULT_SCALE
+denoise=$DEFAULT_DENOISE
+format=$DEFAULT_FORMAT
+no_histmatch=
+dry_run=
+verbose=
+upscalers=()
+paths=()
+
 parse_args \
-  --all \
-  --waifu2x \
-  --cugan \
-  --esrgan \
-  --auto \
-  -s= \
-  -n= \
-  -f= \
-  --no-histmatch \
-  --dry-run \
-  -v,--verbose \
+  --all 'upscalers=(waifu2x cugan esrgan)' \
+  --waifu2x 'upscalers+=(waifu2x)' \
+  --cugan 'upscalers+=(cugan)' \
+  --esrgan 'upscalers+=(esrgan)' \
+  --auto 'scale=auto' \
+  -s= 'scale={}' \
+  -n= 'denoise={}' \
+  -f= 'format={}' \
+  --no-histmatch 'no_histmatch=1' \
+  --dry-run 'dry_run=1; verbose=1' \
+  -v,--verbose 'verbose=1' \
   -h,--help \
   -- "$@"
-
-if [[ ${OPTS[s]} && ${OPTS[auto]} ]]; then
-  throw '-s and --auto are mutually exclusive'
-fi
-
-scale=${OPTS[s]:-$DEFAULT_SCALE}
-denoise=${OPTS[n]:-$DEFAULT_DENOISE}
-format=${OPTS[f]:-$DEFAULT_FORMAT}
-upscalers=()
-dry_run=${OPTS[dry-run]}
-verbose=${OPTS[dry-run]:-${OPTS[verbose]}}
-no_histmatch=${OPTS[no-histmatch]}
-
-[[ ${OPTS[all]} ]] && upscalers=(waifu2x cugan esrgan)
-[[ ${OPTS[waifu2x]} ]] && upscalers+=(waifu2x)
-[[ ${OPTS[cugan]} ]] && upscalers+=(cugan)
-[[ ${OPTS[esrgan]} ]] && upscalers+=(esrgan)
-[[ ${OPTS[auto]} ]] && scale=auto
 
 for path in "${REST[@]}"; do
   if [[ -d $path ]]; then
@@ -120,16 +111,16 @@ for path in "${REST[@]}"; do
   fi
 done
 
+if (( ${#paths[@]} == 0 )); then
+  throw 'no images to upscale'
+fi
+
 if (( ${#upscalers[@]} == 0 )); then
   if [[ $scale == 'auto' ]]; then
     upscalers=(waifu2x esrgan)
   else
     throw 'no upscalers specified (try --all or --auto?)'
   fi
-fi
-
-if (( ${#paths[@]} == 0 )); then
-  throw 'no images to upscale'
 fi
 
 calculate_auto_scale() {
