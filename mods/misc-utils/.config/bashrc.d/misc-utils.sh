@@ -14,9 +14,9 @@ complete -f -W '
   -s
   -n
   -f
-  --histmatch
+  --no-histmatch
   --dry-run
-  --verbose
+  -v --verbose
   -h --help
 ' upscale up
 
