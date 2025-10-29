@@ -1,23 +1,20 @@
 #!/bin/bash
+#
+# Copyright (c) Max Kagamine
+# Licensed under the Apache License, Version 2.0
+#
 set -eo pipefail
+
+# shellcheck source=mods/bash/.local/lib/common.sh
+. ~/.local/lib/common.sh
 
 CURL_OPTS=(
   -A 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36'
   -H 'Accept-Language: en-US,en;q=0.9'
 )
 
-throw() {
-  printf '%s: %s\n' "${0##*/}" "$1" >&2
-  return 1
-}
-
-sanitize_filename() {
-  # Replaces chars invalid in Windows file/dir names with a space
-  perl -pe 's/[<>:"\/\\|?*]/ /g; s/ +/ /g; s/^ +|[ \.]+$//g' <<<"$1"
-}
-
-if [[ $# == 0 || $1 =~ ^(--help|-h)$ ]]; then
-  cat >&2 <<EOF
+help() {
+  cat >&2 <<'EOF'
 Usage: mkmoviedir <imdb or mydramalist url> [<file>]
 
 Creates a directory in the format "Title (Year)" with the poster saved to
@@ -27,21 +24,26 @@ it'll download the poster only.
 Works for TV shows too.
 EOF
   exit 1
-fi
+}
 
 imdb_url=
 mdl_url=
 files=()
-while (( $# > 0 )); do
-  case $1 in
+
+parse_args \
+  -h,--help \
+  -- "$@"
+
+for x in "${REST[@]}"; do
+  case $x in
     https://www.imdb.com/*)
-      if [[ ! $1 =~ ^https://www.imdb.com/title/tt[[:digit:]]+ ]]; then
+      if [[ ! $x =~ ^https://www.imdb.com/title/tt[[:digit:]]+ ]]; then
         throw 'unrecognized imdb url'
       fi
       imdb_url=${BASH_REMATCH[0]}
       ;;
     https://mydramalist.com/*)
-      if [[ ! $1 =~ ^https://mydramalist.com/[[:digit:]]+-[^/]+ ]]; then
+      if [[ ! $x =~ ^https://mydramalist.com/[[:digit:]]+-[^/]+ ]]; then
         throw 'unrecognized mydramalist url'
       fi
       mdl_url=${BASH_REMATCH[0]}
@@ -50,11 +52,16 @@ while (( $# > 0 )); do
       throw 'unrecognized url'
       ;;
     *)
-      files+=("$1")
+      files+=("$x")
       ;;
   esac
   shift
 done
+
+sanitize_filename() {
+  # Replaces chars invalid in Windows file/dir names with a space
+  perl -pe 's/[<>:"\/\\|?*]/ /g; s/ +/ /g; s/^ +|[ \.]+$//g' <<<"$1"
+}
 
 fetch_data() { # <url> <title suffix>, sets $html, $title, $image
   local url=$1
