@@ -1,10 +1,12 @@
 #!/bin/bash
+#
+# Copyright (c) Max Kagamine
+# Licensed under the Apache License, Version 2.0
+#
 set -eo pipefail
 
-throw() {
-  printf '%s: %s\n' "${0##*/}" "$1" >&2
-  return 1
-}
+# shellcheck source=mods/bash/.local/lib/common.sh
+. ~/.local/lib/common.sh
 
 help() {
   cat >&2 <<'EOF'
@@ -22,42 +24,24 @@ Files are passed to perl as given, including directories.
 
 Options:
 
-  -n    Dry run.
+  -n, --dry-run    Dry run.
 EOF
   exit 1
 }
 
-args=()
 dry_run=
-while (( $# > 0 )); do
-  case $1 in
-    --)
-      shift
-      args+=("$@")
-      break
-      ;;
-    -n)
-      dry_run=1
-      ;;
-    -h|--help)
-      help
-      ;;
-    -*)
-      throw "unknown option: $1"
-      ;;
-    *)
-      args+=("$1")
-      ;;
-  esac
-  shift
-done
 
-if (( ${#args[@]} < 2 )); then
+parse_args \
+  -n,--dry-run 'dry_run=1' \
+  -h,--help \
+  -- "$@"
+
+if (( ${#REST[@]} < 2 )); then
   help
 fi
 
-for f in "${args[@]:1}"; do
-  dest=$(perl -pe "${args[0]}" <<<"$f")
+for f in "${REST[@]:1}"; do
+  dest=$(perl -pe "${REST[0]}" <<<"$f")
 
   if [[ $dry_run ]]; then
     printf "would rename '%s' -> '%s'\n" "$f" "$dest"

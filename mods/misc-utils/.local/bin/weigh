@@ -1,14 +1,16 @@
 #!/bin/bash
+#
+# Copyright (c) Max Kagamine
+# Licensed under the Apache License, Version 2.0
+#
 set -eo pipefail
 
-throw() {
-  printf '%s: %s\n' "${0##*/}" "$1" >&2
-  return 1
-}
+# shellcheck source=mods/bash/.local/lib/common.sh
+. ~/.local/lib/common.sh
 
 COLUMNS=$(tput cols)
 
-if [[ $1 =~ ^(--help|-h)$ ]]; then
+help() {
   cat >&2 <<EOF
 Usage: weigh [-z] [--si] [--paths-from-stdin] [<file|directory>...]
 
@@ -17,46 +19,27 @@ Shows the total size of files, directories, or stdin (gzipped if -z).
 Weighs stdin if neither file/directory paths nor --paths-from-stdin is given,
 or if '-' is given as a path.
 
-  -z                   Show the gzipped size.
+  -z, --gzip           Show the gzipped size.
   --si                 Use SI units (1000 B = 1 KB) instead of KiB etc.
   --paths-from-stdin   Weigh paths from stdin as they're given.
 EOF
   exit 1
-fi
+}
 
 gz=
 to_fmt='iec-i' # KiB etc.
 paths_from_stdin=
-paths=()
-while (( $# > 0 )); do
-  case $1 in
-    --)
-      shift
-      paths+=("$@")
-      break
-      ;;
-    -z)
-      gz=1
-      ;;
-    --si)
-      to_fmt='si'
-      ;;
-    --paths-from-stdin)
-      paths_from_stdin=1
-      ;;
-    -?*)
-      throw "unknown option: $1"
-      ;;
-    *)
-      paths+=("$1")
-      ;;
-  esac
-  shift
-done
+
+parse_args \
+  -z,--gzip 'gz=1' \
+  --si 'to_fmt=si' \
+  --paths-from-stdin 'paths_from_stdin=1' \
+  -h,--help \
+  -- "$@"
 
 yield_paths() {
   # Weigh paths passed as arguments
-  for p in "${paths[@]}"; do
+  for p in "${REST[@]}"; do
     echo "$p"
   done
 
@@ -66,7 +49,7 @@ yield_paths() {
   fi
 
   # Read stdin if no paths given (and stdin is not paths)
-  if [[ ${#paths[@]} == 0 && ! $paths_from_stdin ]]; then
+  if [[ ${#REST[@]} == 0 && ! $paths_from_stdin ]]; then
     echo '-'
   fi
 }

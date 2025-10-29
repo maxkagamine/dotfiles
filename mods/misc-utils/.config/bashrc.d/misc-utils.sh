@@ -29,7 +29,7 @@ complete -d -W '
 ' flatten
 
 complete -f -d -W '
-  -z
+  -z --gzip
   --si
   --paths-from-stdin
   -h --help
