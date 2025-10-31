@@ -26,7 +26,7 @@ As Stow doesn't ([yet][stow todo]) support pre/post-install hooks, I'm emulating
 
 Best part about this setup is it doesn't require any dotfile-specific frameworks or YAML files. Just run `make`.
 
-Notable mods (headers link to the relevant file/directory):
+Notable mods (**headers link to the relevant file/directory**):
 
 ## <img src=".github/images/icons/terminal.png" height="30" align="top" /> [bash](mods/bash)
 
@@ -35,6 +35,18 @@ Applies the convention of loading configuration files from a directory to bashrc
 > (Psst: if you want to change your ls colors, [my file](mods/bash/.config/dircolors) might be an easier starting-off point than `--print-database`. I spent the time formatting it so you don't have to.)
 
 There's also a suite of [Linq functions](https://github.com/maxkagamine/dotfiles/blob/master/mods/bash/.bashrc#:~:text=Linq) tucked away here which .NET devs will find familiar.
+
+### [~/.local/lib/common.sh](mods/bash/.local/lib/common.sh)
+
+Common functions for bash scripts:
+
+- **`throw`** — Prints an error prefixed with the name of the script and exits with 1. Simplifies "throwing exceptions" in scripts.
+
+- **`parse_args`** — Parses GNU-style options. Supports short and long options, combined/bundled short options, options with values (in any format: `--foo value`, `-f value`, `--foo=value`, or `-fvalue`), repeated options (by using a callback), option aliases, and the `--` to stop option processing.
+
+- **`expand_directories`** — Reads paths and replaces directories with their containing files while passing along file paths as-is. Has various options and can operate either as part of a pipe or in a manner similar to readarray.
+
+For examples, see [**upscale**](mods/misc-utils/.local/bin/upscale), [**mkv-ls**](mods/mkvtoolnix/.local/bin/mkv-ls) (& the other mkv scripts, [detailed below ↓](#-mkvtoolnix)), and [**weigh**](/mods/misc-utils/.local/bin/weigh).
 
 ## <img src=".github/images/icons/git.svg" align="top" height="30" /> [git](mods/git)
 
@@ -226,9 +238,9 @@ Tools for batch remuxing MKVs using mkvtoolnix: [**mkv-ls**](mods/mkvtoolnix/.lo
   
 For example, if I wanted to keep only the Japanese audio and remove the Signs & Songs tracks from everything except the "Another Epilogue" special (which `mkv-ls` shows has different tracks):
   
-<img src=".github/images/mkv-ls.png" width="500" />
+<img src=".github/images/mkv-ls.png" width="550" />
 
-_(The escaped filenames in gray are for copy/pasting into the `mkv-batch` command, but for screenshot purposes I used the `!()` glob syntax instead.)_
+_(The escaped filenames in gray are for copy/pasting into the `mkv-batch` command; to fit it in the screenshot I used the `!()` glob syntax instead.)_
 
 Additional tools:
 

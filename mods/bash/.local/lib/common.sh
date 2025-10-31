@@ -8,6 +8,52 @@ throw() {
   return 1
 }
 
+# Usage: parse_args (<option descriptor> [<callback>])... -- <args>
+#
+# Parses GNU-style options. Supports short and long options, combined/bundled
+# short options, options with values (in any format: --foo value, -f value,
+# --foo=value, or -fvalue), repeated options (by using a callback), option
+# aliases, and the '--' to stop option processing. A single dash is treated as
+# a positional parameter.
+#
+# The option descriptor is a comma-separated list of option aliases (i.e. any
+# short and long names for the same option, with leading dashes) optionally
+# followed by an '=' to indicate an option that takes a value.
+#
+# An option descriptor may optionally be followed by a callback which is eval'd
+# when the option is encountered. '{}' will be replaced with '$value' which
+# holds the option value (quoting rules for variables apply). This simplifies
+# assigning values to named variables and makes it possible to override an
+# option previously given (e.g. in a shell alias) and have repeatable options.
+#
+# If a --help option is defined and a function called 'help' exists, the
+# callback defaults to 'help'.
+#
+# The following variables will hold the result of argument parsing:
+#
+#   OPTS    Associative array mapping each option name (every alias, regardless
+#           of which was actually used, with leading dashes omitted) to the
+#           provided value, or 1 in the case of flags.
+#
+#   REST    Indexed array containing all positional parameters.
+#
+# When used in a function, these should be declared as local variables first.
+#
+# Example:
+#
+#   foo=$DEFAULT_FOO
+#   bar=()
+#   dry_run=
+#   verbose=
+#
+#   parse_args \
+#     -f,--foo= 'foo={}' \
+#     --bar= 'bar+=("{}")' \
+#     --dry-run 'dry_run=1; verbose=1' \
+#     -v,--verbose 'verbose=1' \
+#     -h,--help \
+#     -- "$@"
+#
 parse_args() {
   declare -A flags
   declare -A params
@@ -35,8 +81,7 @@ parse_args() {
     # The option descriptor may optionally be followed by a callback to be
     # eval'd upon encountering the option. This can simplify assigning values to
     # named variables and makes it possible to override an option previously
-    # given, e.g. in the case of aliases. --help is given special treatment, so
-    # it doesn't need a callback; see below.
+    # given, e.g. in the case of aliases.
     if [[ $# != 0 && $1 != -* ]]; then
       callback=$1
       shift
@@ -80,7 +125,7 @@ parse_args() {
 
   # OPTS will hold all of the passed options (and all of their aliases), leading
   # dashes omitted, mapped to their values (or 1 if a flag), while REST will
-  # hold all positional parameters
+  # hold all positional parameters.
   declare -gA OPTS
   declare -ga REST
 
@@ -151,7 +196,9 @@ parse_args() {
       OPTS[$x]=$value
 
       # Call help() automatically if --help or any of its aliases are given
-      if [[ $x == 'help' ]] && declare -F help >/dev/null; then
+      # (this is done here at the end rather than when $callback is set since at
+      # that point we haven't yet parsed the option names out of the descriptor)
+      if [[ $x == 'help' && ! ${callbacks[$option]} ]] && declare -F help >/dev/null; then
         help
       fi
     done
