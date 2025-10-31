@@ -50,7 +50,7 @@ For examples, see [**upscale**](mods/misc-utils/.local/bin/upscale), [**mkv-ls**
 
 ## <img src=".github/images/icons/git.svg" align="top" height="30" /> [git](mods/git)
 
-[Git aliases](mods/git/.config/bashrc.d/git.sh) and [aliases](mods/git/.config/git/config) (including my favorite: the alias alias, `git alias`) + the "gg" function I use so much [I wrote an article about it][gg-faster-git-commits], and of course what would be a _Max Kagamine_ system without a myriad of [Skyrim references][fus-ro-dah] (brace yourself).
+[Git aliases](mods/git/.config/bashrc.d/git.sh) and [aliases](mods/git/.config/git/config) (including my favorite: the alias alias, `git alias`) + the "gg" function I use so much ~~[I wrote an article about it][gg-faster-git-commits]~~, and of course what would be a _Max Kagamine_ system without a myriad of ~~[Skyrim references][fus-ro-dah]~~ (brace yourself).
 
 Oh and _[empty string is git status](mods/git/.config/bashrc.d/zz_empty_string_is_git_status.sh):_
 
@@ -274,7 +274,7 @@ Miscellaneous utilities:
 
 _I need to ask you to stop. That... committing... is making people nervous._
 
-In case you missed it: [**Nuke a git repo with unrelenting force: the FUS RO DAH command**][fus-ro-dah]
+In case you missed it: ~~[**Nuke a git repo with unrelenting force: the FUS RO DAH command**][fus-ro-dah]~~
 
 ## [cron](mods/cron/)
 
