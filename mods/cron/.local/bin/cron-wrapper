@@ -1,5 +1,8 @@
 #!/bin/bash
 #
+# Copyright (c) Max Kagamine
+# Licensed under the Apache License, Version 2.0
+#
 # This wrapper script for cronjobs does several things:
 #
 # 1. Prevent a new instance from starting while the job is already running,

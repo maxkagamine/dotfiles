@@ -1,5 +1,7 @@
 #!/bin/bash
-# shellcheck disable=SC2088,SC2029
+#
+# Copyright (c) Max Kagamine
+# Licensed under the Apache License, Version 2.0
 #
 # This script can be added to crontab (see cron-wrapper) to automatically pull
 # completed downloads off a seedbox as soon as they're finished. Unlike various
@@ -16,6 +18,7 @@
 # Install rclone (https://rclone.org/downloads/) and run `rclone config` to set
 # the remote's login credentials.
 #
+# shellcheck disable=SC2088,SC2029
 set -eo pipefail
 
 REMOTE_NAME='seedbox'
