@@ -1,14 +1,15 @@
 #!/bin/bash
+#
+# Copyright (c) Max Kagamine
+# Licensed under the Apache License, Version 2.0
+#
 # shellcheck disable=SC2018,SC2019
 set -eo pipefail
-shopt -s nullglob
 
-throw() {
-  printf '%s: %s\n' "${0##*/}" "$1" >&2
-  return 1
-}
+# shellcheck source=mods/bash/.local/lib/common.sh
+. ~/.local/lib/common.sh
 
-if [[ $1 =~ ^(--help|-h)$ ]]; then
+help() {
   cat >&2 <<'EOF'
 Usage: mkv-clean <path...>
 
@@ -17,14 +18,23 @@ the encoding group), cover image (some groups plaster the series cover on every
 episode), and common Windows system fonts (which are often unnecessarily
 included with subs and do nothing but waste space) from the given MKVs.
 
-Note: this uses mkvpropedit which does a quick delete by zeroing bytes; the MKV
+Directories are expanded to contained *.mkv files (non-recursive). If no paths
+are given, the current directory is used.
+
+Note: This uses mkvpropedit which does a quick delete by zeroing bytes; the MKV
 will need to be remuxed after this to reclaim space.
 
-Directories are expanded to contained *.mkv files (non-recursive). If no paths
-are given, the current directory is used (equivalent to `mkv-clean *.mkv`).
+See also: mkv-rm-cover
 EOF
   exit 1
-fi
+}
+
+parse_args \
+  -h,--help \
+  -- "$@"
+
+expand_directories \
+  --glob '*.mkv' --var paths --default . --required -- "${REST[@]}"
 
 SYSTEM_FONTS=(
   arial.ttf arialbd.ttf arialbi.ttf ariali.ttf ariblk.ttf bahnschrift.ttf
@@ -51,25 +61,6 @@ SYSTEM_FONTS=(
   verdana.ttf verdanab.ttf verdanai.ttf verdanaz.ttf webdings.ttf wingding.ttf
   YuGothB.ttc YuGothL.ttc YuGothM.ttc YuGothR.ttc
 )
-
-paths=()
-paths_given=
-while (( $# > 0 )); do
-  if [[ -d "$1" ]]; then
-    paths+=("$1"/*.mkv)
-    paths_given=1
-  else
-    paths+=("$1")
-    paths_given=1
-  fi
-  shift
-done
-if [[ ! $paths_given ]]; then
-  paths=(*.mkv)
-fi
-if (( ${#paths[@]} == 0 )); then
-  throw 'no files to process'
-fi
 
 opts=(
   --edit info --delete title

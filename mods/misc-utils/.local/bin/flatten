@@ -1,13 +1,15 @@
 #!/bin/bash
+#
+# Copyright (c) Max Kagamine
+# Licensed under the Apache License, Version 2.0
+#
 set -eo pipefail
 
-throw() {
-  printf '%s: %s\n' "${0##*/}" "$1" >&2
-  return 1
-}
+# shellcheck source=mods/bash/.local/lib/common.sh
+. ~/.local/lib/common.sh
 
-if [[ $# == 0 || $1 =~ ^(--help|-h)$ ]]; then
-  cat >&2 <<EOF
+help() {
+  cat >&2 <<'EOF'
 Usage: flatten [-p|--prefix <prefix>] [-s|--suffix <suffix>]
                [-d|--delimiter <delimiter>] [-n|--dry-run] <directory>
 
@@ -28,74 +30,27 @@ Options:
   -n, --dry-run                  Show how files would be renamed and exit.
 EOF
   exit 1
-fi
+}
 
-paths=()
 prefix=
 suffix=
 delimiter=' - '
 dry_run=
-while (( $# > 0 )); do
-  case $1 in
-    --)
-      shift
-      paths+=("$@")
-      break
-      ;;
-    # prefix
-    -p|--prefix)
-      shift
-      prefix=$1
-      ;;
-    -p*)
-      prefix=${1#-p}
-      ;;
-    --prefix=*)
-      prefix=${1#--prefix=}
-      ;;
-    # suffix
-    -s|--suffix)
-      shift
-      suffix=$1
-      ;;
-    -s*)
-      suffix=${1#-s}
-      ;;
-    --suffix=*)
-      suffix=${1#--suffix=}
-      ;;
-    # delimiter
-    -d|--delimiter)
-      shift
-      delimiter=$1
-      ;;
-    -d*)
-      delimiter=${1#-d}
-      ;;
-    --delimiter=*)
-      delimiter=${1#--delimiter=}
-      ;;
-    # dry run
-    -n|--dry-run)
-      dry_run=1
-      ;;
-    -*)
-      throw "unknown option: $1"
-      ;;
-    *)
-      paths+=("$1")
-      ;;
-  esac
-  shift
-done
-if (( ${#paths[@]} == 0 )); then
-  throw 'no directory given'
-elif (( ${#paths[@]} > 1 )); then
-  throw 'too many directories given'
-elif [[ ! -d ${paths[0]} ]]; then
-  throw "not a directory: ${paths[0]}"
+
+parse_args \
+  -p,--prefix= 'prefix={}' \
+  -s,--suffix= 'suffix={}' \
+  -d,--delimiter= 'delimiter={}' \
+  -n,--dry-run 'dry_run=1' \
+  -h,--help \
+  -- "$@"
+
+if (( ${#REST[@]} != 1 )); then
+  help
+elif [[ ! -d ${REST[0]} ]]; then
+  throw "not a directory: ${REST[0]}"
 fi
-directory=${paths[0]}
+directory=${REST[0]}
 
 echo 'Scanning directory...'
 file_list=$(cd "$directory" && find . -type f | sed 's/^.\///')

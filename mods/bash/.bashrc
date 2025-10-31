@@ -1,3 +1,6 @@
+# Copyright (c) Max Kagamine
+# Licensed under the Apache License, Version 2.0
+#
 # shellcheck shell=bash disable=SC2120,SC2119
 
 if [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then

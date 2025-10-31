@@ -1,28 +1,38 @@
 #!/bin/bash
+#
+# Copyright (c) Max Kagamine
+# Licensed under the Apache License, Version 2.0
+#
 set -eo pipefail
 
-if [[ $# == 0 || $1 =~ ^(--help|-h)$ ]]; then
-  cat >&2 <<EOF
+# shellcheck source=mods/bash/.local/lib/common.sh
+. ~/.local/lib/common.sh
+
+help() {
+  cat >&2 <<'EOF'
 Usage: intersect-csvs [-n] <csv 1> <csv 2> ...
 
 Creates CSVs containing only rows that exist in two or more of the given CSVs.
 For example, given A.csv, B.csv, and C.csv, creates A+B.csv, A+C.csv, B+C.csv,
 and A+B+C.csv. Each CSV should have the same header row.
 
--n    Dry run.
+Options:
+
+  -n, --dry-run    Dry run.
 EOF
   exit 1
-fi
+}
 
 dry_run=
-if [[ $1 == '-n' ]]; then
-  dry_run=1
-  shift
-fi
 
-header=$(head -1 "$1")
+parse_args \
+  -n,--dry-run 'dry_run=1' \
+  -h,--help \
+  -- "$@"
+
+header=$(head -1 "${REST[0]}")
 count=1
-already_created=("$@")
+already_created=("${REST[@]}")
 
 is_already_created() {
   printf '%s\0' "${already_created[@]}" | grep -Fxqz -- "$1"

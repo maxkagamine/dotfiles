@@ -1,44 +1,33 @@
 #!/bin/bash
+#
+# Copyright (c) Max Kagamine
+# Licensed under the Apache License, Version 2.0
+#
 set -eo pipefail
-shopt -s nullglob
 
-throw() {
-  printf '%s: %s\n' "${0##*/}" "$1" >&2
-  return 1
-}
+# shellcheck source=mods/bash/.local/lib/common.sh
+. ~/.local/lib/common.sh
 
-if [[ $1 =~ ^(--help|-h)$ ]]; then
+help() {
   cat >&2 <<'EOF'
 Usage: mkv-rm-cover <path...>
 
 Removes all image/jpeg and image/png attachments from the given MKVs.
 
-See also: mkv-clean
-
 Directories are expanded to contained *.mkv files (non-recursive). If no paths
-are given, the current directory is used (equivalent to `mkv-rm-cover *.mkv`).
+are given, the current directory is used.
+
+See also: mkv-clean
 EOF
   exit 1
-fi
+}
 
-paths=()
-paths_given=
-while (( $# > 0 )); do
-  if [[ -d "$1" ]]; then
-    paths+=("$1"/*.mkv)
-    paths_given=1
-  else
-    paths+=("$1")
-    paths_given=1
-  fi
-  shift
-done
-if [[ ! $paths_given ]]; then
-  paths=(*.mkv)
-fi
-if (( ${#paths[@]} == 0 )); then
-  throw 'no files to process'
-fi
+parse_args \
+  -h,--help \
+  -- "$@"
+
+expand_directories \
+  --glob '*.mkv' --var paths --default . --required -- "${REST[@]}"
 
 for f in "${paths[@]}"; do
 

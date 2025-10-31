@@ -1,8 +1,15 @@
 #!/bin/bash
+#
+# Copyright (c) Max Kagamine
+# Licensed under the Apache License, Version 2.0
+#
 set -eo pipefail
 
-if [[ $# == 0 || $1 =~ ^(--help|-h)$ ]]; then
-  cat >&2 <<EOF
+# shellcheck source=mods/bash/.local/lib/common.sh
+. ~/.local/lib/common.sh
+
+help() {
+  cat >&2 <<'EOF'
 Usage: rate <num> [<suffix>]
 
 Rate-limits a pipe. <num> and <suffix> may be two args or one, with or without
@@ -13,14 +20,17 @@ Example:
   tail -f urls.txt | rate 5s | x wget  # DL's urls no faster than every 5 sec
 EOF
   exit 1
-fi
+}
 
+parse_args \
+  -h,--help \
+  -- "$@"
 
 if ! interval=$(perl -pe '
     s/^(\d+)\s*(s(ec(ond)?s?)?)?$/$1 sec/ ||
     s/^(\d+)\s*m(in(ute)?s?)?$/$1 min/ ||
-    s/^(\d+)\s*h((ou)?rs?)?$/$1 hour/ || exit 1' <<<"$*"); then
-  printf "rate: invalid interval '%s'\n" "$*" >&2
+    s/^(\d+)\s*h((ou)?rs?)?$/$1 hour/ || exit 1' <<<"${REST[*]}"); then
+  printf "rate: invalid interval '%s'\n" "${REST[*]}" >&2
   exit 1
 fi
 

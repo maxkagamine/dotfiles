@@ -1,15 +1,16 @@
 #!/bin/bash
+#
+# Copyright (c) Max Kagamine
+# Licensed under the Apache License, Version 2.0
+#
 set -eo pipefail
-shopt -s nullglob
 
-throw() {
-  printf '%s: %s\n' "${0##*/}" "$1" >&2
-  return 1
-}
+# shellcheck source=mods/bash/.local/lib/common.sh
+. ~/.local/lib/common.sh
 
-if [[ $1 =~ ^(--help|-h)$ ]]; then
+help() {
   cat >&2 <<'EOF'
-Usage: mkv-ls [--attachments|-a] [<path...>]
+Usage: mkv-ls [-a|--attachments] [<path...>]
 
 Lists the tracks in an mkv for muxing with mkvmerge or mkv-batch, including
 track name, language, and whether it's the default track. (`mkvmerge -i` does
@@ -19,37 +20,26 @@ If multiple files given, mkv-ls will group identical track listings, displaying
 each group's filenames in an escaped format that can be passed to mkv-batch.
 
 Directories are expanded to contained *.mkv files (non-recursive). If no paths
-are given, the current directory is used (equivalent to `mkv-ls *.mkv`).
+are given, the current directory is used.
 
 Note: Video title is not shown when grouping.
 
 Options:
 
-  --attachments, -a      Show attachments as well (cover, fonts, etc.)
+  -a, --attachments    Show attachments as well (cover, fonts, etc.)
 EOF
   exit 1
-fi
+}
 
-paths=()
-paths_given=
 attachments=
-while (( $# > 0 )); do
-  if [[ $1 =~ ^--attachments|-a$ ]]; then
-    attachments=1
-  elif [[ -f "$1" ]]; then
-    paths+=("$1")
-    paths_given=1
-  elif [[ -d "$1" ]]; then
-    paths+=("$1"/*.mkv)
-    paths_given=1
-  else
-    throw "'$1' does not exist"
-  fi
-  shift
-done
-if [[ ! $paths_given ]]; then
-  paths=(*.mkv)
-fi
+
+parse_args \
+  -a,--attachments 'attachments=1' \
+  -h,--help \
+  -- "$@"
+
+expand_directories \
+  --glob '*.mkv' --var paths --default . --required -- "${REST[@]}"
 
 list_tracks() {
   jq_track_name='.properties.track_name // ""'

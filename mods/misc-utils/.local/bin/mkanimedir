@@ -1,18 +1,15 @@
 #!/bin/bash
+#
+# Copyright (c) Max Kagamine
+# Licensed under the Apache License, Version 2.0
+#
 set -eo pipefail
 
-throw() {
-  printf '%s: %s\n' "${0##*/}" "$1" >&2
-  return 1
-}
+# shellcheck source=mods/bash/.local/lib/common.sh
+. ~/.local/lib/common.sh
 
-sanitize_filename() {
-  # Replaces chars invalid in Windows file/dir names with a space
-  perl -pe 's/[<>:"\/\\|?*]/ /g; s/ +/ /g; s/^ +|[ \.]+$//g' <<<"$1"
-}
-
-if [[ $# == 0 || $1 =~ ^(--help|-h)$ ]]; then
-  cat >&2 <<EOF
+help() {
+  cat >&2 <<'EOF'
 Usage: mkanimedir <mal link> [<nyaa link>] [<dir>|<files...>]
 
 Creates (or renames) a directory with the anime name and image (as a hidden
@@ -24,42 +21,47 @@ Example:
   mkanimedir https://myanimelist.net/anime/6547/Angel_Beats
 EOF
   exit 1
-fi
+}
 
 # Parse options
 mal_id=
 nyaa_url=
 existing_dir=
 files=()
-while (( $# > 0 )); do
-  case $1 in
-    -*)
-      throw "unknown option: $1"
-      ;;
+
+parse_args \
+  -h,--help \
+  -- "$@"
+
+for x in "${REST[@]}"; do
+  case $x in
     https://myanimelist.net/*)
-      if [[ ! $1 =~ ^https://myanimelist.net/anime/([[:digit:]]+) ]]; then
+      if [[ ! $x =~ ^https://myanimelist.net/anime/([[:digit:]]+) ]]; then
         throw 'unrecognized mal url'
       fi
       mal_id=${BASH_REMATCH[1]}
       ;;
     https://*nyaa.si/*)
-      nyaa_url=$1
+      nyaa_url=$x
+      ;;
+    http://*|https://*)
+      throw 'unrecognized url'
       ;;
     *)
-      if [[ -d $1 ]]; then
+      if [[ -d $x ]]; then
         if [[ $existing_dir ]]; then
           throw 'multiple directories given'
         fi
-        existing_dir=$1
-      elif [[ -f $1 ]]; then
-        files+=("$1")
+        existing_dir=$x
+      elif [[ -f $x ]]; then
+        files+=("$x")
       else
-        throw "'$1' is neither an option nor a file or directory..."
+        throw "'$x' is neither an option nor a file or directory..."
       fi
       ;;
   esac
-  shift
 done
+
 if [[ ! $mal_id ]]; then
   throw 'no mal url given'
 fi
@@ -78,7 +80,7 @@ fi
 
 # Create or rename directory
 base=$(dirname "$existing_dir") # . if empty
-dir=$base/$(sanitize_filename "$title")
+dir="$base/$(sanitize-filename -- "$title")"
 
 if [[ ! $existing_dir -ef "$dir" ]]; then
   if [[ -e $dir ]]; then

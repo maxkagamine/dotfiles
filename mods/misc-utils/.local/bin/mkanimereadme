@@ -1,41 +1,48 @@
 #!/bin/bash
+#
+# Copyright (c) Max Kagamine
+# Licensed under the Apache License, Version 2.0
+#
 set -eo pipefail
 
-throw() {
-  printf '%s: %s\n' "${0##*/}" "$1" >&2
-  return 1
-}
+# shellcheck source=mods/bash/.local/lib/common.sh
+. ~/.local/lib/common.sh
 
-if [[ $# == 0 || $1 =~ ^(--help|-h)$ ]]; then
-  cat >&2 <<EOF
+help() {
+  cat >&2 <<'EOF'
 Usage: mkanimereadme <nyaa link> [<dir>]
 
 Creates a readme.md file in <dir> or the current directory.
 EOF
   exit 1
-fi
+}
 
 # Parse options
 nyaa_url=
 dir=.
-while (( $# > 0 )); do
-  case $1 in
+
+parse_args \
+  -h,--help \
+  -- "$@"
+
+for x in "${REST[@]}"; do
+  case $x in
     https://*nyaa.si/*)
-      if [[ ! $1 =~ ^https://.*nyaa\.si/view/([[:digit:]]+) ]]; then
+      if [[ ! $x =~ ^https://.*nyaa\.si/view/([[:digit:]]+) ]]; then
         throw 'unrecognized nyaa url'
       fi
-      nyaa_url=$1
+      nyaa_url=$x
       ;;
     *)
-      if [[ -d $1 ]]; then
-        dir=$1
+      if [[ -d $x ]]; then
+        dir=$x
       else
-        throw "'$1' is neither an Nyaa link nor a directory..."
+        throw "'$x' is neither an Nyaa link nor a directory..."
       fi
       ;;
   esac
-  shift
 done
+
 if [[ ! $nyaa_url ]]; then
   throw '🐱?'
 fi

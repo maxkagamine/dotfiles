@@ -1,0 +1,79 @@
+#!/usr/bin/perl
+#
+# Copyright (c) Max Kagamine
+# Licensed under the Apache License, Version 2.0
+#
+use strict;
+use warnings;
+use Getopt::Long;
+use Pod::Usage;
+
+my $special = '';
+my $help = '';
+
+GetOptions(
+  'special' => \$special,
+  'help' => \$help,
+) or exit(1);
+
+pod2usage(1) if $help;
+
+for (@ARGV ? @ARGV : map { chomp; $_ } <STDIN>) {
+
+  my $orig = $_;
+
+  if ($special) {
+    s/</﹤/g;
+    s/>/﹥/g;
+    s/:/꞉/g;
+    s/"/″/g;
+    s/\//⧸/g;
+    s/\\/⧹/g;
+    s/\|/￨/g;
+    s/\?/？/g;
+    s/\*/∗/g;
+  } else {
+    s/[<>:"\/\\|?*]/ /g;
+    s/ +/ /g;
+  }
+
+  # Remove control chars
+  s/[\x00-\x1f\x7f]//g;
+
+  # Trim whitespace and trailing dots
+  s/^ +|[ \.]+$//g;
+
+  if (/^\s*$/) {
+    die("sanitize-filename: filename is empty or whitespace (unsanitized input: '$orig')\n");
+  }
+
+  if (/^(CON|PRN|AUX|NUL|(COM|LPT)[0-9])(\..*)?$/i) {
+    die("sanitize-filename: '$_' is a reserved DOS filename (unsanitized input: '$orig')\n");
+  }
+
+  print $_ . "\n";
+
+}
+
+__END__
+
+=head1 SYNOPSIS
+
+sanitize-filename [--special] [<filename>...]
+
+Replaces characters invalid in Windows file/directory names with a space
+(collapsing consecutive spaces), then trims whitespace and trailing dots.
+
+Fails if the resulting filename is empty or a reserved DOS filename.
+
+Multiple filenames can be given. Reads from stdin if no <filename>.
+
+=head1 OPTIONS
+
+=over 4
+
+=item B<--special>
+
+Replaces invalid chars with Unicode equivalents rather than spaces.
+
+=back

@@ -1,18 +1,14 @@
 #!/bin/bash
+#
+# Copyright (c) Max Kagamine
+# Licensed under the Apache License, Version 2.0
+#
 set -eo pipefail
-shopt -s nullglob
 
-throw() {
-  printf '%s: %s\n' "${0##*/}" "$1" >&2
-  return 1
-}
+# shellcheck source=mods/bash/.local/lib/common.sh
+. ~/.local/lib/common.sh
 
-sanitize_filename() {
-  # Replaces chars invalid in Windows file/dir names with a space
-  perl -pe 's/[<>:"\/\\|?*]/ /g; s/ +/ /g; s/^ +|[ \.]+$//g' <<<"$1"
-}
-
-if [[ $1 =~ ^(--help|-h)$ ]]; then
+help() {
   cat >&2 <<'EOF'
 Usage: mkv-extract-subs [-l <languages>] [-n] [<path...>]
 
@@ -23,57 +19,25 @@ are given, the current directory is used.
 
 Options:
 
-  -l <languages>    Comma-separated list of three-letter language codes to
-                    extract. Example: -l eng,und
+  -l, --lang <languages>    Comma-separated list of three-letter language codes
+                            to extract. Example: -l eng,und
 
-  -n                Dry run.
+  -n, --dry-run             Dry run.
 EOF
   exit 1
-fi
+}
 
 languages=()
-paths=()
-paths_given=
 dry_run=
-while (( $# > 0 )); do
-  case $1 in
-    --)
-      shift
-      paths+=("$@")
-      break
-      ;;
-    # languages
-    -l)
-      shift
-      IFS=',' read -r -a languages <<<"$1"
-      ;;
-    -l*)
-      IFS=',' read -r -a languages <<<"${1#-l}"
-      ;;
-    # dry run
-    -n)
-      dry_run=1
-      ;;
-    -*)
-      throw "unknown option: $1"
-      ;;
-    *)
-      if [[ -f "$1" ]]; then
-        paths+=("$1")
-        paths_given=1
-      elif [[ -d "$1" ]]; then
-        paths+=("$1"/*.mkv)
-        paths_given=1
-      else
-        throw "'$1' does not exist"
-      fi
-      ;;
-  esac
-  shift
-done
-if [[ ! $paths_given ]]; then
-  paths=(*.mkv)
-fi
+
+parse_args \
+  -l,--lang 'IFS=, read -r -a languages <<<"{}"' \
+  -n,--dry-run 'dry_run=1' \
+  -h,--help \
+  -- "$@"
+
+expand_directories \
+  --glob '*.mkv' --var paths --default . --required -- "${REST[@]}"
 
 list_subtitle_tracks() { # <path>
   mkvmerge -J "$1" | jq -r '
@@ -136,7 +100,7 @@ for path in "${paths[@]}"; do
       printf '  \e[36mSkipping\e[m %s\n' "$formatted_name"
     else
       printf '  \e[32mExtracting\e[m %s\n' "$formatted_name"
-      filename="$basename - $(sanitize_filename "$formatted_name")"
+      filename="$basename - $(sanitize-filename -- "$formatted_name")"
       filename+=$(get_extension "$track_codec")
       subs+=("$track_id:$dir/$filename")
     fi

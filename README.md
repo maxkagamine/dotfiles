@@ -26,7 +26,7 @@ As Stow doesn't ([yet][stow todo]) support pre/post-install hooks, I'm emulating
 
 Best part about this setup is it doesn't require any dotfile-specific frameworks or YAML files. Just run `make`.
 
-Notable mods (headers link to the relevant file/directory):
+Notable mods (**headers link to the relevant file/directory**):
 
 ## <img src=".github/images/icons/terminal.png" height="30" align="top" /> [bash](mods/bash)
 
@@ -36,9 +36,21 @@ Applies the convention of loading configuration files from a directory to bashrc
 
 There's also a suite of [Linq functions](https://github.com/maxkagamine/dotfiles/blob/master/mods/bash/.bashrc#:~:text=Linq) tucked away here which .NET devs will find familiar.
 
+### [~/.local/lib/common.sh](mods/bash/.local/lib/common.sh)
+
+Common functions for bash scripts:
+
+- **`throw`** — Prints an error prefixed with the name of the script and exits with 1. Simplifies "throwing exceptions" in scripts.
+
+- **`parse_args`** — Parses GNU-style options. Supports short and long options, combined/bundled short options, options with values (in any format: `--foo value`, `-f value`, `--foo=value`, or `-fvalue`), repeated options (by using a callback), option aliases, and the `--` to stop option processing.
+
+- **`expand_directories`** — Reads paths and replaces directories with their containing files while passing along file paths as-is. Has various options and can operate either as part of a pipe or in a manner similar to readarray.
+
+For examples, see [**upscale**](mods/misc-utils/.local/bin/upscale), [**mkv-ls**](mods/mkvtoolnix/.local/bin/mkv-ls) (& the other mkv scripts, [detailed below ↓](#-mkvtoolnix)), and [**weigh**](/mods/misc-utils/.local/bin/weigh).
+
 ## <img src=".github/images/icons/git.svg" align="top" height="30" /> [git](mods/git)
 
-[Git aliases](mods/git/.config/bashrc.d/git.sh) and [aliases](mods/git/.config/git/config) (including my favorite: the alias alias, `git alias`) + the "gg" function I use so much [I wrote an article about it][gg-faster-git-commits], and of course what would be a _Max Kagamine_ system without a myriad of [Skyrim references][fus-ro-dah] (brace yourself).
+[Git aliases](mods/git/.config/bashrc.d/git.sh) and [aliases](mods/git/.config/git/config) (including my favorite: the alias alias, `git alias`) + the "gg" function I use so much ~~[I wrote an article about it][gg-faster-git-commits]~~, and of course what would be a _Max Kagamine_ system without a myriad of ~~[Skyrim references][fus-ro-dah]~~ (brace yourself).
 
 Oh and _[empty string is git status](mods/git/.config/bashrc.d/zz_empty_string_is_git_status.sh):_
 
@@ -226,9 +238,9 @@ Tools for batch remuxing MKVs using mkvtoolnix: [**mkv-ls**](mods/mkvtoolnix/.lo
   
 For example, if I wanted to keep only the Japanese audio and remove the Signs & Songs tracks from everything except the "Another Epilogue" special (which `mkv-ls` shows has different tracks):
   
-<img src=".github/images/mkv-ls.png" width="500" />
+<img src=".github/images/mkv-ls.png" width="550" />
 
-_(The escaped filenames in gray are for copy/pasting into the `mkv-batch` command, but for screenshot purposes I used the `!()` glob syntax instead.)_
+_(The escaped filenames in gray are for copy/pasting into the `mkv-batch` command; to fit it in the screenshot I used the `!()` glob syntax instead.)_
 
 Additional tools:
 
@@ -252,6 +264,7 @@ Miscellaneous utilities:
 - [**mkanimedir**](mods/misc-utils/.local/bin/mkanimedir) — Turns a MAL link and a bunch of episodes into a nice folder.
 - [**mkmoviedir**](mods/misc-utils/.local/bin/mkmoviedir) — Like mkanimedir but for an IMDb link.
 - [**rate**](mods/misc-utils/.local/bin/rate) — Rate-limits a pipe.
+- [**sanitize-filename**](mods/misc-utils/.local/bin/sanitize-filename) — Replaces characters invalid in Windows file/directory names with either a space or Unicode lookalikes.
 - [**title-case**](mods/misc-utils/.local/bin/title-case) — Converts text to properly-capitalized title case.
 - [**ubo-sort**](mods/misc-utils/.local/bin/ubo-sort) — Organizes uBlock Origin filter lists.
 - [**upscale**](mods/misc-utils/.local/bin/upscale) — Wrapper for several AI image upscalers, with options for automatic batch processing.
@@ -261,7 +274,7 @@ Miscellaneous utilities:
 
 _I need to ask you to stop. That... committing... is making people nervous._
 
-In case you missed it: [**Nuke a git repo with unrelenting force: the FUS RO DAH command**][fus-ro-dah]
+In case you missed it: ~~[**Nuke a git repo with unrelenting force: the FUS RO DAH command**][fus-ro-dah]~~
 
 ## [cron](mods/cron/)
 

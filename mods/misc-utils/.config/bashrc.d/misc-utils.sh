@@ -1,3 +1,6 @@
+# Copyright (c) Max Kagamine
+# Licensed under the Apache License, Version 2.0
+#
 # shellcheck shell=bash
 
 alias mad='mkanimedir'
@@ -14,9 +17,9 @@ complete -f -W '
   -s
   -n
   -f
-  --histmatch
+  --no-histmatch
   --dry-run
-  --verbose
+  -v --verbose
   -h --help
 ' upscale up
 
@@ -29,7 +32,7 @@ complete -d -W '
 ' flatten
 
 complete -f -d -W '
-  -z
+  -z --gzip
   --si
   --paths-from-stdin
   -h --help
