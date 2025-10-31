@@ -1,23 +1,34 @@
 #!/bin/bash
+#
+# Copyright (c) Max Kagamine
+# Licensed under the Apache License, Version 2.0
+#
 set -eo pipefail
 
-if [[ $# == 0 || $1 =~ ^(--help|-h)$ ]]; then
-  cat >&2 <<EOF
+# shellcheck source=mods/bash/.local/lib/common.sh
+. ~/.local/lib/common.sh
+
+help() {
+  cat >&2 <<'EOF'
 Usage: append-crc [-n] <file>...
 
 Adds (or updates) a file's CRC32 hash to its filename.
 
-  -n  Dry run.
+Options:
+
+  -n, --dry-run    Dry run.
 EOF
   exit 1
-fi
+}
 
-if [[ $1 == '-n' ]]; then
-  dry_run=1
-  shift
-fi
+dry_run=
 
-for f; do
+parse_args \
+  -n,--dry-run 'dry_run=1' \
+  -h,--help \
+  -- "$@"
+
+for f in "${REST[@]}"; do
   crc=$(crc32 "$f" | cut -f1)
   name=$(perl -pe 's/^(.*?)( ?\[[0-9a-f]{8}\])?(\.[^\.]+)?$/\1 ['"$crc"']\3/' <<<"$f")
 

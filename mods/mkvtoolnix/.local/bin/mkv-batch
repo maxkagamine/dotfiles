@@ -1,11 +1,12 @@
 #!/bin/bash
+#
+# Copyright (c) Max Kagamine
+# Licensed under the Apache License, Version 2.0
+#
 set -eo pipefail
-shopt -s nullglob
 
-throw() {
-  printf '%s: %s\n' "${0##*/}" "$1" >&2
-  return 1
-}
+# shellcheck source=mods/bash/.local/lib/common.sh
+. ~/.local/lib/common.sh
 
 if [[ $# == 0 || $1 =~ ^(--help|-h)$ ]]; then
   cat >&2 <<'EOF'
@@ -16,7 +17,7 @@ beginning with a dash are interpreted as input files; all others are passed to
 mkvmerge.
 
 Directories are expanded to contained *.mkv files (non-recursive). If no paths
-are given, the current directory is used (equivalent to `mkv-batch *.mkv`).
+are given, the current directory is used.
 
 Common options:
 
@@ -31,27 +32,16 @@ EOF
 fi
 
 paths=()
-paths_given=
-opts=()
-while (( $# > 0 )); do
-  if [[ $1 == -* ]]; then
-    opts=("$@")
-    break
-  elif [[ -d "$1" ]]; then
-    paths+=("$1"/*.mkv)
-    paths_given=1
-  else
-    paths+=("$1")
-    paths_given=1
-  fi
+while [[ $# != 0 && $1 != -* ]]; do
+  paths+=("$1")
   shift
 done
-if [[ ! $paths_given ]]; then
-  paths=(*.mkv)
-fi
-if (( ${#paths[@]} == 0 )); then
-  throw 'no files to process'
-fi
+
+expand_directories \
+  --glob '*.mkv' --var paths --default . --required -- "${paths[@]}"
+
+opts=("$@")
+
 if (( ${#opts[@]} == 0 )) && [[ ! $CLEANING ]]; then
   throw 'no mkvmerge opts given'
 fi

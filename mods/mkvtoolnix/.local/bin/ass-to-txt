@@ -1,11 +1,40 @@
 #!/bin/bash
+#
+# Copyright (c) Max Kagamine
+# Licensed under the Apache License, Version 2.0
+#
 set -eo pipefail
-shopt -s nullglob
 
-throw() {
-  printf '%s: %s\n' "${0##*/}" "$1" >&2
-  return 1
+# shellcheck source=mods/bash/.local/lib/common.sh
+. ~/.local/lib/common.sh
+
+help() {
+  cat >&2 <<'EOF'
+Usage: ass-to-txt [-k] [<subs>]
+
+Strips out everything but the dialogue to make diffing subtitles easier. Inline
+formatting is left as is.
+
+Directories are expanded to contained *.ass files (non-recursive). If no paths
+are given, the current directory is used.
+
+Options:
+
+  -k    Keep the .ass files. By default, the subs are removed or recycled and
+        replaced with .txt files.
+EOF
+  exit 1
 }
+
+keep=
+
+parse_args \
+  -k 'keep=1' \
+  -h,--help \
+  -- "$@"
+
+expand_directories \
+  --glob '*.ass' --var paths --default . --required -- "${REST[@]}"
 
 delete() {
   if command -v recycle &>/dev/null; then
@@ -14,52 +43,6 @@ delete() {
     rm -fv "$@"
   fi
 }
-
-if [[ $1 =~ ^(--help|-h)$ ]]; then
-  cat >&2 <<'EOF'
-Usage: ass-to-txt [-k] [<subs>]
-
-Strips out everything but the dialogue to make diffing subtitles easier. Inline
-formatting is left as is.
-
-<subs> defaults to `*.ass`.
-
-Options:
-
-  -k    Keep the .ass files. By default, the subs are removed or recycled and
-        replaced with .txt files.
-EOF
-  exit 1
-fi
-
-paths=()
-keep=
-while (( $# > 0 )); do
-  case $1 in
-    --)
-      shift
-      paths+=("$@")
-      break
-      ;;
-    -k)
-      shift
-      keep=1
-      ;;
-    -*)
-      throw "unknown option: $1"
-      ;;
-    *)
-      paths+=("$1")
-      ;;
-  esac
-  shift
-done
-if (( ${#paths[@]} == 0 )); then
-  paths=(*.ass)
-fi
-if (( ${#paths[@]} == 0 )); then
-  throw 'no files to process'
-fi
 
 for f in "${paths[@]}"; do
   output="${f%.*}.txt"

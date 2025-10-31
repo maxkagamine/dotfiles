@@ -1,32 +1,33 @@
 #!/bin/bash
+#
+# Copyright (c) Max Kagamine
+# Licensed under the Apache License, Version 2.0
+#
 set -eo pipefail
-shopt -s nullglob
 
-throw() {
-  printf '%s: %s\n' "${0##*/}" "$1" >&2
-  return 1
-}
+# shellcheck source=mods/bash/.local/lib/common.sh
+. ~/.local/lib/common.sh
 
-if [[ $1 =~ ^(--help|-h)$ ]]; then
+help() {
   cat >&2 <<'EOF'
 Usage: ass-ls-fonts [<subs>]
 
 Lists all unique fonts referenced in the subs via either `Style:` or `\fn`.
 
-<subs> defaults to `*.ass`.
+Directories are expanded to contained *.ass files (non-recursive). If no paths
+are given, the current directory is used.
 EOF
   exit 1
-fi
+}
 
-subs=("$@")
-if (( $# == 0 )); then
-  subs=(*.ass)
-fi
-if (( ${#subs[@]} == 0 )); then
-  throw 'no files to process'
-fi
+parse_args \
+  -h,--help \
+  -- "$@"
+
+expand_directories \
+  --glob '*.ass' --var paths --default . --required -- "${REST[@]}"
 
 perl -ne '
   /^Style:.*?,([^,]+)/ && print "$1\n";
   print "$1\n" while /\\fn([^\\\}]+)/g;
-' "${subs[@]}" | sort -u
+' "${paths[@]}" | sort -u

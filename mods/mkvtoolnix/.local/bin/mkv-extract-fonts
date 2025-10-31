@@ -1,13 +1,14 @@
 #!/bin/bash
+#
+# Copyright (c) Max Kagamine
+# Licensed under the Apache License, Version 2.0
+#
 set -eo pipefail
-shopt -s nullglob
 
-throw() {
-  printf '%s: %s\n' "${0##*/}" "$1" >&2
-  return 1
-}
+# shellcheck source=mods/bash/.local/lib/common.sh
+. ~/.local/lib/common.sh
 
-if [[ $1 =~ ^(--help|-h)$ ]]; then
+help() {
   cat >&2 <<'EOF'
 Usage: mkv-extract-fonts [-n] [<path...>]
 
@@ -19,44 +20,20 @@ are given, the current directory is used.
 
 Options:
 
-  -n        Dry run.
+  -n, --dry-run    Dry run.
 EOF
   exit 1
-fi
+}
 
-paths=()
-paths_given=
 dry_run=
-while (( $# > 0 )); do
-  case $1 in
-    --)
-      shift
-      paths+=("$@")
-      break
-      ;;
-    -n)
-      dry_run=1
-      ;;
-    -*)
-      throw "unknown option: $1"
-      ;;
-    *)
-      if [[ -f "$1" ]]; then
-        paths+=("$1")
-        paths_given=1
-      elif [[ -d "$1" ]]; then
-        paths+=("$1"/*.mkv)
-        paths_given=1
-      else
-        throw "'$1' does not exist"
-      fi
-      ;;
-  esac
-  shift
-done
-if [[ ! $paths_given ]]; then
-  paths=(*.mkv)
-fi
+
+parse_args \
+  -n,--dry-run 'dry_run=1' \
+  -h,--help \
+  -- "$@"
+
+expand_directories \
+  --glob '*.mkv' --var paths --default . --required -- "${REST[@]}"
 
 list_fonts() { # <path>
   mkvmerge -J "$1" | jq -r '

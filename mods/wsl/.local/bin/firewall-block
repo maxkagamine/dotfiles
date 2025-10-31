@@ -1,24 +1,45 @@
 #!/bin/bash
+#
+# Copyright (c) Max Kagamine
+# Licensed under the Apache License, Version 2.0
+#
 set -eo pipefail
 
-if [[ $# == 0 || $1 =~ ^(--help|-h)$ ]]; then
+# shellcheck source=mods/bash/.local/lib/common.sh
+. ~/.local/lib/common.sh
+
+help() {
   cat >&2 <<EOF
 Usage: firewall-block <programs to block>
 
 Creates outbound rules blocking the given exes. Directories are recursed, and
 all exes contained within are blocked.
+
+Options:
+
+  -n, --dry-run    Dry run.
 EOF
   exit 1
-fi
+}
 
-for path; do
-  if [[ -d $path ]]; then
-    find "$path" -type f -iname '*.exe' -print0 | xargs -0 "$0"
-    continue
-  fi
+dry_run=
+
+parse_args \
+  -n,--dry-run 'dry_run=1' \
+  -h,--help \
+  -- "$@"
+
+expand_directories \
+  -r --glob '*.exe' --var paths --required -- "${REST[@]}"
+
+for path in "${paths[@]}"; do
   exe=$(wslpath -aw "$path")
   if netsh.exe advfirewall firewall show rule name="$exe" dir=out | dos2unix | grep -q '^Action:\s*Block'; then
-    echo "Already blocked: $exe"
+    echo "✅ Already blocked: $exe"
+    continue
+  fi
+  if [[ $dry_run ]]; then
+    echo "🔥 Would block: $exe"
     continue
   fi
   if ! output=$(netsh.exe advfirewall firewall add rule name="$exe" dir=out action=block program="$exe" | dos2unix); then

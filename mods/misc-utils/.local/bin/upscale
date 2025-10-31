@@ -74,7 +74,8 @@ Options:
 
   <image or directory>  One or more images to process. Upscaled images are saved
                         alongside the input. Directories are expanded to
-                        containing png/jpg/jpeg/jfif files (non-recursively).
+                        containing png/jpg/jpeg/jfif files (case-insensitive,
+                        non-recursive).
 EOF
   exit 1
 }
@@ -103,17 +104,8 @@ parse_args \
   -h,--help \
   -- "$@"
 
-for path in "${REST[@]}"; do
-  if [[ -d $path ]]; then
-    paths+=("$path"/*.{png,jpg,jpeg,jfif,PNG,JPG,JPEG,JFIF})
-  else
-    paths+=("$path")
-  fi
-done
-
-if (( ${#paths[@]} == 0 )); then
-  throw 'no images to upscale'
-fi
+expand_directories \
+  --glob '*.{png,jpg,jpeg,jfif}' --var paths --required -- "${REST[@]}"
 
 if (( ${#upscalers[@]} == 0 )); then
   if [[ $scale == 'auto' ]]; then

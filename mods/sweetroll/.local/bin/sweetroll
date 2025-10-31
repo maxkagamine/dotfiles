@@ -1,5 +1,12 @@
 #!/bin/bash
+#
+# Copyright (c) Max Kagamine
+# Licensed under the Apache License, Version 2.0
+#
 set -eo pipefail
+
+# shellcheck source=mods/bash/.local/lib/common.sh
+. ~/.local/lib/common.sh
 
 DATA_DIR=~/.local/share/sweetroll
 STATS_FILE="$DATA_DIR/stats.json"
@@ -29,11 +36,6 @@ skill <name>
 EOF
   exit 1
 fi
-
-throw() {
-  printf 'sweetroll: %s\n' "$1" >&2
-  return 1
-}
 
 sweetroll_play() { # <sound>
   if [[ $SWEETROLL_STOLEN ]]; then

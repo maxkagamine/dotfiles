@@ -11,7 +11,7 @@ set -eo pipefail
 COLUMNS=$(tput cols)
 
 help() {
-  cat >&2 <<EOF
+  cat >&2 <<'EOF'
 Usage: weigh [-z] [--si] [--paths-from-stdin] [<file|directory>...]
 
 Shows the total size of files, directories, or stdin (gzipped if -z).
@@ -19,9 +19,11 @@ Shows the total size of files, directories, or stdin (gzipped if -z).
 Weighs stdin if neither file/directory paths nor --paths-from-stdin is given,
 or if '-' is given as a path.
 
-  -z, --gzip           Show the gzipped size.
-  --si                 Use SI units (1000 B = 1 KB) instead of KiB etc.
-  --paths-from-stdin   Weigh paths from stdin as they're given.
+Options:
+
+  -z, --gzip            Show the gzipped size.
+  --si                  Use SI units (1000 B = 1 KB) instead of KiB etc.
+  --paths-from-stdin    Weigh paths from stdin as they're given.
 EOF
   exit 1
 }
@@ -37,40 +39,20 @@ parse_args \
   -h,--help \
   -- "$@"
 
-yield_paths() {
-  # Weigh paths passed as arguments
-  for p in "${REST[@]}"; do
-    echo "$p"
-  done
-
-  # Weigh paths from stdin if flag is set
-  if [[ $paths_from_stdin ]]; then
-    cat
-  fi
-
-  # Read stdin if no paths given (and stdin is not paths)
-  if [[ ${#REST[@]} == 0 && ! $paths_from_stdin ]]; then
-    echo '-'
-  fi
-}
-
-expand_directories() {
-  local p
-  while read -r p; do
-    if [[ -d "$p" ]]; then
-      find "$p" -type f
-    else
-      echo "$p"
-    fi
-  done
-}
+expand_dirs_opts=(-r)
+if [[ $paths_from_stdin ]]; then
+  expand_dirs_opts+=(--paths-from-stdin)
+else
+  expand_dirs_opts+=(--default -)
+fi
+expand_dirs_opts+=(-- "${REST[@]}")
 
 # Since stdin in the while is the preceding for loop, save stdin as file
 # descriptor 5 so gzip/wc can access it if needed
 exec 5<&0
 
-# Loop over paths, expanding directories recursively using find
-yield_paths | expand_directories | while read -r f; do
+# Loop over paths, expanding directories recursively
+expand_directories "${expand_dirs_opts[@]}" | while read -r f; do
   # Show current file being weighed on stderr
   if [[ $f != - ]]; then
     printf '\e[1;30m%s\e[m' "${f:0:$((COLUMNS-1))}" >&2

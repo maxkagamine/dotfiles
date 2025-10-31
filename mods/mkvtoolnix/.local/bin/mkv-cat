@@ -1,17 +1,26 @@
 #!/bin/bash
+#
+# Copyright (c) Max Kagamine
+# Licensed under the Apache License, Version 2.0
+#
 set -eo pipefail
 
-if [[ $# == 0 || $1 =~ ^(--help|-h)$ ]]; then
+# shellcheck source=mods/bash/.local/lib/common.sh
+. ~/.local/lib/common.sh
+
+help() {
   cat >&2 <<'EOF'
 Usage: mkv-cat [--no-sort] <input>... <output>
 
 Concatenates the input MKVs, adding chapters for each file.
 
---no-sort    Concatenate inputs in the order given. By default, input files
-             are appended in natural sort order (same as `ls -v`).
+Options:
+
+  --no-sort    Concatenate inputs in the order given. By default, input files
+               are appended in natural sort order (same as `ls -v`).
 EOF
   exit 1
-fi
+}
 
 run() {
   printf '\n>'
@@ -20,38 +29,19 @@ run() {
   "$@"
 }
 
-throw() {
-  printf '%s: %s\n' "${0##*/}" "$1" >&2
-  return 1
-}
-
-paths=()
 no_sort=
-while (( $# > 0 )); do
-  case $1 in
-    --)
-      shift
-      paths+=("$@")
-      break
-      ;;
-    --no-sort)
-      no_sort=1
-      ;;
-    -*)
-      throw "unknown option: $1"
-      ;;
-    *)
-      paths+=("$1")
-      ;;
-  esac
-  shift
-done
-if (( ${#paths[@]} < 3 )); then
+
+parse_args \
+  --no-sort 'no_sort=1' \
+  -h,--help \
+  -- "$@"
+
+if (( ${#REST[@]} < 3 )); then
   throw 'need at least two inputs and an output'
 fi
 
-inputs=("${paths[@]::${#paths[@]}-1}")
-output="${paths[-1]}"
+inputs=("${REST[@]::${#REST[@]}-1}")
+output="${REST[-1]}"
 
 if [[ -e $output ]]; then
   read -rp "Output '$output' already exists. Overwrite? [yN] " yn

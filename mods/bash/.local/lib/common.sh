@@ -1,7 +1,7 @@
 # Copyright (c) Max Kagamine
 # Licensed under the Apache License, Version 2.0
 #
-# shellcheck shell=bash
+# shellcheck shell=bash disable=SC2120
 
 throw() {
   printf '%s: %s\n' "${0##*/}" "$1" >&2
@@ -156,4 +156,96 @@ parse_args() {
       fi
     done
   done
+}
+
+# Usage: expand_directories [-r|--recursive] [--glob <glob>] [--var <var>]
+#                           [--default <path>] [--required]
+#                           [--paths-from-stdin] [[--] <paths>]
+#
+# Reads paths and replaces directories with their containing files while
+# passing along file paths as-is.
+#
+# Options:
+#
+#   -r, --recursive      Expand directories recursively.
+#   --glob <glob>        Filter directory contents to files matching the glob.
+#                        Non-directory paths in the input are unaffected. The
+#                        pattern is case-insensitive unless it contains an
+#                        uppercase character (default fd behavior).
+#   --var <var>          Store result in <var> as an array instead of echoing
+#                        to stdout.
+#   --default <path>     If <paths> is empty (and stdin is as well, if
+#                        --paths-from-stdin is used), uses <path> instead.
+#   --required           If the result is empty, throws 'no files to process'.
+#   --paths-from-stdin   Reads paths from stdin (in addition to <paths>).
+#
+expand_directories() {
+  declare -A OPTS
+  declare -a REST
+  parse_args \
+    -r,--recursive \
+    --glob= \
+    --var= \
+    --default= \
+    --required \
+    --paths-from-stdin \
+    -- "$@"
+
+  # Prepare fd command
+  local fd_opts=(--unrestricted --type file)
+  if [[ ! ${OPTS[recursive]} ]]; then
+    fd_opts+=(--max-depth 1)
+  fi
+  if [[ ${OPTS[glob]} ]]; then
+    fd_opts+=(--glob "${OPTS[glob]}")
+  else
+    fd_opts+=(.) # regex
+  fi
+
+  # Final step of the pipe, either read into an array or pass-through to stdout
+  # shellcheck disable=SC2312 # Handled by wait $! (bash 4.4+)
+  if [[ ${OPTS[var]} ]]; then
+    readarray -t "${OPTS[var]}"
+  else
+    cat
+  fi < <(
+    set -eo pipefail
+    {
+      # Yield paths from positional params, stdin, and/or the default
+      any=
+      for path in "${REST[@]}"; do
+        echo "$path"
+        any=1
+      done
+      if [[ ${OPTS[paths-from-stdin]} ]]; then
+        while read -r path; do
+          echo "$path"
+          any=1
+        done
+      fi
+      if [[ ! $any && ${OPTS[default]} ]]; then
+        echo "${OPTS[default]}"
+      fi
+    } | {
+      # Expand directories
+      while read -r path; do
+        if [[ -d "$path" ]]; then
+          fd "${fd_opts[@]}" "$path"
+        else
+          echo "$path"
+        fi
+      done
+    } | {
+      # Check if anything was output
+      any=
+      while read -r path; do
+        echo "$path"
+        any=1
+      done
+      if [[ ! $any && ${OPTS[required]} ]]; then
+        throw 'no files to process'
+      fi
+    }
+  )
+  wait $! # Result of the process substitution
 }

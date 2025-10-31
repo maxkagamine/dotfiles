@@ -1,5 +1,25 @@
 #!/bin/bash
+#
+# Copyright (c) Max Kagamine
+# Licensed under the Apache License, Version 2.0
+#
 set -eo pipefail
+
+# shellcheck source=mods/bash/.local/lib/common.sh
+. ~/.local/lib/common.sh
+
+help() {
+  cat >&2 <<'EOF'
+Usage: cbz <directories...>
+
+Turns one or more directories into CBZs.
+EOF
+  exit 1
+}
+
+parse_args \
+  -h,--help \
+  -- "$@"
 
 delete() {
   if command -v recycle &>/dev/null; then
@@ -9,16 +29,7 @@ delete() {
   fi
 }
 
-if [[ $# == 0 || $1 =~ ^(--help|-h)$ ]]; then
-  cat >&2 <<EOF
-Usage: cbz <directories...>
-
-Turns one or more directories into CBZs.
-EOF
-  exit 1
-fi
-
-for dir; do
+for dir in "${REST[@]}"; do
   if [[ ! -d $dir ]]; then # Makes it easy to just do `cbz *`
     echo "Skipping $dir: Not a directory"
     continue
