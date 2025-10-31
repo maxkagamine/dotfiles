@@ -39,11 +39,6 @@ parse_args \
 expand_directories \
   --glob '*.mkv' --var paths --default . --required -- "${REST[@]}"
 
-sanitize_filename() {
-  # Replaces chars invalid in Windows file/dir names with a space
-  perl -pe 's/[<>:"\/\\|?*]/ /g; s/ +/ /g; s/^ +|[ \.]+$//g' <<<"$1"
-}
-
 list_subtitle_tracks() { # <path>
   mkvmerge -J "$1" | jq -r '
     if .tracks | type != "array" then
@@ -105,7 +100,7 @@ for path in "${paths[@]}"; do
       printf '  \e[36mSkipping\e[m %s\n' "$formatted_name"
     else
       printf '  \e[32mExtracting\e[m %s\n' "$formatted_name"
-      filename="$basename - $(sanitize_filename "$formatted_name")"
+      filename="$basename - $(sanitize-filename -- "$formatted_name")"
       filename+=$(get_extension "$track_codec")
       subs+=("$track_id:$dir/$filename")
     fi

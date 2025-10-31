@@ -58,11 +58,6 @@ for x in "${REST[@]}"; do
   shift
 done
 
-sanitize_filename() {
-  # Replaces chars invalid in Windows file/dir names with a space
-  perl -pe 's/[<>:"\/\\|?*]/ /g; s/ +/ /g; s/^ +|[ \.]+$//g' <<<"$1"
-}
-
 fetch_data() { # <url> <title suffix>, sets $html, $title, $image
   local url=$1
   local title_suffix=$2
@@ -88,7 +83,7 @@ else
   throw 'need either an imdb url or a mydramalist url'
 fi
 
-dir=$(sanitize_filename "$title")
+dir=$(sanitize-filename -- "$title")
 
 mkdir -pv "$dir"
 

@@ -252,6 +252,7 @@ Miscellaneous utilities:
 - [**mkanimedir**](mods/misc-utils/.local/bin/mkanimedir) — Turns a MAL link and a bunch of episodes into a nice folder.
 - [**mkmoviedir**](mods/misc-utils/.local/bin/mkmoviedir) — Like mkanimedir but for an IMDb link.
 - [**rate**](mods/misc-utils/.local/bin/rate) — Rate-limits a pipe.
+- [**sanitize-filename**](mods/misc-utils/.local/bin/sanitize-filename) — Replaces characters invalid in Windows file/directory names with either a space or Unicode lookalikes.
 - [**title-case**](mods/misc-utils/.local/bin/title-case) — Converts text to properly-capitalized title case.
 - [**ubo-sort**](mods/misc-utils/.local/bin/ubo-sort) — Organizes uBlock Origin filter lists.
 - [**upscale**](mods/misc-utils/.local/bin/upscale) — Wrapper for several AI image upscalers, with options for automatic batch processing.

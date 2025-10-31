@@ -66,11 +66,6 @@ if [[ ! $mal_id ]]; then
   throw 'no mal url given'
 fi
 
-sanitize_filename() {
-  # Replaces chars invalid in Windows file/dir names with a space
-  perl -pe 's/[<>:"\/\\|?*]/ /g; s/ +/ /g; s/^ +|[ \.]+$//g' <<<"$1"
-}
-
 # Get mal info
 if ! json=$(curl -sSL "https://api.jikan.moe/v4/anime/$mal_id"); then
   throw 'failed to get mal data from jikan.moe'
@@ -85,7 +80,7 @@ fi
 
 # Create or rename directory
 base=$(dirname "$existing_dir") # . if empty
-dir=$base/$(sanitize_filename "$title")
+dir="$base/$(sanitize-filename -- "$title")"
 
 if [[ ! $existing_dir -ef "$dir" ]]; then
   if [[ -e $dir ]]; then
