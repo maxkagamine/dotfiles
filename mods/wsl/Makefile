@@ -23,6 +23,8 @@ SystemMaxUse=100M
 endef
 export WSL_JOURNALD_CONF
 
+LOCALAPPDATA=$(shell wslpath "$$(cmd.exe /c echo %localappdata% 2>/dev/null)")
+
 wsl:: wsl-bin wsl-journald-conf wsl-keepalive wsl-mount-network-drive wsl-timesyncd
 	$(PRINT)
 ifdef APT # Make sure Ubuntu's open & browser commands point to the open command from https://github.com/maxkagamine/wsl-tools
@@ -31,6 +33,7 @@ ifdef APT # Make sure Ubuntu's open & browser commands point to the open command
 	sudo update-alternatives --install /usr/bin/open open '/mnt/c/Program Files/wsl-tools/open' 999
 endif
 	sudo ln -sfT /mnt/c/Windows/Fonts /usr/local/share/fonts
+	ln -sfT "$(LOCALAPPDATA)/Microsoft/Windows/Fonts" ~/.local/share/fonts
 	$(PACMAN) dos2unix
 
 wsl-bin:
