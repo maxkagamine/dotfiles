@@ -192,9 +192,9 @@ sum() { awk -v f="${1:-1}" "${@:2}" 'BEGIN { sum = 0 } { sum += $f } END { print
 take() { head -n "$@"; }
 takelast() { tail -n "$@"; }
 
-# For dry runs / printing arrays
-q() { printf '%q ' "$@"; printf '\n'; }
-n() { printf '%s\n' "$@"; }
+# For dry runs / printing arrays (see also `declare -p some_variable`)
+q() { if (( $# > 0 )); then printf '%q ' "$@" | sed 's/ $/\n/'; fi; }
+n() { if (( $# > 0 )); then printf '%s\n' "$@"; fi; }
 
 # Load mods
 for mod in ~/.config/bashrc.d/*.sh; do
