@@ -10,11 +10,17 @@ set -eo pipefail
 
 help() {
   cat >&2 <<'EOF'
-Usage: mkanimereadme <nyaa link> [<dir>]
+Usage: mkanimereadme <nyaa url or torrent file> [<dir>]
 
 Creates a readme.md file in <dir> or the current directory.
 EOF
   exit 1
+}
+
+get_torrent_comment() {
+  # -0777 sets the record separator to undefined, and the /s modifier causes .
+  # to match newlines. This will output empty string if there is no comment.
+  perl -0777 -ne '/7:comment(\d+):/ && /7:comment$1:(.{$1})/s && print $1' "$1"
 }
 
 # Parse options
@@ -31,13 +37,20 @@ for x in "${REST[@]}"; do
       if [[ ! $x =~ ^https://.*nyaa\.si/view/([[:digit:]]+) ]]; then
         throw 'unrecognized nyaa url'
       fi
-      nyaa_url=$x
+      nyaa_url=${BASH_REMATCH[0]} # Remove hash / query string
+      ;;
+    *.torrent)
+      nyaa_url=$(get_torrent_comment "$x")
+      if [[ ! $nyaa_url =~ ^https://.*nyaa\.si/view/([[:digit:]]+) ]]; then
+        throw 'torrent not from nyaa'
+      fi
+      nyaa_url=${BASH_REMATCH[0]} # Remove hash / query string
       ;;
     *)
       if [[ -d $x ]]; then
         dir=$x
       else
-        throw "'$x' is neither an Nyaa link nor a directory..."
+        throw "'$x' is neither an nyaa url/torrent nor a directory"
       fi
       ;;
   esac
