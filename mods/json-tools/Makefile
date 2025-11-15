@@ -12,6 +12,6 @@ else
 	sudo chmod +x /usr/local/bin/fx
 
 # Note: there are two "yq"s that do similar things. The Arch package is this
-# one, https://github.com/kislyuk/yq; the other is https://github.com/mikefarah/yq.
-	sudo -H pip install --break-system-packages --root-user-action=ignore yq
+# one, https://github.com/kislyuk/yq; the other is https://github.com/mikefarah/yq
+	pipx upgrade --install yq
 endif

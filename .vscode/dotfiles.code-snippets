@@ -32,14 +32,21 @@
     "prefix": "apt",
     "scope": "makefile",
     "body": [
-      "sudo apt-get install -qy $0"
+      "sudo apt-get install -qy "
     ]
   },
   "Pacman: Install package": {
     "prefix": "pacman",
     "scope": "makefile",
     "body": [
-      "\\$(PACMAN) $0"
+      "\\$(PACMAN) "
+    ]
+  },
+  "Pipx: Install package": {
+    "prefix": "pipx",
+    "scope": "makefile",
+    "body": [
+      "pipx upgrade --install "
     ]
   },
   "License header": {
