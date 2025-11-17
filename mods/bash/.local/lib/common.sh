@@ -21,10 +21,11 @@ throw() {
 # followed by an '=' to indicate an option that takes a value.
 #
 # An option descriptor may optionally be followed by a callback which is eval'd
-# when the option is encountered. '{}' will be replaced with '$value' which
-# holds the option value (quoting rules for variables apply). This simplifies
-# assigning values to named variables and makes it possible to override an
-# option previously given (e.g. in a shell alias) and have repeatable options.
+# when the option is encountered. For options that take a value, {} will be
+# replaced with the shell-escaped value. Compared to the OPTS array described
+# below, using callbacks simplifies assigning values to named variables and
+# makes it possible to override an option set earlier (e.g. in a shell alias)
+# and to have repeatable options (like -vvv, or --bar in the below example).
 #
 # If a --help option is defined and a function called 'help' exists, the
 # callback defaults to 'help'.
@@ -48,33 +49,36 @@ throw() {
 #
 #   parse_args \
 #     -f,--foo= 'foo={}' \
-#     --bar= 'bar+=("{}")' \
+#     --bar= 'bar+=({})' \
 #     --dry-run 'dry_run=1; verbose=1' \
 #     -v,--verbose 'verbose=1' \
 #     -h,--help \
 #     -- "$@"
 #
 parse_args() {
-  declare -A flags
-  declare -A params
-  declare -A aliases
-  declare -A callbacks
-  local descriptor
-  local callback
-  local arg
-  local option
-  local value
-  local is_short
-  local type
-  local x
+  # Prefixed with underscores to avoid shadowing script vars since callbacks are
+  # eval'd in the function scope
+  declare -A __aliases
+  declare -A __callbacks
+  declare -A __flags
+  declare -A __params
+  local __arg
+  local __callback
+  local __descriptor
+  local __is_short
+  local __name
+  local __names
+  local __option
+  local __type
+  local __value
 
   # Parse option descriptors as comma-separated short or long options, with a
   # trailing equals sign indicating options that take a value
   while (( $# > 0 )); do
-    descriptor=$1
+    __descriptor=$1
     shift
 
-    if [[ $descriptor == '--' ]]; then
+    if [[ $__descriptor == '--' ]]; then
       break
     fi
 
@@ -83,42 +87,47 @@ parse_args() {
     # named variables and makes it possible to override an option previously
     # given, e.g. in the case of aliases.
     if [[ $# != 0 && $1 != -* ]]; then
-      callback=$1
+      __callback=$1
       shift
+
+      # Validate callback
+      if [[ $__callback == *'{}'* && $__descriptor != *= ]]; then
+        throw "${FUNCNAME[0]}: callback expects a value but the option is a flag (add '=' to the end of '$__descriptor' or replace '{}' with '1')"
+      fi
     else
-      callback=
+      __callback=
     fi
 
-    IFS=, read -ra names <<<"${descriptor%=}"
-    for x in "${names[@]}"; do
+    IFS=, read -ra __names <<<"${__descriptor%=}"
+    for __name in "${__names[@]}"; do
       # Validate option descriptor
-      if [[ $x != -* ]]; then
-        throw "${FUNCNAME[0]}: option must begin with a dash (in '$descriptor')"
-      elif [[ $x == ---* ]]; then
-        throw "${FUNCNAME[0]}: too many leading dashes (in '$descriptor')"
-      elif [[ $x == *=* ]]; then
-        throw "${FUNCNAME[0]}: '=' should only appear at the end (in '$descriptor')"
-      elif [[ $x == *[[:space:]]* ]]; then
-        throw "${FUNCNAME[0]}: option name must not contain whitespace (in '$descriptor')"
-      elif [[ $x == -[^-]?* ]]; then
-        throw "${FUNCNAME[0]}: short options can only be a single character (in '$descriptor')"
+      if [[ $__name != -* ]]; then
+        throw "${FUNCNAME[0]}: option must begin with a dash (in '$__descriptor')"
+      elif [[ $__name == ---* ]]; then
+        throw "${FUNCNAME[0]}: too many leading dashes (in '$__descriptor')"
+      elif [[ $__name == *=* ]]; then
+        throw "${FUNCNAME[0]}: '=' should only appear at the end (in '$__descriptor')"
+      elif [[ $__name == *[[:space:]]* ]]; then
+        throw "${FUNCNAME[0]}: option name must not contain whitespace (in '$__descriptor')"
+      elif [[ $__name == -[^-]?* ]]; then
+        throw "${FUNCNAME[0]}: short options can only be a single character (in '$__descriptor')"
       fi
 
       # Create a map of aliases so that we can access an option from OPTS using
       # any of its names, regardless of which was actually used
-      aliases[$x]=${names[*]}
+      __aliases[$__name]=${__names[*]}
 
       # Using associative arrays as hashsets to simplify checking the option
       # type below, since bash doesn't have a proper "indexOf"
-      if [[ $descriptor == *= ]]; then
-        params[$x]=1
+      if [[ $__descriptor == *= ]]; then
+        __params[$__name]=1
       else
-        flags[$x]=1
+        __flags[$__name]=1
       fi
 
       # Map each alias to the callback
-      if [[ $callback ]]; then
-        callbacks[$x]=$callback
+      if [[ $__callback ]]; then
+        __callbacks[$__name]=$__callback
       fi
     done
   done
@@ -131,74 +140,75 @@ parse_args() {
 
   # Program args following the '--' which terminates the descriptor list
   while (( $# > 0 )); do
-    arg=$1
+    __arg=$1
     shift
 
-    case $arg in
+    case $__arg in
       --)
         REST+=("$@")
         break
         ;;
       -[^-]*)
-        option=${arg:0:2}
-        value=${arg:2}
-        is_short=1
+        __option=${__arg:0:2}
+        __value=${__arg:2}
+        __is_short=1
         ;;
       --*)
-        option=${arg%%=*}
-        value=${arg#*=}
-        is_short=
+        __option=${__arg%%=*}
+        __value=${__arg#*=}
+        __is_short=
         ;;
       *)
-        REST+=("$arg")
+        REST+=("$__arg")
         continue
         ;;
     esac
 
     # Determine if option is valid and if it expects a value or not
-    if [[ ${flags[$option]} ]]; then
-      type=flag
-    elif [[ ${params[$option]} ]]; then
-      type=param
+    if [[ ${__flags[$__option]} ]]; then
+      __type=flag
+    elif [[ ${__params[$__option]} ]]; then
+      __type=param
     else
-      throw "unknown option: $option"
+      throw "unknown option: $__option"
     fi
 
     # Process the option
-    if [[ $type == 'flag' ]]; then
-      if [[ $is_short && $value ]]; then
+    if [[ $__type == 'flag' ]]; then
+      if [[ $__is_short && $__value ]]; then
         # In this case, the "value" will be other options, so put them back
-        set -- "-$value" "$@"
-      elif [[ $arg == *=* ]]; then
-        throw "$option does not take a value"
+        set -- "-$__value" "$@"
+      elif [[ $__arg == *=* ]]; then
+        throw "$__option does not take a value"
       fi
-      value=1
-    elif [[ ($is_short && ! $value) || (! $is_short && $arg != *=*) ]]; then
+      __value=1
+    elif [[ ($__is_short && ! $__value) || (! $__is_short && $__arg != *=*) ]]; then
       # Value should be the following arg
       if (( $# == 0 )); then
-        throw "$option expects a value"
+        throw "$__option expects a value"
       fi
-      value=$1
+      __value=$1
       shift
     fi
 
-    # Run the callback if there is one. "{}" will be replaced with $value (which
-    # is also in scope, but shellcheck will complain about using a variable in
-    # a single-quoted string; this way looks cleaner anyway)
-    if [[ ${callbacks[$option]} ]]; then
-      eval "${callbacks[$option]//\{\}/\$value}"
+    # Run the callback if there is one. {} will be replaced with the escaped
+    # value, similar to find/fd etc. ($__value is also in scope, but shellcheck
+    # will complain if we use a variable in a single-quoted string, and this way
+    # looks cleaner anyway)
+    if [[ ${__callbacks[$__option]} ]]; then
+      eval "${__callbacks[$__option]//\{\}/$(printf '%q' "$__value")}"
     fi
 
     # shellcheck disable=SC2034 # OPTS appears unused
-    for x in ${aliases[$option]}; do
-      x=${x#-}
-      x=${x#-}
-      OPTS[$x]=$value
+    for __name in ${__aliases[$__option]}; do
+      __name=${__name#-}
+      __name=${__name#-}
+      OPTS[$__name]=$__value
 
       # Call help() automatically if --help or any of its aliases are given
       # (this is done here at the end rather than when $callback is set since at
       # that point we haven't yet parsed the option names out of the descriptor)
-      if [[ $x == 'help' && ! ${callbacks[$option]} ]] && declare -F help >/dev/null; then
+      if [[ $__name == 'help' && ! ${__callbacks[$__option]} ]] && declare -F help >/dev/null; then
         help
       fi
     done
