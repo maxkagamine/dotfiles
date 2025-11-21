@@ -13,6 +13,7 @@ complete -f -W '
   --waifu2x
   --cugan
   --esrgan
+  --chainner
   --auto
   -s
   -n

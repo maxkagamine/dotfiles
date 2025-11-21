@@ -27,7 +27,9 @@ Common options:
   --track-order 0:TID1,0:TID2,...
   --default-track-flag TID[:0]
 EOF
-  printf '\nSee autocomplete suggestions and \e[34m\e]8;;https://mkvtoolnix.download/doc/mkvmerge.html\e\\mkvmerge manual\e]8;;\e\\\e[m.\n' >&2
+  printf '\nSee autocomplete suggestions and ' >&2
+  link 'mkvmerge manual' https://mkvtoolnix.download/doc/mkvmerge.html >&2
+  printf '.\n' >&2
   exit 1
 fi
 

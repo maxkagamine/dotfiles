@@ -19,9 +19,15 @@ DEFAULT_FORMAT=png
 HISTMATCH_URL='http://www.fmwconcepts.com/imagemagick/downloadcounter.php?scriptname=histmatch&dirname=histmatch'
 HISTMATCH_HASH='b9180c1cd4a5ce046b31024e092679002ad5e2c8d564d2a88d2213175566d604'
 
+CHAINNER_BIN=/mnt/c/Users/max/Downloads/_SOFTWARE/chaiNNer/bin/chaiNNer.exe
+CHAINNER_CHN=/mnt/c/Users/max/Downloads/_SOFTWARE/chaiNNer/upscale.chn
+CHAINNER_INPUT_OVERRIDE_ID='#ac1d99e9-d219-4c1c-86fc-46228dedfa88:0'
+CHAINNER_SCALE_OVERRIDE_ID='#02838c95-2128-42c6-bbea-2767e669f7f6:0'
+
+ANIMESHARPV4_LINK=$(link AnimeSharpV4_RCAN https://openmodeldb.info/models/2x-AnimeSharpV4)
+
 if [[ $WSL_DISTRO_NAME ]]; then
   # Leaving them here for now. Using Windows binary to take advantage of GPU.
-  # TODO: Use a Makefile to install these to ~/.local
   for d in waifu2x-ncnn-vulkan realcugan-ncnn-vulkan realesrgan-ncnn-vulkan; do
     PATH="/mnt/c/Users/max/Downloads/_SOFTWARE/$d:$PATH"
   done
@@ -45,28 +51,44 @@ Upscalers:
                  - Often heavily oversharpened with visible halos
                  - Sometimes adds weird splotches of color
 
-  --esrgan       + Most accurate reconstruction of shapes
-                 - Brightens images
-                 - Soft gradients/shading can become sharper
+                 Not recommended, will likely be removed.
 
-                 Note: Uses the default animevideov3 model. The x4plus models
-                 have too many issues with quality for general use.
+  --esrgan       + Sharp lines
+                 + Accurate reconstruction of shapes
+                 - Brightens images
+                 - Soft gradients/shading can become sharper, DoF undone
+                 - May lose some details
+
+                 Note: This is using the default animevideov3 model. The x4plus
+                 models simply have too many issues with quality.
+
+  --chainner     Default if none specified. Uses the chn file at:
+
+                   $CHAINNER_CHN
+
+                 I've found $ANIMESHARPV4_LINK produces the best result to date:
+
+                 + Sharp lines & accurate reconstruction of shapes, like esrgan
+                 + Best preservation of detail and color, like waifu2x
+                 + Preserves soft gradients and DoF
 
 Options:
 
-  --auto         Upscales images <${AUTO_THRESHOLD}px tall to ${AUTO_HEIGHT}p+, using waifu2x and
-                 esrgan+histmatch unless upscalers are specifed explicitly.
+  --auto         Upscales images <${AUTO_THRESHOLD}px tall to ${AUTO_HEIGHT}p+.
 
-  -s <scale>     1/2/4/8/16/32 for waifu2x & cugan; 2/3/4 for esrgan. Mutually
-                 exclusive with --auto. (default=${DEFAULT_SCALE})
+  -s <scale>     1/2/4/8/16/32 for waifu2x & cugan; 2/3/4 for esrgan; any
+                 number for chainner. Mutually exclusive with --auto.
+                 (Default: ${DEFAULT_SCALE})
 
-  -n <denoise>   -1/0/1/2/3 for waifu2x & cugan; ignored for esrgan. (default=${DEFAULT_DENOISE})
+  -n <denoise>   -1/0/1/2/3 for waifu2x & cugan; ignored for esrgan & chainner.
+                 (Default: ${DEFAULT_DENOISE})
 
-  -f <format>    png/jpg/webp (default=${DEFAULT_FORMAT})
+  -f <format>    png/jpg/webp; ignored for chainner.
+                 (Default: ${DEFAULT_FORMAT})
 
-  --no-histmatch (esrgan only) by default, upscale attempts to undo the
+  --no-histmatch (esrgan only) By default, upscale attempts to undo the
                  brightening caused by esrgan using Fred Weinhaus' histmatch
-                 script and compositing with imagemagick
+                 script and compositing with imagemagick.
 
   --dry-run      Print what would be upscaled but do nothing. Implies --verbose.
 
@@ -89,11 +111,15 @@ verbose=
 upscalers=()
 paths=()
 
+temp_files=()
+trap '(( ${#temp_files[@]} > 0 )) && rm -f "${temp_files[@]}"' EXIT
+
 parse_args \
-  --all 'upscalers=(waifu2x cugan esrgan)' \
+  --all 'upscalers=(waifu2x cugan esrgan chainner)' \
   --waifu2x 'upscalers+=(waifu2x)' \
   --cugan 'upscalers+=(cugan)' \
   --esrgan 'upscalers+=(esrgan)' \
+  --chainner 'upscalers+=(chainner)' \
   --auto 'scale=auto' \
   -s= 'scale={}' \
   -n= 'denoise={}' \
@@ -108,14 +134,12 @@ expand_directories \
   --glob '*.{png,jpg,jpeg,jfif}' --var paths --required -- "${REST[@]}"
 
 if (( ${#upscalers[@]} == 0 )); then
-  if [[ $scale == 'auto' ]]; then
-    upscalers=(waifu2x esrgan)
-  else
-    throw 'no upscalers specified (try --all or --auto?)'
-  fi
+  upscalers=(chainner)
 fi
 
 calculate_auto_scale() {
+  # TODO: Modify this logic to use a percent threshold; don't jump to 4x if 2x
+  # is within the threshold.
   local input=$1
   local image_height
 
@@ -257,6 +281,51 @@ upscale_esrgan() { # <input> <scale>
     magick "$output" \
       \( "$output_histmatch" "$output" -alpha off -compose CopyOpacity -composite \) \
       -compose Over -composite "$output_histmatch_composite"
+  fi
+}
+
+upscale_chainner() { # <input> <scale>
+  local input=$1
+  local scale=$2
+  local chn=$CHAINNER_CHN
+  local override
+  local cmd=()
+  local buffer
+
+  override=$(mktemp -t upscale_XXXXXX.json)
+  temp_files+=("$override")
+
+  if [[ $WSL_DISTRO_NAME ]]; then
+    input=$(wslpath -w "$input")
+  fi
+
+  jq -n \
+    --arg input "$input" \
+    --arg inputId "$CHAINNER_INPUT_OVERRIDE_ID" \
+    --arg scale "$scale" \
+    --arg scaleId "$CHAINNER_SCALE_OVERRIDE_ID" \
+    '{ inputs: { $inputId: $input, $scaleId: $scale | tonumber } }' > "$override"
+
+  if [[ $WSL_DISTRO_NAME ]]; then
+    chn=$(wslpath -w "$chn")
+    override=$(wslpath -w "$override")
+  fi
+
+  cmd=("$CHAINNER_BIN" run "$chn" --override "$override")
+
+  if [[ $verbose ]]; then
+    printf '\e[1;30m>'
+    printf ' %q' "${cmd[@]}"
+    printf '\e[m\n'
+  fi
+
+  if [[ $dry_run ]]; then
+    return
+  fi
+
+  if ! buffer=$("${cmd[@]}" 2>&1); then
+    printf '\e[31m%s\e[m\n' "$buffer" >&2
+    return 1
   fi
 }
 

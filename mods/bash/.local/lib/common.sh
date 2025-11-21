@@ -8,6 +8,13 @@ throw() {
   return 1
 }
 
+# Usage: link <text> <url>
+#
+# See https://gist.github.com/egmontkob/eb114294efbcd5adb1944c9f3cb5feda
+link() {
+  printf '\e]8;;%s\e\\%s\e]8;;\e\\' "$2" "$1"
+}
+
 # Usage: parse_args (<option descriptor> [<callback>])... -- <args>
 #
 # Parses GNU-style options. Supports short and long options, combined/bundled
