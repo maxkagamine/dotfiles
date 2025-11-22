@@ -31,7 +31,7 @@ languages=()
 dry_run=
 
 parse_args \
-  -l,--lang 'IFS=, read -r -a languages <<<{}' \
+  -l,--lang= 'IFS=, read -r -a languages <<<{}' \
   -n,--dry-run 'dry_run=1' \
   -h,--help \
   -- "$@"
