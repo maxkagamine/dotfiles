@@ -34,6 +34,7 @@ sub extract_key {
   # Group remainder by domain name, without tld or subdomains
   my $domain = $line =~ s/^[@|]*([^#\/^]+).*/$1/r;
   $domain = remove_tld($domain);
+  $domain =~ s/youtube-nocookie/youtube/; # Same site
   return (split(/\./, $domain))[-1];
 }
 
