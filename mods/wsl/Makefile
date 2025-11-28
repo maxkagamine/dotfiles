@@ -1,15 +1,31 @@
-define WSL_KEEPALIVE
+LOCALAPPDATA=$(shell wslpath "$$(cmd.exe /c echo %localappdata% 2>/dev/null)")
+WSL_KEEPALIVE_EXE=$(LOCALAPPDATA)/Programs/wsl-keepalive.exe
+
+define WSL_KEEPALIVE_SYSTEMD
 [Unit]
 Description=WSL Keepalive
 
 [Service]
-ExecStartPre=/mnt/c/Windows/system32/waitfor.exe /si WSLKEEPALIVE
-ExecStart=/mnt/c/Windows/system32/waitfor.exe WSLKEEPALIVE
+ExecStart=$(WSL_KEEPALIVE_EXE)
 
 [Install]
 WantedBy=multi-user.target
 endef
-export WSL_KEEPALIVE
+export WSL_KEEPALIVE_SYSTEMD
+
+# Smallest Windows program that does nothing forever. This is my own solution
+# for keeping Windows from shutting down the WSL instance, since it can't do so
+# while it's running an exe. An `instanceIdleTimeout` option was introduced in
+# 2.5.4 that might eliminate the need for this, but it's still undocumented and
+# unclear if it works on Win10.
+define WSL_KEEPALIVE_ASM
+subq    $$40, %rsp
+.loop:
+movl    $$-1, %ecx
+call    Sleep
+jmp     .loop
+endef
+export WSL_KEEPALIVE_ASM
 
 define WSL_TIMESYNCD_OVERRIDE
 [Unit]
@@ -22,8 +38,6 @@ define WSL_JOURNALD_CONF
 SystemMaxUse=100M
 endef
 export WSL_JOURNALD_CONF
-
-LOCALAPPDATA=$(shell wslpath "$$(cmd.exe /c echo %localappdata% 2>/dev/null)")
 
 wsl:: wsl-bin wsl-journald-conf wsl-keepalive wsl-mount-network-drive wsl-timesyncd
 	$(PRINT)
@@ -51,9 +65,13 @@ wsl-journald-conf:
 	sudo tee /etc/systemd/journald.conf.d/wsl.conf >/dev/null <<<"$$WSL_JOURNALD_CONF"
 	sudo systemctl restart systemd-journald
 
-wsl-keepalive:
+wsl-keepalive: cargo # cargo mod installs mingw32 for cross-compilation
 	$(PRINT)
-	sudo tee /etc/systemd/system/wsl-keepalive.service >/dev/null <<<"$$WSL_KEEPALIVE"
+ifneq "$(wildcard /etc/systemd/system/wsl-keepalive.service)" ""
+	sudo systemctl stop wsl-keepalive.service
+endif
+	x86_64-w64-mingw32-gcc -x assembler - -o $(WSL_KEEPALIVE_EXE) -s -nostdlib -lkernel32 <<<"$$WSL_KEEPALIVE_ASM"
+	sudo tee /etc/systemd/system/wsl-keepalive.service >/dev/null <<<"$$WSL_KEEPALIVE_SYSTEMD"
 	sudo systemctl enable --now wsl-keepalive.service
 
 wsl-mount-network-drive:
