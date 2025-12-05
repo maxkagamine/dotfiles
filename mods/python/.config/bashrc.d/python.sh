@@ -6,6 +6,7 @@
 alias py='python3'
 alias pir='pip install -r requirements.txt'
 alias pipdeptree='pipdeptree --python=auto'
+alias serve='python -m http.server -b 127.0.0.1'
 
 pi() {
   pip install "$@" || return
