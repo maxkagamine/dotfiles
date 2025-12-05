@@ -184,8 +184,8 @@ min() { awk -v f="${1:-1}" "${@:2}" 'NR == 1 || $f < min { min = $f } END { if (
 minby() { awk -v f="${1:-1}" "${@:2}" 'NR == 1 || $f < min { min = $f; line = $0 } END { if (NR == 0) exit 1; print line }'; }
 prepend() { echo "$@"; cat; }
 range() { seq "$1" "$(( $1 + $2 - 1 ))"; }
-single() { awk 'NR == 1; NR > 1 { exit 1 } END { exit NR != 1 }'; }
-singleordefault() { awk 'NR == 1; NR > 1 { exit 1 }'; }
+single() { awk 'NR == 1 { line = $0 } NR > 1 { exit 1 } END { if (NR != 1) exit 1; print line }'; }
+singleordefault() { awk 'NR == 1 { line = $0 } NR > 1 { exit 1 } END { if (NR == 1) print line }'; }
 skip() { tail -n "+$(( $1 + 1 ))" "${@:2}"; }
 skiplast() { head -n "-$1" "${@:2}"; }
 sum() { awk -v f="${1:-1}" "${@:2}" 'BEGIN { sum = 0 } { sum += $f } END { print sum }'; }
