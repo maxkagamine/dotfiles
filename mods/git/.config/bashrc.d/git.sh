@@ -77,7 +77,8 @@ fixup() { # [<commit>]
     (( $? == 1 )) && echo 'Commit is not an ancestor of HEAD' >&2
     return 1
   }
-  gg fixup! "$commit" && gr -i --committer-date-is-author-date "$commit"~
+  gg fixup! "$commit" || return
+  gr --autosquash --committer-date-is-author-date "$commit"~
 }
 
 # shellcheck source=/dev/null
