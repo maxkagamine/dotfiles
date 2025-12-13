@@ -27,6 +27,7 @@
 [diff]
   tool = code
   noPrefix = true
+  wsErrorHighlight = all
 [diff "json"]
   textconv = python -m json.tool --indent 2 --no-ensure-ascii
 [difftool "code"]
