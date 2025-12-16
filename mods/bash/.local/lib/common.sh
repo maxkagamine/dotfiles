@@ -8,13 +8,6 @@ throw() {
   return 1
 }
 
-# Usage: link <text> <url>
-#
-# See https://gist.github.com/egmontkob/eb114294efbcd5adb1944c9f3cb5feda
-link() {
-  printf '\e]8;;%s\e\\%s\e]8;;\e\\' "$2" "$1"
-}
-
 # Usage: parse_args (<option descriptor> [<callback>])... -- <args>
 #
 # Parses GNU-style options. Supports short and long options, combined/bundled
@@ -312,4 +305,22 @@ expand_directories() {
     }
   )
   wait $! # Result of the process substitution
+}
+
+# Usage: link <text> <url>
+#
+# Outputs the escape sequence for a hyperlink.
+# See https://gist.github.com/egmontkob/eb114294efbcd5adb1944c9f3cb5feda
+link() {
+  printf '\e]8;;%s\e\\%s\e]8;;\e\\' "$2" "$1"
+}
+
+# Usage: blockquote [<text>]
+#
+# Creates a GitHub-markdown-style blockquote containing <text> or stdin.
+blockquote() {
+  (( $# == 0 )) && set -- "$(cat || true)"
+  printf '\e[1;30m╻\e[m\n'
+  perl -pe 's/^/\e[1;30m┃\e[m /' <<<"$1"
+  printf '\e[1;30m╹\e[m\n'
 }
