@@ -40,6 +40,7 @@ tamriel: \
 	nano \
 	ncdu \
 	node \
+	pngcrush \
 	pv \
 	python \
 	rsync \
