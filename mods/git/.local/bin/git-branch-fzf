@@ -36,10 +36,11 @@ format+='%(if)%(HEAD)%(then)%(color:green)%(end)' # Color current branch green
 format+='%(refname:lstrip=2)%(color:reset)'
 
 while out=$(
-  git for-each-ref --format="$format" --ignore-case --color=always "${patterns[@]}" |
+  git for-each-ref --format="$format" --ignore-case --color=always \
+                   --sort=committerdate "${patterns[@]}" |
   grep -Pv '/HEAD(\e.*)?$' |
   fzf --height 25% --ansi --cycle --exit-0 --expect ctrl-a,ctrl-d,ctrl-l \
-      --delimiter / --with-nth 3.. \
+      --delimiter / --with-nth 3.. --no-sort --tac \
       --preview 'git log -n 50 --oneline --no-show-signature --color {}' \
       --header '[^A] Toggle remotes  [^D] Delete  [^L] Get latest'
 ); do
