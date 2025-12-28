@@ -12,6 +12,7 @@ else
 fi
 
 # https://github.com/maxkagamine/wsl-tools
+alias rm='recycle --rm'
 export BROWSER='open'
 
 e() {

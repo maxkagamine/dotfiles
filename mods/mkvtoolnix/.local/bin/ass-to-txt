@@ -5,6 +5,10 @@
 #
 set -eo pipefail
 
+if command -v recycle &>/dev/null; then
+  rm() { recycle --rm "$@"; }
+fi
+
 # shellcheck source=mods/bash/.local/lib/common.sh
 . ~/.local/lib/common.sh
 
@@ -36,25 +40,17 @@ parse_args \
 expand_directories \
   --glob '*.ass' --var paths --default . --required -- "${REST[@]}"
 
-delete() {
-  if command -v recycle &>/dev/null; then
-    recycle --rm -fv "$@"
-  else
-    rm -fv "$@"
-  fi
-}
-
 for f in "${paths[@]}"; do
   output="${f%.*}.txt"
   printf 'Converting \e[32m%s\e[m\n' "$f"
 
   if ! grep -P '^Dialogue:' "$f" | cut -d, -f10- > "$output"; then
     printf '\e[31mInvalid file: %s\e[m\n' "$f" >&2
-    rm "$output"
+    command rm "$output"
     exit 1
   fi
 done
 
 if [[ ! $keep ]]; then
-  delete "${paths[@]}"
+  rm -fv "${paths[@]}"
 fi

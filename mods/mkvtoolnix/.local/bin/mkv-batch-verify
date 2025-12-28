@@ -5,13 +5,9 @@
 #
 set -eo pipefail
 
-delete() {
-  if command -v recycle &>/dev/null; then
-    recycle -fv "$1"
-  else
-    rm -fv "$1"
-  fi
-}
+if command -v recycle &>/dev/null; then
+  rm() { recycle --rm "$@"; }
+fi
 
 if [[ ! -d muxed ]]; then
   echo 'No "muxed" directory from mkv-batch here' >&2
@@ -28,7 +24,7 @@ fi
 echo
 
 for f in muxed/*.mkv; do
-  delete "$(basename "$f" .mkv)"*.mkv # May have had a crc
+  rm -fv "$(basename "$f" .mkv)"*.mkv # May have had a crc
   mv -v "$f" .
 done
 

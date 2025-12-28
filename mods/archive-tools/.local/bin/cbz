@@ -5,6 +5,10 @@
 #
 set -eo pipefail
 
+if command -v recycle &>/dev/null; then
+  rm() { recycle --rm "$@"; }
+fi
+
 # shellcheck source=mods/bash/.local/lib/common.sh
 . ~/.local/lib/common.sh
 
@@ -21,14 +25,6 @@ parse_args \
   -h,--help \
   -- "$@"
 
-delete() {
-  if command -v recycle &>/dev/null; then
-    recycle -fv "$1"
-  else
-    rm -fv "$1"
-  fi
-}
-
 for dir in "${REST[@]}"; do
   if [[ ! -d $dir ]]; then # Makes it easy to just do `cbz *`
     echo "Skipping $dir: Not a directory"
@@ -39,5 +35,5 @@ for dir in "${REST[@]}"; do
   name=$(basename "$path")
   7z a -tzip -m0=Copy "../$name.cbz" .
   popd
-  delete "$dir"
+  rm -fv "$dir"
 done
