@@ -49,6 +49,22 @@ alias yubikey-detach='__usbipd_yubikey detach'
 alias ya='yubikey-attach'
 alias yd='yubikey-detach'
 
+# Disable inotify when tailing a file on the Windows filesystem
+tail() {
+  local x dashdash= p
+  for x in "$@"; do
+    if [[ $x == -- ]]; then
+      dashdash=1
+    elif [[ ($x != -* || $dashdash) && -f $x ]] &&
+         p=$(wslpath -w "$x" 2>/dev/null) &&
+         [[ $p != '\\wsl.localhost\'* ]]; then
+      command tail ---disable-inotify "$@"
+      return
+    fi
+  done
+  command tail "$@"
+}
+
 # Faster than doing it from Windows when there's a ton of little files
 empty-sovngarde-recycle-bin() {
   ssh sovngarde 'rm -rfv /mnt/user/*/\$RECYCLE.BIN/*'
