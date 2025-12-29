@@ -1,0 +1,59 @@
+#!/bin/bash
+#
+# Copyright (c) Max Kagamine
+# Licensed under the Apache License, Version 2.0
+#
+set -eo pipefail
+
+# shellcheck source=mods/bash/.local/lib/common.sh
+. ~/.local/lib/common.sh
+
+help() {
+  cat >&2 <<EOF
+Usage: taill [-n <lines>] [-l <language>] [--] <file>
+
+Tails the given file using bat for syntax highlighting.
+
+Options:
+
+  -n, --lines <num>        Output the last <num> lines (tail argument).
+                           Defaults to the terminal height. +0 for everything.
+
+  -l, --language <lang>    Language for syntax highlighting (bat argument).
+                           Defaults to the file extension if present and 'log'
+                           otherwise.
+EOF
+  exit 1
+}
+
+lines=$(tput lines)
+language=
+tail_opts=()
+
+parse_args \
+  -n,--lines= 'lines={}' \
+  -l,--language= 'language={}' \
+  -h,--help \
+  -- "$@"
+
+if (( ${#REST[@]} == 0 )); then
+  throw 'no files to tail'
+elif (( ${#REST[@]} > 1 )); then
+  throw 'too many files to tail'
+fi
+
+file=${REST[0]}
+
+# Disable inotify when tailing a file on the Windows filesystem
+# shellcheck disable=SC1003
+if [[ $WSL_DISTRO_NAME ]] &&
+   p=$(wslpath -w "$file" 2>/dev/null) && [[ $p != '\\wsl.localhost\'* ]]; then
+  tail_opts+=(---disable-inotify)
+fi
+
+if [[ ! $language ]]; then
+  language=$(perl -ne 'print /\.([^\.]+)$/ ? $1 : "log"' <<<"$file")
+fi
+
+tail "${tail_opts[@]}" -f -n "$lines" -- "$file" |
+  bat --paging=never -p -l "$language"
