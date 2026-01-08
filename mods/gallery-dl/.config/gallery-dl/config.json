@@ -29,6 +29,9 @@
         }
       ]
     },
+    "bluesky": {
+      "filename": "{date:%Y-%m-%d}{text:? //[:50]} [{author[displayName]} @{author[handle]}] [bluesky {post_id}_p{num}].{extension:Rjpeg/jpg/}"
+    },
     "twitter": {
       "filename": "{date:%Y-%m-%d}{content:? //[:50]} [@{user[name]}] [twitter {tweet_id}_p{num}].{extension}"
     },
