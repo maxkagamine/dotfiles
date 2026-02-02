@@ -7,4 +7,12 @@ else ifdef APT
 else
 	$(error python install requires pacman or apt)
 endif
+
+# If python was upgraded to a newer version, the symlinks in pipx's venvs will
+# be broken. This checks for that and reinstalls all packages if so. (-L follows
+# symlinks, so -type l will only match if it's broken.)
+	if find -L ~/.local/share/pipx/venvs -maxdepth 3 -name python -type l | grep -q .; then \
+	  pipx reinstall-all; \
+	fi
+
 	pipx upgrade --install pipdeptree
