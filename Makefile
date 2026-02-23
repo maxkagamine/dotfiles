@@ -100,11 +100,14 @@ ifdef APT
 	sudo apt-get update -qq
 	sudo apt-get install -qy stow
 else ifdef PACMAN
-# Perform a system upgrade before beginning to make sure there are no outdated
+# Perform a system upgrade before starting to make sure there are no outdated
 # package dependencies (Arch is designed to update everything in unison, so
-# pacman -S pkg won't simply update pkg's dependencies)
-# https://wiki.archlinux.org/title/System_maintenance#Partial_upgrades_are_unsupported
-	$(PACMAN) -yu stow
+# pacman -S pkg won't simply update pkg's dependencies [0]). Updating the
+# keyring first to avoid a (rare but confusing) "invalid or corrupted package
+# (PGP signature)" error.
+# [0]: https://wiki.archlinux.org/title/System_maintenance#Partial_upgrades_are_unsupported
+# [1]: https://bbs.archlinux.org/viewtopic.php?id=280650
+	$(PACMAN) -y archlinux-keyring && $(PACMAN) -u stow
 else
 # https://gist.github.com/maxkagamine/7e3741b883a272230eb451bdd84a8e23
 # MAKEFLAGS need to be reset to prevent weird behavior in stow's Makefile
