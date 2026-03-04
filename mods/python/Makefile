@@ -1,6 +1,10 @@
 python::
 	$(PRINT)
-ifdef PACMAN
+ifeq "$(shell echo $${HOSTNAME,,})" "sovngarde"
+# python and python-pip installed manually via packages in /boot/extra
+	ln -sf /usr/bin/python3 /usr/bin/python
+	pip install pipx
+else ifdef PACMAN
 	$(PACMAN) python python-pip python-pipx
 else ifdef APT
 	sudo apt-get install -qy python-is-python3 python3-pip python3-venv pipx
