@@ -35,6 +35,7 @@ tamriel: \
 	imagemagick \
 	json-tools \
 	man \
+	mediainfo \
 	misc-utils \
 	mkvtoolnix \
 	nano \
