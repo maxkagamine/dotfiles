@@ -4,6 +4,14 @@ MAKEFLAGS+=--always-make # This makes all targets "phony"
 APT:=$(shell command -v apt 2>/dev/null)
 PRINT=$(info $(shell printf '\e[32m%-*s\e[m\n' $$(tput cols) $@ | perl -pe 's/(?<= ) /─/g'))
 
+ifeq "$(findstring :$(HOME)/.local/bin:,:$(PATH):)" ""
+export PATH:=$(HOME)/.local/bin:$(PATH)
+endif
+
+ifeq "$(findstring :$(HOME)/.cargo/bin:,:$(PATH):)" ""
+export PATH:=$(HOME)/.cargo/bin:$(PATH)
+endif
+
 ifneq "$(shell command -v pacman 2>/dev/null)" ""
 PACMAN:=sudo pacman -S --noconfirm --needed
 endif
@@ -50,6 +58,7 @@ tamriel: \
 	starship \
 	sudo \
 	sweetroll \
+	trash \
 	tree \
 	wget \
 	whois \
