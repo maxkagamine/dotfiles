@@ -50,6 +50,9 @@ endif
 	ln -sfT "$(LOCALAPPDATA)/Microsoft/Windows/Fonts" ~/.local/share/fonts
 	$(PACMAN) dos2unix
 
+# Note: We can't rely on these env vars being present at the time this Makefile runs
+	setx.exe WSLENV 'USERPROFILE/up:APPDATA/up:LOCALAPPDATA/up'
+
 wsl-bin:
 	$(PRINT)
 	mkdir -p ~/.local/bin
