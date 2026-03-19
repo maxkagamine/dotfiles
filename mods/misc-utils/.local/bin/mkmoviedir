@@ -58,9 +58,10 @@ for x in "${REST[@]}"; do
   shift
 done
 
-fetch_data() { # <url> <title suffix>, sets $html, $title, $image
+fetch_data() { # <url> <title suffix>, sets $title, $image
   local url=$1
   local title_suffix=$2
+  local html
 
   if ! html=$(curl "${CURL_OPTS[@]}" -sSL "$url"); then
     throw 'failed to fetch page'
@@ -75,8 +76,25 @@ fetch_data() { # <url> <title suffix>, sets $html, $title, $image
   fi
 }
 
+fetch_data_imdb() { # <url>, sets $title, $image
+  local id
+  local json
+
+  if ! id=$(grep -Po '(?<=https://www\.imdb\.com/title/)tt\d+' <<<"$1"); then
+    throw 'failed to extract id from url'
+  fi
+
+  if ! json=$(curl -fsSL "https://api.imdbapi.dev/titles/$id"); then
+    throw 'failed to fetch json from imdbapi'
+  fi
+
+  title=$(jq -r '.primaryTitle' <<<"$json")
+  image=$(jq -r '.primaryImage.url' <<<"$json")
+}
+
 if [[ $imdb_url ]]; then
-  fetch_data "$imdb_url" ' - IMDb'
+  # We have to use an unofficial api now since they started using a JS challenge to block scrapers
+  fetch_data_imdb "$imdb_url"
 elif [[ $mdl_url ]]; then
   fetch_data "$mdl_url" ' - MyDramaList'
 else
