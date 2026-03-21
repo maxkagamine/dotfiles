@@ -3,6 +3,8 @@
 #
 # shellcheck shell=bash
 
+export SVT_LOG=2 # warning
+
 alias ffmpeg='ffmpeg -hide_banner'
 alias ffplay='ffplay -hide_banner'
 alias ffprobe='ffprobe -hide_banner'
