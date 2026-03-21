@@ -52,6 +52,8 @@ tamriel: \
 	pngcrush \
 	pv \
 	python \
+	qr \
+	rclone \
 	rsync \
 	shellcheck \
 	sqlite \
