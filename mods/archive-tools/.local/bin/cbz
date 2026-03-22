@@ -4,6 +4,7 @@
 # Licensed under the Apache License, Version 2.0
 #
 set -eo pipefail
+shopt -s inherit_errexit
 
 if command -v recycle &>/dev/null; then
   rm() { recycle --rm "$@"; }

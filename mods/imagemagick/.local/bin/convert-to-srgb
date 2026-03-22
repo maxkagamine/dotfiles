@@ -4,6 +4,7 @@
 # Licensed under the Apache License, Version 2.0
 #
 set -eo pipefail
+shopt -s inherit_errexit
 
 SRGB_ICC_PROFILE=~/.local/share/color/icc/sRGB-IEC61966-2.1.icc
 

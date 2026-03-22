@@ -5,6 +5,7 @@
 #
 # shellcheck disable=SC2018,SC2019
 set -eo pipefail
+shopt -s inherit_errexit
 
 # shellcheck source=mods/bash/.local/lib/common.sh
 . ~/.local/lib/common.sh

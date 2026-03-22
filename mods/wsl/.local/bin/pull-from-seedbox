@@ -20,6 +20,7 @@
 #
 # shellcheck disable=SC2088,SC2029
 set -eo pipefail
+shopt -s inherit_errexit
 
 REMOTE_NAME='seedbox'
 REMOTE_DIR='downloads/sync'

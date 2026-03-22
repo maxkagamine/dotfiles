@@ -27,6 +27,7 @@
 # file, lockfile, and to identify which line in the crontab to disable.
 #
 set -eo pipefail
+shopt -s inherit_errexit
 
 if (( $# == 0 )); then
   exit
