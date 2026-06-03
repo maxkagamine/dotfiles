@@ -21,3 +21,13 @@ open-files() { # [-f [<delay>]]
   lsof -p "$pids" |
     awk 'match($0, / REG .* (\/mnt\/.*)/, x) && ! /Docker/ { print x[1] }'
 }
+
+fix-perms() {
+  if (( $# == 0 )); then
+    echo 'Usage: fix-perms <file or dir>...' >&2
+    return 1
+  fi
+  chown -R nobody:users "$@"
+  find "$@" -type f -exec chmod 666 {} +
+  find "$@" -type d -exec chmod 777 {} +
+}
