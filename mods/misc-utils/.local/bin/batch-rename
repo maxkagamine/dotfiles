@@ -13,15 +13,9 @@ help() {
   cat >&2 <<'EOF'
 Usage: batch-rename [-n] <perl expression> <files...>
 
-Helper for quickly applying a perl substitution to filenames.
-
-Equivalent to:
-
-  for f in <files...>; do
-    mv -nv "$f" "$(perl -pe <perl expression> <<<"$f")" || break
-  done
-
-Files are passed to perl as given, including directories.
+Applies a perl substitution to filenames. Files are passed to perl as given,
+including directories. Directories in the resulting filename are created if
+they don't exist.
 
 Options:
 
@@ -44,9 +38,16 @@ fi
 for f in "${REST[@]:1}"; do
   dest=$(perl -pe "${REST[0]}" <<<"$f")
 
+  if [[ $dest == "$f" ]]; then
+    continue
+  fi
+
+  dir=$(dirname "$dest")
+
   if [[ $dry_run ]]; then
     printf "would rename '%s' -> '%s'\n" "$f" "$dest"
   else
+    mkdir -p "$dir"
     mv -nv "$f" "$dest"
   fi
 done

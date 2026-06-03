@@ -3,6 +3,7 @@
 #
 # shellcheck shell=bash
 
+alias br='batch-rename'
 alias mad='mkanimedir'
 alias mar='mkanimereadme'
 alias mmd='mkmoviedir'
