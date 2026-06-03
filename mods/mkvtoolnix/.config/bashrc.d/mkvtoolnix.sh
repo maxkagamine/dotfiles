@@ -3,6 +3,8 @@
 #
 # shellcheck shell=bash
 
+alias mkv-bat='mkv-batch'
+
 complete -f -W '
   -a --audio-tracks
   -d --video-tracks
@@ -18,7 +20,7 @@ complete -f -W '
   --track-name
   --language
   --title
-' mkv-batch
+' mkv-batch mkv-bat
 
 complete -f -W '--no-sort' mkv-cat
 complete -f -W '-n' mkv-extract-fonts
