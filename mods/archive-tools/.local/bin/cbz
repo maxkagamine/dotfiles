@@ -36,5 +36,5 @@ for dir in "${REST[@]}"; do
   name=$(basename "$path")
   7z a -tzip -m0=Copy "../$name.cbz" .
   popd
-  rm -fv "$dir"
+  rm -rfv "$dir"
 done
