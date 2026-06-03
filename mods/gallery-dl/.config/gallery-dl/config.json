@@ -29,6 +29,11 @@
         }
       ]
     },
+    "fanbox": {
+      "filename": "\fF [{date:%Y-%m-%d}] {title} [{re.sub('[@＠].*', '', user['name'])}] [{creatorId} fanbox {id}_p{num}].{extension}",
+      "directory": ["\fF [{date:%Y-%m-%d}] {title}"],
+      "embeds": "ytdl"
+    },
     "bluesky": {
       "filename": "{date:%Y-%m-%d}{text:? //[:50]} [{author[displayName]} @{author[handle]}] [bluesky {post_id}_p{num}].{extension:Rjpeg/jpg/}"
     },
@@ -40,6 +45,33 @@
     },
     "seiga": {
       "filename": "{title} [{user[name]}] [seiga im{image_id}].{extension}"
+    },
+    "gelbooru": {
+      "tags": true,
+      "filename": "{tags_copyright:?/ /}{tags_character:?/ /}{tags_artist:?[/] /}[gelbooru {id}].{extension}",
+      "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36",
+      "browser": "chrome"
+    },
+    "yandere": {
+      "tags": true,
+      "filename": "{tags_copyright:?/ /}{tags_character:?/ /}{tags_artist:?[/] /}[yandere {id}].{extension}",
+      "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36",
+      "browser": "chrome"
+    },
+    "newgrounds": {
+      "filename": "{title} [{user}] [newgrounds {index}_p{num}].{extension}"
+    },
+    "deviantart": {
+      "filename": "{title} [{username}] [deviantart {index}_p{num}].{extension}",
+      "public": false,
+      "original": true,
+      "quality": "png"
+    },
+    "misskey.io": {
+      "filename": "\fF {date:%Y-%m-%d}{' ' + text[:50] if text else ''} [{re.sub(':.*?:', '', user['name'])} @{user['username']}] [misskey {id}_p{num}].{extension}"
+    },
+    "artstation": {
+      "filename": "{title} [{userinfo[full_name]}] [artstation {hash_id}_p{num}].{extension}"
     },
     "base-directory": ".",
     "directory": [],
@@ -57,6 +89,12 @@
     "path-strip": "windows"
   },
   "downloader": {
-    "mtime": false
-  }
+    "mtime": false,
+    "ytdl": {
+      "config-file": "~/.config/yt-dlp.conf"
+    }
+  },
+  "subconfigs": [
+    "~/.config/gallery-dl/config.local.json"
+  ]
 }
