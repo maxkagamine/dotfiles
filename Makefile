@@ -56,7 +56,6 @@ tamriel: \
 	python \
 	qr \
 	rclone \
-	rsync \
 	shellcheck \
 	sqlite \
 	starship \
