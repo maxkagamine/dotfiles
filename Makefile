@@ -29,6 +29,7 @@ tamriel: \
 	cron \
 	dig \
 	docker \
+	dotnet \
 	exiftool \
 	fclones \
 	fd \

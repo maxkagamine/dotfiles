@@ -11,6 +11,10 @@ if [[ -d ~/.cargo && ":$PATH:" != *":$HOME/.cargo/bin:"* ]]; then
   PATH="$HOME/.cargo/bin:$PATH"
 fi
 
+if [[ -d ~/.dotnet/tools && ":$PATH:" != *":$HOME/.dotnet/tools:"* ]]; then
+  PATH="$HOME/.dotnet/tools:$PATH"
+fi
+
 export DOTFILES_DIR
 DOTFILES_DIR=$(realpath -m ~/.bashrc/../../..)
 
