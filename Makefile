@@ -43,6 +43,7 @@ tamriel: \
 	hyperfine \
 	ifconfig \
 	imagemagick \
+	jpeg-tools \
 	json-tools \
 	man \
 	mediainfo \
