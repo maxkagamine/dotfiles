@@ -57,3 +57,5 @@
   showIncludeUntracked = true
   showStat = false
   showPatch = true
+[safe]
+	directory = *
