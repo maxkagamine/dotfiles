@@ -6,6 +6,8 @@
 set -eo pipefail
 shopt -s inherit_errexit
 
+MAL_CLIENT_ID_FILE=~/.config/mal-client-id
+
 # shellcheck source=mods/bash/.local/lib/common.sh
 . ~/.local/lib/common.sh
 
@@ -24,6 +26,13 @@ Example:
 EOF
   exit 1
 }
+
+if [[ -f $MAL_CLIENT_ID_FILE ]]; then
+  read -r MAL_CLIENT_ID < "$MAL_CLIENT_ID_FILE"
+else
+  read -rp 'MAL client ID: ' MAL_CLIENT_ID
+  echo "$MAL_CLIENT_ID" > "$MAL_CLIENT_ID_FILE"
+fi
 
 # Parse options
 mal_id=
@@ -69,15 +78,16 @@ if [[ ! $mal_id ]]; then
 fi
 
 # Get mal info
-if ! json=$(curl -sSL "https://api.jikan.moe/v4/anime/$mal_id"); then
-  throw 'failed to get mal data from jikan.moe'
+if ! json=$(curl -fsSL -H "X-MAL-CLIENT-ID: $MAL_CLIENT_ID" \
+    "https://api.myanimelist.net/v2/anime/$mal_id?fields=title,main_picture"); then
+  throw 'failed to fetch mal api'
 fi
 
-title=$(jq -r .data.title <<<"$json")
-image=$(jq -r .data.images.jpg.large_image_url <<<"$json")
+title=$(jq -r .title <<<"$json")
+image=$(jq -r .main_picture.large <<<"$json")
 
 if [[ ! $title || $title == 'null' ]]; then
-  throw "$(printf 'unexpected response from jikan.moe:\n\n%s' "$(jq -C . <<<"$json" 2>/dev/null || echo "$json" || true)")"
+  throw "$(printf 'unexpected response from mal api:\n\n%s' "$(jq -C . <<<"$json" 2>/dev/null || echo "$json" || true)")"
 fi
 
 # Create or rename directory
