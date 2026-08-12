@@ -1,13 +1,14 @@
 yt-dlp::
 	$(PRINT)
 ifndef PACMAN
-# We're installing yt-dlp from the GitHub releases so that it can always be kept
-# up to date (without having to update the entire system), but we still need
-# pacman to install some dependencies.
-	$(error yt-dlp install requires pacman)
+	$(error yt-dlp mod needs pacman to install deno)
 endif
 
-	sudo curl -fsSL https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp \
+# yt-dlp = Platform-independent zipimport binary - missing curl_cffi needed to
+#          impersonate a browser (and doesn't recognize python-curl_cffi
+#          installed separately)
+# yt-dlp_linux = Linux (glibc 2.17+) standalone x86_64 binary (inc. curl_cffi)
+	sudo curl -fsSL https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp_linux \
 		-o /usr/local/bin/yt-dlp
 	sudo chmod +x /usr/local/bin/yt-dlp
 
@@ -35,6 +36,3 @@ endif
 # [0]: https://github.com/yt-dlp/yt-dlp/wiki/EJS
 # [1]: https://nodejs.org/api/permissions.html
 	$(PACMAN) deno
-
-# pycryptodomex is for encrypted streams, mutagen for embedding thumbnails
-	$(PACMAN) python-pycryptodomex python-mutagen
