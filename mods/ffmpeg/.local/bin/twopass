@@ -1,0 +1,70 @@
+#!/bin/bash
+#
+# Copyright (c) Max Kagamine
+# Licensed under the Apache License, Version 2.0
+#
+set -eo pipefail
+shopt -s inherit_errexit
+
+# shellcheck source=mods/bash/.local/lib/common.sh
+. ~/.local/lib/common.sh
+
+help() {
+  cat >&2 <<EOF
+Usage: twopass <common args> [\; <first pass args>] \; <second pass args>
+
+-pass 1, -f null /dev/null, and -pass 2 are added automatically. First pass
+args default to -an if omitted.
+EOF
+  exit 1
+}
+
+run() {
+  printf '\n>'
+  printf ' %q' "$@"
+  printf '\n\n'
+  "$@"
+}
+
+common=()
+pass1=()
+pass2=()
+arr=common
+
+if [[ $1 =~ ^(--help|-h)$ ]]; then
+  help
+fi
+
+if [[ $1 == 'ffmpeg' ]]; then
+  shift
+fi
+
+for x; do
+  if [[ $arr == 'common' ]]; then
+    if [[ $x == \; ]]; then
+      arr=pass1
+    else
+      common+=("$x")
+    fi
+  elif [[ $arr == 'pass1' ]]; then
+    if [[ $x == \; ]]; then
+      arr=pass2
+    else
+      pass1+=("$x")
+    fi
+  elif [[ $arr == 'pass2' ]]; then
+    if [[ $x == \; ]]; then
+      throw 'too many semicolons!'
+    else
+      pass2+=("$x")
+    fi
+  fi
+done
+
+if [[ $arr == 'pass1' ]]; then
+  pass2=("${pass1[@]}")
+  pass1=(-an)
+fi
+
+run ffmpeg -hide_banner "${common[@]}" -pass 1 "${pass1[@]}" -f null /dev/null
+run ffmpeg -hide_banner "${common[@]}" -pass 2 "${pass2[@]}"
