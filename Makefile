@@ -24,6 +24,7 @@ SHELL_SCRIPTS:=$(shell find mods -type f -exec awk '/^#!.*sh/{print FILENAME}{ne
 tamriel: \
 	arch \
 	archive-tools \
+	av1 \
 	bash \
 	bat \
 	cron \
