@@ -31,3 +31,10 @@ vmaf() {
     return 1
   fi
 }
+
+is_hdr() {
+  if ffprobe -v quiet -show_streams -select_streams v "$1" |
+     grep -qP '^color_transfer=(arib-std-b67|smpte2084)$'; then
+    echo 1
+  fi
+}
