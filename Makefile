@@ -53,7 +53,7 @@ tamriel: \
 	nano \
 	ncdu \
 	node \
-	pngcrush \
+	oxipng \
 	pv \
 	python \
 	qr \
