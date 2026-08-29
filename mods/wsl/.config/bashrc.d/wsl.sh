@@ -15,23 +15,15 @@ fi
 alias rm='recycle --rm'
 export BROWSER='open'
 
-e() {
-  open "${1:-.}"
-}
-
-ee() {
-  open "${1:-.}" && exit
-}
-
 alias ffplay='&>/dev/null ffplay.exe -hide_banner -nodisp -autoexit'
 alias edit='open -e'
 
-vs() {
-  fd -d1 '\.slnx?$' | single | x open
-}
+bind -x '"\C-e": open .' # Ctrl+e: Open current directory in explorer
+bind -x '"\e\C-e": open . && exit' # Ctrl+Alt+e: ...and exit
 
 hide() { n "$@" | x wslpath -w | x attrib.exe +h; }
 unhide() { n "$@" | x wslpath -w | x attrib.exe -h; }
+vs() { fd -d1 '\.slnx?$' | single | x open; }
 hxd() { (n "$@" | x wslpath -w | xx /mnt/c/Program\ Files/HxD/HxD.exe &); }
 
 # Attach/detach yubikey
