@@ -36,9 +36,9 @@ fi
 set -o pipefail
 shopt -s histappend globstar failglob
 bind 'set completion-ignore-case on'
-#bind 'set colored-stats on'
 bind '"\e[3;5~": kill-word' # Ctrl+Del
 bind '"\C-H": backward-kill-word' # Ctrl+Backspace (note: some terminals send a regular backspace when ctrl+backspace is pressed)
+bind -x '"\C-d": exit' # Make Ctrl+d close the terminal even if prompt is not empty
 eval "$(dircolors -b ~/.config/dircolors || true)"
 HISTSIZE=10000
 HISTTIMEFORMAT='%Y-%m-%d %T  '
