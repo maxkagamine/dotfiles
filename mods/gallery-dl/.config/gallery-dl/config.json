@@ -41,7 +41,7 @@
       "filename": "{date:%Y-%m-%d}{content:? //[:50]} [@{user[name]}] [twitter {tweet_id}_p{num}].{extension}"
     },
     "mastodon": {
-      "filename": "{date:%Y-%m-%d}{content!H:? //R# /#/[:50]} [@{account[username]}] [{instance} {id}_p{num}].{extension}"
+      "filename": "{date:%Y-%m-%d}{content!H:? //R# /#/[:50]} [{account[display_name]:?/ /}@{account[username]}] [{instance} {id}_p{num}].{extension}"
     },
     "seiga": {
       "filename": "{title} [{user[name]}] [seiga im{image_id}].{extension}"
