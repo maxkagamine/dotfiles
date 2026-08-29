@@ -84,6 +84,7 @@ alias clip='xsel -bi'
 alias grep='grep --color=auto'
 alias ll='ls -Al'
 alias ls='ls -hv --color=auto --group-directories-first'
+alias su='su -p'
 alias tsv="column -ts $'\t' -W0"
 alias unclip='xsel -bo'
 alias x="xargs -r -d '\n' -L 1 "
