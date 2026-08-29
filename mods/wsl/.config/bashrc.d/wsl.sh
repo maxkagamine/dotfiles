@@ -34,20 +34,19 @@ hide() { n "$@" | x wslpath -w | x attrib.exe +h; }
 unhide() { n "$@" | x wslpath -w | x attrib.exe -h; }
 hxd() { (n "$@" | x wslpath -w | xx /mnt/c/Program\ Files/HxD/HxD.exe &); }
 
+# Attach/detach yubikey
 __usbipd_yubikey() {
   local id
-  if id=$(usbipd list | awk '/Smartcard Reader/{print $2}' | first); then
+  if id=$(usbipd list | awk '/^[0-9]+-[0-9]+\s.*Smartcard Reader/{print $2}' | single); then
     usbipd.exe "$@" -i "$id"
   else
-    echo 'Yubikey not plugged in.' >&2
+    echo 'Check if Yubikey is plugged in and confirm `usbipd list` shows a single "Smartcard Reader".' >&2
     return 1
   fi
 }
 
-alias yubikey-attach='__usbipd_yubikey attach -w'
-alias yubikey-detach='__usbipd_yubikey detach'
-alias ya='yubikey-attach'
-alias yd='yubikey-detach'
+alias ya='__usbipd_yubikey attach -w'
+alias yd='__usbipd_yubikey detach'
 
 # Disable inotify when tailing a file on the Windows filesystem
 tail() {
