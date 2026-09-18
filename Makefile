@@ -22,9 +22,10 @@ SHELL_SCRIPTS:=$(shell find mods -type f -exec awk '/^#!.*sh/{print FILENAME}{ne
 # Mod lists. Running `make` will install the mod list corresponding to the
 # machine's hostname, thanks to the "default goal" above.
 tamriel: \
+  ab-av1 \
 	arch \
 	archive-tools \
-	av1 \
+	avif \
 	bash \
 	bat \
 	cron \
