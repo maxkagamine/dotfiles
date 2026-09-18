@@ -10,7 +10,7 @@ shopt -s inherit_errexit
 . ~/.local/lib/common.sh
 
 help() {
-  cat >&2 <<'EOF'
+  cat <<'EOF'
 Usage: append-crc [-n] <file>...
 
 Adds (or updates) a file's CRC32 hash to its filename.
@@ -19,7 +19,6 @@ Options:
 
   -n, --dry-run    Dry run.
 EOF
-  exit 1
 }
 
 dry_run=

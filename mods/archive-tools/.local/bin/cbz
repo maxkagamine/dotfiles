@@ -14,12 +14,11 @@ fi
 . ~/.local/lib/common.sh
 
 help() {
-  cat >&2 <<'EOF'
+  cat <<'EOF'
 Usage: cbz <directories...>
 
 Turns one or more directories into CBZs.
 EOF
-  exit 1
 }
 
 parse_args \

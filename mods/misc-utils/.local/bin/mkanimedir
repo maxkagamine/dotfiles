@@ -12,7 +12,7 @@ MAL_CLIENT_ID_FILE=~/.config/mal-client-id
 . ~/.local/lib/common.sh
 
 help() {
-  cat >&2 <<'EOF'
+  cat <<'EOF'
 Usage: mkanimedir <mal link> [<nyaa url or torrent file>] [<dir>|<files...>]
 
 Creates (or renames) a directory with the anime name and image (as a hidden
@@ -24,7 +24,6 @@ mkanimereadme).
 Example:
   mkanimedir https://myanimelist.net/anime/6547/Angel_Beats
 EOF
-  exit 1
 }
 
 if [[ -f $MAL_CLIENT_ID_FILE ]]; then

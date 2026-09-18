@@ -10,7 +10,7 @@ shopt -s inherit_errexit
 . ~/.local/lib/common.sh
 
 help() {
-  cat >&2 <<'EOF'
+  cat <<'EOF'
 Usage: intersect-csvs [-n] <csv 1> <csv 2> ...
 
 Creates CSVs containing only rows that exist in two or more of the given CSVs.
@@ -21,7 +21,6 @@ Options:
 
   -n, --dry-run    Dry run.
 EOF
-  exit 1
 }
 
 dry_run=

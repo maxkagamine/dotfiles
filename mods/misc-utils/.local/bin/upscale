@@ -35,7 +35,7 @@ if [[ $WSL_DISTRO_NAME ]]; then
 fi
 
 help() {
-  cat >&2 <<EOF
+  cat <<EOF
 Usage: upscale (<upscalers> | --all) [-s <scale> | --auto] [-n <denoise>]
                [-f png|jpg|webp] [--no-histmatch] [--dry-run] [-v|--verbose]
                <image or directory>...
@@ -100,7 +100,6 @@ Options:
                         containing png/jpg/jpeg/jfif files (case-insensitive,
                         non-recursive).
 EOF
-  exit 1
 }
 
 scale=$DEFAULT_SCALE

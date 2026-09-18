@@ -10,7 +10,7 @@ shopt -s inherit_errexit
 . ~/.local/lib/common.sh
 
 help() {
-  cat >&2 <<'EOF'
+  cat <<'EOF'
 Usage: mkv-ls [-a|--attachments] [<path...>]
 
 Lists the tracks in an mkv for muxing with mkvmerge or mkv-batch, including
@@ -29,7 +29,6 @@ Options:
 
   -a, --attachments    Show attachments as well (cover, fonts, etc.)
 EOF
-  exit 1
 }
 
 attachments=

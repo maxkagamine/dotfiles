@@ -17,7 +17,7 @@ XP_PER_LEVEL=50
 available_sounds=$(basename -s .mp3 "$DATA_DIR"/*.mp3 | xargs printf ', %s' | cut -c3-)
 
 if [[ $1 =~ ^(--help|-h)$ ]]; then
-  cat >&2 <<EOF
+  cat <<EOF
 Usage: sweetroll [<exit code>]
        sweetroll play <sound>
        sweetroll skill <name>
@@ -35,7 +35,7 @@ play <sound>
 skill <name>
   Increases the specified skill XP and plays the level up sound every $XP_PER_LEVEL XP.
 EOF
-  exit 1
+  exit
 fi
 
 sweetroll_play() { # <sound>

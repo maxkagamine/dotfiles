@@ -10,7 +10,7 @@ shopt -s inherit_errexit
 . ~/.local/lib/common.sh
 
 help() {
-  cat >&2 <<'EOF'
+  cat <<'EOF'
 Usage: batch-rename [-n] <perl expression> <files...>
 
 Applies a perl substitution to filenames. Files are passed to perl as given,
@@ -21,7 +21,6 @@ Options:
 
   -n, --dry-run    Dry run.
 EOF
-  exit 1
 }
 
 dry_run=
@@ -32,7 +31,7 @@ parse_args \
   -- "$@"
 
 if (( ${#REST[@]} < 2 )); then
-  help
+  wat
 fi
 
 for f in "${REST[@]:1}"; do

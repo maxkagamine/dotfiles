@@ -9,8 +9,8 @@ shopt -s inherit_errexit
 # shellcheck source=mods/bash/.local/lib/common.sh
 . ~/.local/lib/common.sh
 
-if [[ $# == 0 || $1 =~ ^(--help|-h)$ ]]; then
-  cat >&2 <<'EOF'
+help() {
+  cat <<'EOF'
 Usage: mkv-batch [<path...>] <mkvmerge opts>
 
 Runs mkvmerge on each file, placing output in muxed/. Arguments up until one
@@ -28,10 +28,18 @@ Common options:
   --track-order 0:TID1,0:TID2,...
   --default-track-flag TID[:0]
 EOF
-  printf '\nSee autocomplete suggestions and ' >&2
-  link 'mkvmerge manual' https://mkvtoolnix.download/doc/mkvmerge.html >&2
-  printf '.\n' >&2
-  exit 1
+  printf '\nSee autocomplete suggestions and '
+  link 'mkvmerge manual' https://mkvtoolnix.download/doc/mkvmerge.html
+  printf '.\n'
+}
+
+if [[ $1 =~ ^(--help|-h)$ ]]; then
+  help
+  exit
+fi
+
+if (( $# == 0 )); then
+  wat
 fi
 
 paths=()

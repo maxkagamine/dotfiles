@@ -11,7 +11,7 @@ shopt -s inherit_errexit
 . ~/.local/lib/common.sh
 
 help() {
-  cat >&2 <<'EOF'
+  cat <<'EOF'
 Usage: mkv-clean <path...>
 
 Removes the title and video track name (both used occasionally just to advertise
@@ -27,7 +27,6 @@ will need to be remuxed after this to reclaim space.
 
 See also: mkv-rm-cover
 EOF
-  exit 1
 }
 
 parse_args \

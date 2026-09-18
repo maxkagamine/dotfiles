@@ -10,7 +10,7 @@ shopt -s inherit_errexit
 . ~/.local/lib/common.sh
 
 help() {
-  cat >&2 <<'EOF'
+  cat <<'EOF'
 Usage: flatten [-p|--prefix <prefix>] [-s|--suffix <suffix>]
                [-d|--delimiter <delimiter>] [-n|--dry-run] <directory>
 
@@ -30,7 +30,6 @@ Options:
 
   -n, --dry-run                  Show how files would be renamed and exit.
 EOF
-  exit 1
 }
 
 prefix=
@@ -47,7 +46,7 @@ parse_args \
   -- "$@"
 
 if (( ${#REST[@]} != 1 )); then
-  help
+  wat
 elif [[ ! -d ${REST[0]} ]]; then
   throw "not a directory: ${REST[0]}"
 fi

@@ -10,13 +10,12 @@ shopt -s inherit_errexit
 . ~/.local/lib/common.sh
 
 help() {
-  cat >&2 <<EOF
+  cat <<EOF
 Usage: twopass <common args> [\; <first pass args>] \; <second pass args>
 
 -pass 1, -f null /dev/null, and -pass 2 are added automatically. First pass
 args default to -an if omitted.
 EOF
-  exit 1
 }
 
 run() {
@@ -33,6 +32,7 @@ arr=common
 
 if [[ $1 =~ ^(--help|-h)$ ]]; then
   help
+  exit
 fi
 
 if [[ $1 == 'ffmpeg' ]]; then

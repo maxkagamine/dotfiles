@@ -8,19 +8,33 @@ shopt -s inherit_errexit
 
 DEFAULT_CRF=0 # Lossless
 
-if [[ $# == 0 || $1 =~ ^(--help|-h)$ || ! -f "$1/animation.json" ]]; then
-  cat >&2 <<EOF
+# shellcheck source=mods/bash/.local/lib/common.sh
+. ~/.local/lib/common.sh
+
+help() {
+  cat <<EOF
 Usage: ugoira-to-mp4 <ugoira directory>
 
 Outputs an mp4 in the current directory with the name of the ugoira.
 CRF environment variable controls crf, defaults to $DEFAULT_CRF.
 EOF
-  exit 1
+}
+
+parse_args \
+  -h,--help \
+  -- "$@"
+
+if (( ${#REST[@]} != 1 )); then
+  wat
 fi
 
 out_dir=$PWD
-cd "$1"
+cd "${REST[0]}"
 output="$out_dir/$(basename "$PWD").mp4"
+
+if [[ ! -f animation.json ]]; then
+  throw "no animation.json in $PWD"
+fi
 
 # Read animation.json and convert to concat demuxer file, converting any images
 # with non-sRGB color profiles to sRGB to avoid colors getting screwed up

@@ -10,7 +10,7 @@ shopt -s inherit_errexit
 . ~/.local/lib/common.sh
 
 help() {
-  cat >&2 <<'EOF'
+  cat <<'EOF'
 Usage: mkv-extract-fonts [-n] [<path...>]
 
 Extracts all unique fonts (by filename) from the given mkvs. Fonts are
@@ -23,7 +23,6 @@ Options:
 
   -n, --dry-run    Dry run.
 EOF
-  exit 1
 }
 
 dry_run=

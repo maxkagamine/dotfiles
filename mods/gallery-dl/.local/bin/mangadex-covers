@@ -6,8 +6,11 @@
 set -eo pipefail
 shopt -s inherit_errexit
 
-if [[ ! $1 =~ ^https://mangadex.org/title/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}) ]]; then
-  cat >&2 <<EOF
+# shellcheck source=mods/bash/.local/lib/common.sh
+. ~/.local/lib/common.sh
+
+help() {
+  cat <<EOF
 Usage: mangadex-covers <manga url>
 
 Downloads all of the Japanese volume covers for a series.
@@ -19,7 +22,15 @@ If a directory that ends with "vol. {volume} [mangadex]" exists (i.e. a
 gallery-dl download folder) and no "000.*" exists in that directory, the
 corresponding cover image will be moved there.
 EOF
-  exit 1
+}
+
+if [[ $1 =~ ^(--help|-h)$ ]]; then
+  help
+  exit
+fi
+
+if [[ ! $1 =~ ^https://mangadex.org/title/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}) ]]; then
+  wat
 fi
 
 manga_id=${BASH_REMATCH[1]}

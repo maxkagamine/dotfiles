@@ -14,7 +14,7 @@ fi
 . ~/.local/lib/common.sh
 
 help() {
-  cat >&2 <<'EOF'
+  cat <<'EOF'
 Usage: ass-to-txt [-k] [<subs>]
 
 Strips out everything but the dialogue to make diffing subtitles easier. Inline
@@ -28,7 +28,6 @@ Options:
   -k    Keep the .ass files. By default, the subs are removed or recycled and
         replaced with .txt files.
 EOF
-  exit 1
 }
 
 keep=

@@ -15,7 +15,7 @@ CURL_OPTS=(
 )
 
 help() {
-  cat >&2 <<'EOF'
+  cat <<'EOF'
 Usage: mkmoviedir <imdb or mydramalist url> [<file>]
 
 Creates a directory in the format "Title (Year)" with the poster saved to
@@ -24,7 +24,6 @@ it'll download the poster only.
 
 Works for TV shows too.
 EOF
-  exit 1
 }
 
 imdb_url=

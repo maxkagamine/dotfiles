@@ -10,7 +10,7 @@ shopt -s inherit_errexit
 . ~/.local/lib/common.sh
 
 help() {
-  cat >&2 <<EOF
+  cat <<EOF
 Usage: taill [-n <lines>] [-l <language>] [--] <file>
 
 Tails the given file using bat for syntax highlighting.
@@ -24,7 +24,6 @@ Options:
                            Defaults to the file extension if present and 'log'
                            otherwise.
 EOF
-  exit 1
 }
 
 lines=$(tput lines)

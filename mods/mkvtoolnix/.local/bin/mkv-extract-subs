@@ -10,7 +10,7 @@ shopt -s inherit_errexit
 . ~/.local/lib/common.sh
 
 help() {
-  cat >&2 <<'EOF'
+  cat <<'EOF'
 Usage: mkv-extract-subs [-l <languages>] [-n] [<path...>]
 
 Extracts all subtitles from the given mkvs.
@@ -25,7 +25,6 @@ Options:
 
   -n, --dry-run             Dry run.
 EOF
-  exit 1
 }
 
 languages=()

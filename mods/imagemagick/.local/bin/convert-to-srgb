@@ -12,7 +12,7 @@ SRGB_ICC_PROFILE=~/.local/share/color/icc/sRGB-IEC61966-2.1.icc
 . ~/.local/lib/common.sh
 
 help() {
-  cat >&2 <<EOF
+  cat <<EOF
 Usage: convert-to-srgb [-a | -x] <images...>
 
 For each input image, if it contains a non-sRGB color profile, extracts the
@@ -31,7 +31,6 @@ Options:
   -x    Exit with a non-zero exit code if an image does not need converting.
         Mutually exclusive with -a.
 EOF
-  exit 1
 }
 
 all=

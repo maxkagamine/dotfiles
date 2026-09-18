@@ -10,7 +10,7 @@ shopt -s inherit_errexit
 . ~/.local/lib/common.sh
 
 help() {
-  cat >&2 <<'EOF'
+  cat <<'EOF'
 Usage: ass-ls-fonts [<subs>]
 
 Lists all unique fonts referenced in the subs via either `Style:` or `\fn`.
@@ -18,7 +18,6 @@ Lists all unique fonts referenced in the subs via either `Style:` or `\fn`.
 Directories are expanded to contained *.ass files (non-recursive). If no paths
 are given, the current directory is used.
 EOF
-  exit 1
 }
 
 parse_args \

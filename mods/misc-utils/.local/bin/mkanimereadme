@@ -10,12 +10,11 @@ shopt -s inherit_errexit
 . ~/.local/lib/common.sh
 
 help() {
-  cat >&2 <<'EOF'
+  cat <<'EOF'
 Usage: mkanimereadme <nyaa url or torrent file> [<dir>]
 
 Creates a readme.md file in <dir> or the current directory.
 EOF
-  exit 1
 }
 
 get_torrent_comment() {

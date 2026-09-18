@@ -10,7 +10,7 @@ shopt -s inherit_errexit
 . ~/.local/lib/common.sh
 
 help() {
-  cat >&2 <<'EOF'
+  cat <<'EOF'
 Usage: mkv-cat [--no-sort] <input>... <output>
 
 Concatenates the input MKVs, adding chapters for each file.
@@ -20,7 +20,6 @@ Options:
   --no-sort    Concatenate inputs in the order given. By default, input files
                are appended in natural sort order (same as `ls -v`).
 EOF
-  exit 1
 }
 
 run() {

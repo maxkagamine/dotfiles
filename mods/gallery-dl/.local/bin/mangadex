@@ -6,16 +6,30 @@
 set -eo pipefail
 shopt -s inherit_errexit
 
-if (( $# < 2 )) || [[ $1 =~ ^(--help|-h)$ ]]; then
-  cat >&2 <<EOF
+# shellcheck source=mods/bash/.local/lib/common.sh
+. ~/.local/lib/common.sh
+
+help() {
+  cat <<EOF
 Usage: mangadex <title> <url> [<gallery-dl args...>]
 
 Creates a directory named <title> and runs gallery-dl & mangadex-covers in it.
 EOF
-  exit 1
+}
+
+parse_args \
+  -h,--help \
+  -- "$@"
+
+title=${REST[0]}
+url=${REST[1]}
+args=("${REST[@]:2}")
+
+if [[ ! $title || ! $url ]]; then
+  wat
 fi
 
-mkdir -v "$1"
-cd "$1"
-gallery-dl "${@:3}" "$2"
-mangadex-covers "$2"
+mkdir -v "$title"
+cd "$title"
+gallery-dl "${args[@]}" "$url"
+mangadex-covers "$url"

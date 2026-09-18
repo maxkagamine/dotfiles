@@ -70,10 +70,9 @@
     "scope": "shellscript",
     "body": [
       "help() {",
-      "  cat >&2 <<EOF",
+      "  cat <<EOF",
       "Usage: $TM_FILENAME ${0:<stuff>}",
       "EOF",
-      "  exit 1",
       "}"
     ]
   },
@@ -92,10 +91,9 @@
       ". ~/.local/lib/common.sh",
       "",
       "help() {",
-      "  cat >&2 <<EOF",
+      "  cat <<EOF",
       "Usage: $TM_FILENAME <stuff>",
       "EOF",
-      "  exit 1",
       "}",
       "",
       "parse_args \\",

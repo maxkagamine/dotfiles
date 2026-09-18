@@ -205,11 +205,12 @@ parse_args() {
       __name=${__name#-}
       OPTS[$__name]=$__value
 
-      # Call help() automatically if --help or any of its aliases are given
+      # Call help & exit automatically if --help or any of its aliases are given
       # (this is done here at the end rather than when $callback is set since at
       # that point we haven't yet parsed the option names out of the descriptor)
       if [[ $__name == 'help' && ! ${__callbacks[$__option]} ]] && declare -F help >/dev/null; then
         help
+        exit
       fi
     done
   done
@@ -305,6 +306,19 @@ expand_directories() {
     }
   )
   wait $! # Result of the process substitution
+}
+
+# Usage: wat [<exit code>]
+#
+# Writes help() to stderr and exits with 1 or the specified exit code. If no
+# help function is defined, prints 'wat' instead.
+wat() {
+  if declare -F help >/dev/null; then
+    help >&2
+  else
+    echo 'wat' >&2
+  fi
+  exit "${1:-1}"
 }
 
 # Usage: link <text> <url>

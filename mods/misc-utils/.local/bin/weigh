@@ -12,7 +12,7 @@ shopt -s inherit_errexit
 COLUMNS=$(tput cols)
 
 help() {
-  cat >&2 <<'EOF'
+  cat <<'EOF'
 Usage: weigh [-z] [--si] [--paths-from-stdin] [<file|directory>...]
 
 Shows the total size of files, directories, or stdin (gzipped if -z).
@@ -26,7 +26,6 @@ Options:
   --si                  Use SI units (1000 B = 1 KB) instead of KiB etc.
   --paths-from-stdin    Weigh paths from stdin as they're given.
 EOF
-  exit 1
 }
 
 gz=
