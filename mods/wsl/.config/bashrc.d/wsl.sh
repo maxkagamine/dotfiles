@@ -18,8 +18,10 @@ export BROWSER='open'
 alias ffplay='&>/dev/null ffplay.exe -hide_banner -nodisp -autoexit'
 alias edit='open -e'
 
-bind -x '"\C-e": open .' # Ctrl+e: Open current directory in explorer
-bind -x '"\e\C-e": open . && exit' # Ctrl+Alt+e: ...and exit
+# Shift+Alt+R: Open current directory in explorer (same shortcut as vscode "Reveal in File Explorer")
+bind -x '"\eR": open .'
+# Ctrl+Alt+D: Open current directory in explorer and exit (i.e. alternate "ctrl+d")
+bind -x '"\e\C-d": open . && exit'
 
 hide() { n "$@" | x wslpath -w | x attrib.exe +h; }
 unhide() { n "$@" | x wslpath -w | x attrib.exe -h; }
