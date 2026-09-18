@@ -26,6 +26,8 @@ parse_args \
   -h,--help \
   -- "$@"
 
+err=
+
 for dir in "${REST[@]}"; do
   if [[ ! -d $dir ]]; then # Makes it easy to just do `cbz *`
     echo "Skipping $dir: Not a directory"
@@ -34,7 +36,16 @@ for dir in "${REST[@]}"; do
   pushd "$dir"
   path=$(realpath .)
   name=$(basename "$path")
+  cbz="../$name.cbz"
+  if [[ -f $cbz ]]; then
+    prints '\e[33malready exists: %s\e[m\n' "$cbz"
+    err=1
+    popd
+    continue
+  fi
   7z a -tzip -m0=Copy "../$name.cbz" .
   popd
   rm -rfv "$dir"
 done
+
+[[ ! $err ]]
