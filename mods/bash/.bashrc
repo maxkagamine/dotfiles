@@ -179,6 +179,14 @@ guid() { # Prints & copies (or writes plain to stdout if pipe) a new UUID
   fi
 }
 
+progress() { # <value> <max>, no args to clear
+  if [[ $# != 2 || $2 == 0 ]]; then
+    printf '\e]9;4;0;0\e\\'
+  else
+    printf '\e]9;4;1;%s\e\\' "$(($1 * 100 / $2))"
+  fi
+}
+
 # For dry runs / printing arrays (see also `declare -p some_variable`)
 q() { if (( $# > 0 )); then printf '%q ' "$@" | sed 's/ $/\n/'; fi; }
 n() { if (( $# > 0 )); then printf '%s\n' "$@"; fi; }

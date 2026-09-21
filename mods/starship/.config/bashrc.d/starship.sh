@@ -8,9 +8,13 @@ if [[ ${preexec_functions[*]} != *starship* ]]; then
 fi
 
 _starship_precmd_user_func() {
+  # Set window title
   local dir=${PWD##*/}
   [[ $PWD == "$HOME" ]] && dir='~'
-  echo -ne "\e]0;${dir}\a"
+  printf '\e]0;%s\a' "$dir"
+
+  # Clear progress bar
+  printf '\e]9;4;0;0\e\\'
 }
 
 starship_precmd_user_func='_starship_precmd_user_func'
