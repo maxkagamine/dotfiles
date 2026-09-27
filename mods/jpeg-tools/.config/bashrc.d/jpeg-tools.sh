@@ -3,9 +3,16 @@
 #
 # shellcheck shell=bash
 
+alias jpegtran='jpegtran -perfect -optimize -strict'
+
 jpegli() { # <image>...
-  local f
+  local f out
   for f; do
-    cjpegli "$f" "${f%.*}.jpg" || return $?
+    out="${f%.*}.jpg"
+    if [[ -f $out ]]; then
+      out="${f%.*}.jpegli.jpg"
+    fi
+    cjpegli "$f" "$out" || return
+    echo "Wrote $out"
   done
 }
