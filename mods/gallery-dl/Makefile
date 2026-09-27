@@ -20,7 +20,7 @@ gallery-dl:: python json-tools # mangadex-covers script uses jq
 	$(PRINT)
 	pipx install -f git+https://codeberg.org/mikf/gallery-dl
 	pipx inject -f gallery-dl curl_cffi
-	curl -fsSL 'https://codeberg.org/mikf/gallery-dl/raw/commit/ed8402735b73be148f13244261c8d448c52ac267/gallery_dl/extractor/curl_cffi_shim.py' \
+	curl -fsSL 'https://codeberg.org/HumanManFromEarth/gallery-dl/raw/branch/feat/fanbox-curl_cffi/gallery_dl/extractor/curl_cffi_shim.py' \
 		-o '$(GALLERY_DL_SITE_PACKAGES)/gallery_dl/extractor/curl_cffi_shim.py'
-	curl -fsSL 'https://codeberg.org/mikf/gallery-dl/raw/commit/ed8402735b73be148f13244261c8d448c52ac267/gallery_dl/extractor/fanbox.py' \
+	curl -fsSL 'https://codeberg.org/HumanManFromEarth/gallery-dl/raw/branch/feat/fanbox-curl_cffi/gallery_dl/extractor/fanbox.py' \
 		-o '$(GALLERY_DL_SITE_PACKAGES)/gallery_dl/extractor/fanbox.py'
