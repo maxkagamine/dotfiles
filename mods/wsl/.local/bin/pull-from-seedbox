@@ -97,3 +97,5 @@ notify-send \
   --appId 'Pull From Seedbox' \
   --category "$title" \
   "$description"
+
+sweetroll play newgame || true
