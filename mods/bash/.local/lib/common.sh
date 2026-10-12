@@ -333,8 +333,9 @@ link() {
 #
 # Creates a GitHub-markdown-style blockquote containing <text> or stdin.
 blockquote() {
+  local cols; cols=$(tput cols)
   (( $# == 0 )) && set -- "$(cat || true)"
   printf '\e[1;30m╻\e[m\n'
-  perl -pe 's/^/\e[1;30m┃\e[m /' <<<"$1"
+  fold -w $(( cols - 2 )) -s <<<"$1" | perl -pe 's/^/\e[1;30m┃\e[m /'
   printf '\e[1;30m╹\e[m\n'
 }
