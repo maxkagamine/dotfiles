@@ -1,5 +1,7 @@
-LOCALAPPDATA=$(shell wslpath "$$(cmd.exe /c echo %localappdata% 2>/dev/null)")
-WSL_KEEPALIVE_EXE=$(LOCALAPPDATA)/Programs/wsl-keepalive.exe
+ifdef WSL_DISTRO_NAME
+
+LOCALAPPDATA:=$(shell wslpath "$$(cmd.exe /c echo %localappdata% 2>/dev/null)")
+WSL_KEEPALIVE_EXE:=$(LOCALAPPDATA)/Programs/wsl-keepalive.exe
 
 define WSL_KEEPALIVE_SYSTEMD
 [Unit]
@@ -101,3 +103,5 @@ endif
 	sudo tee /etc/systemd/system/systemd-timesyncd.service.d/override.conf >/dev/null <<<"$$WSL_TIMESYNCD_OVERRIDE"
 	sudo systemctl daemon-reload
 	sudo systemctl start systemd-timesyncd
+
+endif
