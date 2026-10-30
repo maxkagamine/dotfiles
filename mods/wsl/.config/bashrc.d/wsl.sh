@@ -34,6 +34,7 @@ __usbipd_yubikey() {
   if id=$(usbipd list | awk '/^[0-9]+-[0-9]+\s.*Smartcard Reader/{print $2}' | single); then
     usbipd.exe "$@" -i "$id"
   else
+    # shellcheck disable=SC2016
     echo 'Check if Yubikey is plugged in and confirm `usbipd list` shows a single "Smartcard Reader".' >&2
     return 1
   fi

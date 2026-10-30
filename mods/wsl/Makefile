@@ -41,11 +41,11 @@ export WSL_JOURNALD_CONF
 
 wsl:: wsl-bin wsl-journald-conf wsl-keepalive wsl-mount-network-drive wsl-timesyncd
 	$(PRINT)
-ifdef APT # Make sure Ubuntu's open & browser commands point to the open command from https://github.com/maxkagamine/wsl-tools
-	sudo update-alternatives --install /usr/bin/x-www-browser x-www-browser '/mnt/c/Program Files/wsl-tools/open' 999
-	sudo update-alternatives --install /usr/bin/www-browser www-browser '/mnt/c/Program Files/wsl-tools/open' 999
-	sudo update-alternatives --install /usr/bin/open open '/mnt/c/Program Files/wsl-tools/open' 999
-endif
+# ifdef APT # Make sure Ubuntu's open & browser commands point to the open command from https://github.com/maxkagamine/wsl-tools
+# 	sudo update-alternatives --install /usr/bin/x-www-browser x-www-browser '/mnt/c/Program Files/wsl-tools/open' 999
+# 	sudo update-alternatives --install /usr/bin/www-browser www-browser '/mnt/c/Program Files/wsl-tools/open' 999
+# 	sudo update-alternatives --install /usr/bin/open open '/mnt/c/Program Files/wsl-tools/open' 999
+# endif
 	sudo ln -sfT /mnt/c/Windows/Fonts /usr/local/share/fonts
 	ln -sfT "$(LOCALAPPDATA)/Microsoft/Windows/Fonts" ~/.local/share/fonts
 	$(PACMAN) dos2unix
@@ -73,6 +73,7 @@ wsl-keepalive: cargo # cargo mod installs mingw32 for cross-compilation
 ifneq "$(wildcard /etc/systemd/system/wsl-keepalive.service)" ""
 	sudo systemctl stop wsl-keepalive.service
 endif
+	-taskkill.exe /im wsl-keepalive.exe /f 2>&1 | grep -v 'not found'
 	x86_64-w64-mingw32-gcc -x assembler - -o $(WSL_KEEPALIVE_EXE) -s -nostdlib -lkernel32 <<<"$$WSL_KEEPALIVE_ASM"
 	sudo tee /etc/systemd/system/wsl-keepalive.service >/dev/null <<<"$$WSL_KEEPALIVE_SYSTEMD"
 	sudo systemctl enable --now wsl-keepalive.service
