@@ -3,6 +3,9 @@
 #
 # shellcheck shell=bash
 
+export SQLITE_PS1=$'\n> '
+export SQLITE_PS2='  '
+
 alias sql='sqlite3'
 
 complete -f -W '
