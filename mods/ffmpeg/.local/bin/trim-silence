@@ -1,0 +1,109 @@
+#!/bin/bash
+#
+# Copyright (c) Max Kagamine
+# Licensed under the Apache License, Version 2.0
+#
+set -eo pipefail
+shopt -s inherit_errexit
+
+# shellcheck source=mods/bash/.local/lib/common.sh
+. ~/.local/lib/common.sh
+
+help() {
+  cat <<EOF
+Usage: trim-silence [-y] [--start | --end] [--threshold=] <files...>
+
+Trims silence off the start and/or end of the given .flac or .wav files. Trimmed
+files are written to trimmed/ (as FLACs with max compression).
+
+Options:
+
+  -y                Replace files in the output directory (passed to ffmpeg).
+
+  --start, --end    Trim the start/end. Defaults to both.
+
+  --threshold=      Silence threshold, e.g. "-75dB". Defaults to total silence.
+EOF
+}
+
+input_opts=()
+trim_start=
+trim_end=
+threshold=
+
+parse_args \
+  -y 'input_opts+=(-y)' \
+  --start 'trim_start=1' \
+  --end 'trim_end=1' \
+  --threshold= 'threshold={}' \
+  -h,--help \
+  -- "$@"
+
+if [[ ! $trim_start && ! $trim_end ]]; then
+  trim_start=1
+  trim_end=1
+fi
+
+for f in "${REST[@]}"; do
+  if [[ ! $f =~ \.(flac|wav)$ ]]; then
+    throw "not a .flac or .wav: $f"
+  fi
+done
+
+filter='silenceremove=start_periods=1'
+if [[ $threshold ]]; then
+  filter+=":start_threshold=$threshold"
+fi
+if [[ $trim_end ]]; then
+  if [[ $trim_start ]]; then
+    filter="$filter,areverse,$filter,areverse"
+  else
+    filter="areverse,$filter,areverse"
+  fi
+fi
+
+mkdir -p trimmed
+
+get_ffprobe_entry() { # <entry> <file>
+  ffprobe -v error -select_streams a:0 -show_entries "$1" -of default=noprint_wrappers=1:nokey=1 "$2"
+}
+
+get_duration() { # <file>
+  get_ffprobe_entry format=duration "$1"
+}
+
+get_sample_fmt() { # <file>
+  get_ffprobe_entry stream=sample_fmt "$1"
+}
+
+format_duration_diff() {
+	python3 -I -c '
+import sys
+ms = round((float(sys.argv[1]) - float(sys.argv[2])) * 1000)
+print(f"{ms // 3600000:02d}:{ms // 60000 % 60:02d}:{ms // 1000 % 60:02d}.{ms % 1000:03d}")
+' "$1" "$2"
+}
+
+for f in "${REST[@]}"; do
+
+  output=$(basename "$f")
+  output="trimmed/${output%.*}.flac"
+
+  old_duration=$(get_duration "$f")
+  sample_fmt=$(get_sample_fmt "$f") # silenceremove doesn't preserve the input's bit depth
+
+  ffmpeg -v error "${input_opts[@]}" -i "$f" \
+    -af "$filter" -sample_fmt "$sample_fmt" \
+    -compression_level 12 -f flac "$output"
+
+  new_duration=$(get_duration "$output")
+
+  if [[ $new_duration == "$old_duration" ]]; then
+    printf '\e[33mNo silence to trim\e[m    %s\n' "$f"
+    #       \e[32mTrimmed 00:00:00.000\e[m  %s\n
+  else
+    duration_diff=$(format_duration_diff "$old_duration" "$new_duration")
+    printf '\e[32mTrimmed %s\e[m  %s\n' "$duration_diff" "$f"
+  fi
+
+done
