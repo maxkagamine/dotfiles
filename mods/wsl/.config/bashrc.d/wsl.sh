@@ -20,8 +20,9 @@ alias edit='open -e'
 
 # Shift+Alt+R: Open current directory in explorer (same shortcut as vscode "Reveal in File Explorer")
 bind -x '"\eR": open .'
-# Ctrl+Alt+D: Open current directory in explorer and exit (i.e. alternate "ctrl+d")
+# Ctrl/Shift+Alt+D: Open current directory in explorer and exit (i.e. alternate "ctrl+d")
 bind -x '"\e\C-d": open . && exit'
+bind -x '"\eD": open . && exit'
 
 hide() { n "$@" | x wslpath -w | x attrib.exe +h; }
 unhide() { n "$@" | x wslpath -w | x attrib.exe -h; }
