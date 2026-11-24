@@ -16,7 +16,7 @@
 &nbsp;|&nbsp;
 **[<img src=".github/images/icons/sweetroll.png" height="14" valign="middle" /> sweetroll](#-sweetroll)**
 &nbsp;|&nbsp;
-[more&hellip;](#fzf)
+[more&hellip;](#cron)
 
 Behold, [GNU Stow][stow]: the mod manager for your Linux home directory! Anyone who's used Vortex or MO2 to mod games like [Skyrim][skyrim] will find this familiar: mod (dot) files are organized into separate folders, and the mod manager (stow) combines them into the game (home) directory using symlinks.
 
@@ -248,6 +248,7 @@ Additional tools:
 - [**mkv-extract-subs**](mods/mkvtoolnix/.local/bin/mkv-extract-subs) — Batch extracts all subtitles from the given MKVs.
 - [**mkv-extract-fonts**](mods/mkvtoolnix/.local/bin/mkv-extract-fonts) — Batch extracts all unique fonts (by filename) from the given MKVs.
 - [**mkv-rm-cover**](mods/mkvtoolnix/.local/bin/mkv-rm-cover) — Removes all image/jpeg and image/png attachments from the given MKVs.
+- [**mkv-compact**](mods/mkvtoolnix/.local/bin/mkv-compact) — Remuxes each file without any changes, which has the effect of compacting MKVs by removing free space left behind by mkvpropedit. This is also good to run after creating an MKV using ffmpeg, as the latter does not update the statistics tags (which causes Explorer to show an incorrect "Data rate", or none at all), and mkvmerge can sometimes produce slightly smaller MKVs than libavformat.
 - [**mkv-clean**](mods/mkvtoolnix/.local/bin/mkv-clean) — Removes the title and video track name (both used occasionally just to advertise the encoding group), cover image (some groups plaster the series cover on every episode), and common Windows system fonts (which are often unnecessarily included with subs and do nothing but waste space) from the given MKVs.
 - [**ass-ls-fonts**](mods/mkvtoolnix/.local/bin/ass-ls-fonts) — Lists all unique fonts referenced in the subs via either `Style:` or `\fn`.
 - [**ass-to-txt**](mods/mkvtoolnix/.local/bin/ass-to-txt) — Strips out everything but the dialogue to make diffing subtitles easier.
@@ -260,10 +261,10 @@ Miscellaneous utilities:
 - [**batch-rename**](mods/misc-utils/.local/bin/batch-rename) — Helper for quickly applying a perl substitution to filenames.
 - [**flatten**](mods/misc-utils/.local/bin/flatten) — Flattens the contents of a directory such that "foo/bar/file.jpg" is renamed to "foo - bar - file.jpg", with an optional prefix/suffix added to the filenames.
 - [**html-unescape**](mods/misc-utils/.local/bin/html-unescape) — Unescapes HTML entities. Useful for scraping.
-- [**intersect-csvs**](mods/misc-utils/.local/bin/intersect-csvs) — Creates CSVs containing only rows that exist in two or more of the given CSVs. For example, given A.csv, B.csv, and C.csv, creates A+B.csv, A+C.csv, B+C.csv, and A+B+C.csv. I used this to create [a map](https://www.google.com/maps/d/viewer?mid=1kaE2O2LTjoS5Bf2YUCQ6OFJlXuert8U) of arcades in Tokyo that have my favorite games.
+- [**intersect-csvs**](mods/misc-utils/.local/bin/intersect-csvs) — Creates CSVs containing only rows that exist in two or more of the given CSVs. For example, given A.csv, B.csv, and C.csv, creates A+B.csv, A+C.csv, B+C.csv, and A+B+C.csv. (I used this in the past to create a custom Google Map of arcades in Tokyo that had my favorite games, which could filter to any combination, e.g. arcades with both _Kancolle_ and _Project Diva_.)
 - [**mkanimedir**](mods/misc-utils/.local/bin/mkanimedir) — Turns a MAL link and a bunch of episodes into a nice folder.
 - [**mkmoviedir**](mods/misc-utils/.local/bin/mkmoviedir) — Like mkanimedir but for an IMDb link.
-- [**rate**](mods/misc-utils/.local/bin/rate) — Rate-limits a pipe.
+- [**rate**](mods/misc-utils/.local/bin/rate) — Rate-limits lines of text in a pipe.
 - [**sanitize-filename**](mods/misc-utils/.local/bin/sanitize-filename) — Replaces characters invalid in Windows file/directory names with either a space or Unicode lookalikes.
 - [**title-case**](mods/misc-utils/.local/bin/title-case) — Converts text to properly-capitalized title case.
 - [**ubo-sort**](mods/misc-utils/.local/bin/ubo-sort) — Organizes uBlock Origin filter lists.
@@ -279,6 +280,19 @@ In case you missed it: ~~[**Nuke a git repo with unrelenting force: the FUS RO D
 ## [cron](mods/cron/)
 
 Contains a [**cron-wrapper**](mods/cron/.local/bin/cron-wrapper) script for cronjobs that prevents multiple instances, handles logging, and triggers a notification on error. Used for [pull-from-seedbox](mods/wsl/.local/bin/pull-from-seedbox) and another script that runs yt-dlp to backup YouTube playlists.
+
+## [ffmpeg](mods/ffmpeg/)
+
+- [**trim-silence**](mods/ffmpeg/.local/bin/trim-silence) — Trims silence off the start and/or end of the given .flac or .wav files, with options to specify a threshold (instead of total silence) and a maximum amount of silence to leave.
+- [**twopass**](mods/ffmpeg/.local/bin/twopass) — Helper for two-pass encoding. Usage is `twopass <common args> [\; <first pass args>] \; <second pass args>`; for example:
+  ```
+  twopass -i input.mp4 -c:v libsvtav1 -preset 4 -b:v 1M -pix_fmt yuv420p10le \; -c:a libopus -b:a 96k output.mp4
+  ```
+  Runs:
+  ```
+  ffmpeg -hide_banner -i input.mp4 -c:v libsvtav1 -preset 4 -b:v 1M -pix_fmt yuv420p10le -pass 1 -an -f null /dev/null
+  ffmpeg -hide_banner -i input.mp4 -c:v libsvtav1 -preset 4 -b:v 1M -pix_fmt yuv420p10le -pass 2 -c:a libopus -b:a 96k output.mp4
+  ```
 
 ## [fzf](mods/fzf/.config/bashrc.d/fzf.sh)
 

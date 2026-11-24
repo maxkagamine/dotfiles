@@ -13,9 +13,11 @@ help() {
   cat <<'EOF'
 Usage: rate <num> [<suffix>]
 
-Rate-limits a pipe. <num> and <suffix> may be two args or one, with or without
-a space. <suffix> is seconds (default), minutes, or hours, or some abbreviation
-thereof, plural or singular. Decimals aren't supported.
+Rate-limits lines of text in a pipe.
+
+<num> and <suffix> may be two args or one, with or without a space. <suffix> is
+seconds (default), minutes, or hours, or some abbreviation thereof, plural or
+singular. Decimals aren't supported.
 
 Example:
   tail -f urls.txt | rate 5s | x wget  # DL's urls no faster than every 5 sec
