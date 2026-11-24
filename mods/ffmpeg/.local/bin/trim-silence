@@ -11,7 +11,7 @@ shopt -s inherit_errexit
 
 help() {
   cat <<EOF
-Usage: trim-silence [-y] [--start | --end] [--threshold=] <files...>
+Usage: trim-silence [-y] [--start | --end] [--threshold=] [--leave=] <files...>
 
 Trims silence off the start and/or end of the given .flac or .wav files. Trimmed
 files are written to trimmed/ (as FLACs with max compression).
@@ -23,6 +23,9 @@ Options:
   --start, --end    Trim the start/end. Defaults to both.
 
   --threshold=      Silence threshold, e.g. "-75dB". Defaults to total silence.
+
+  --leave=          Maximum amount of silence to leave in seconds, e.g. "0.25".
+                    Defaults to none.
 EOF
 }
 
@@ -30,12 +33,14 @@ input_opts=()
 trim_start=
 trim_end=
 threshold=
+leave=
 
 parse_args \
   -y 'input_opts+=(-y)' \
   --start 'trim_start=1' \
   --end 'trim_end=1' \
   --threshold= 'threshold={}' \
+  --leave= 'leave={}' \
   -h,--help \
   -- "$@"
 
@@ -44,22 +49,29 @@ if [[ ! $trim_start && ! $trim_end ]]; then
   trim_end=1
 fi
 
+if [[ $leave && ! $leave =~ ^[0-9]*\.?[0-9]+$ ]]; then
+  throw 'invalid value for --leave (should be a number)'
+fi
+
 for f in "${REST[@]}"; do
   if [[ ! $f =~ \.(flac|wav)$ ]]; then
     throw "not a .flac or .wav: $f"
   fi
 done
 
-filter='silenceremove=start_periods=1'
+start_filter='silenceremove=start_periods=1'
 if [[ $threshold ]]; then
-  filter+=":start_threshold=$threshold"
+  start_filter+=":start_threshold=$threshold"
+fi
+
+end_filter="areverse,$start_filter,areverse"
+
+filter=
+if [[ $trim_start ]]; then
+  filter=$start_filter
 fi
 if [[ $trim_end ]]; then
-  if [[ $trim_start ]]; then
-    filter="$filter,areverse,$filter,areverse"
-  else
-    filter="areverse,$filter,areverse"
-  fi
+  filter+="${filter:+,}$end_filter"
 fi
 
 mkdir -p trimmed
@@ -74,6 +86,42 @@ get_duration() { # <file>
 
 get_sample_fmt() { # <file>
   get_ffprobe_entry stream=sample_fmt "$1"
+}
+
+get_sample_rate() { # <file>
+  get_ffprobe_entry stream=sample_rate "$1"
+}
+
+get_sample_count() { # <file> [<filter>]
+  ffmpeg -v error -i "$1" -af "${2:-anull}" -ac 1 -f u8 - | wc -c
+}
+
+# Measures the silence that $filter would remove and returns an atrim filter
+# that removes all but $leave seconds of it (start_silence is bugged).
+get_leave_filter() { # <file>
+  local total sample_rate leave_samples remaining start=0 end
+
+  total=$(get_sample_count "$1")
+  end=$total
+  sample_rate=$(get_sample_rate "$1")
+  leave_samples=$(python3 -I -c '
+import sys
+print(round(float(sys.argv[1]) * int(sys.argv[2])))
+' "$leave" "$sample_rate")
+
+  if [[ $trim_start ]]; then
+    remaining=$(get_sample_count "$1" "$start_filter")
+    start=$(( total - remaining - leave_samples ))
+    start=$(( start > 0 ? start : 0 ))
+  fi
+
+  if [[ $trim_end ]]; then
+    remaining=$(get_sample_count "$1" "$end_filter")
+    end=$(( remaining + leave_samples ))
+    end=$(( end < total ? end : total ))
+  fi
+
+  echo "atrim=start_sample=$start:end_sample=$end,asetpts=PTS-STARTPTS"
 }
 
 format_duration_diff() {
@@ -92,8 +140,13 @@ for f in "${REST[@]}"; do
   old_duration=$(get_duration "$f")
   sample_fmt=$(get_sample_fmt "$f") # silenceremove doesn't preserve the input's bit depth
 
+  file_filter=$filter
+  if [[ $leave ]]; then
+    file_filter=$(get_leave_filter "$f")
+  fi
+
   ffmpeg -v error "${input_opts[@]}" -i "$f" \
-    -af "$filter" -sample_fmt "$sample_fmt" \
+    -af "$file_filter" -sample_fmt "$sample_fmt" \
     -compression_level 12 -f flac "$output"
 
   new_duration=$(get_duration "$output")
