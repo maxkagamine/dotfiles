@@ -1,0 +1,53 @@
+#!/bin/bash
+#
+# Copyright (c) Max Kagamine
+# Licensed under the Apache License, Version 2.0
+#
+set -eo pipefail
+shopt -s inherit_errexit
+
+# shellcheck source=mods/bash/.local/lib/common.sh
+. ~/.local/lib/common.sh
+
+help() {
+  cat <<EOF
+Usage: mkv-compact <path...>
+
+Remuxes each file without any changes, which has the effect of compacting MKVs
+by removing free space left behind by mkvpropedit. This is also good to run
+after creating an MKV using ffmpeg, as the latter does not update the statistics
+tags (which causes Explorer to show an incorrect "Data rate", or none at all),
+and mkvmerge can sometimes produce slightly smaller MKVs than libavformat.
+
+Non-MKVs given as inputs will be converted to MKV (errors if an MKV with the
+same name already exists).
+
+See also: mkv-clean, mkv-rm-cover
+EOF
+}
+
+parse_args \
+  -h,--help \
+  -- "$@"
+
+tmp=
+trap 'rm -f "$tmp"' EXIT
+
+for f in "${REST[@]}"; do
+
+  tmp=$(mktemp -p . --suffix .mkv)
+  mkv=${f%.*}.mkv
+
+  if [[ $f != "$mkv" && -e "$mkv" ]]; then
+    throw "\"$mkv\" already exists."
+  fi
+
+  mkvmerge -o "$tmp" "$f"
+
+  if command -v recycle &>/dev/null; then
+    recycle "$f"
+  fi
+
+  mv "$tmp" "$mkv"
+
+done

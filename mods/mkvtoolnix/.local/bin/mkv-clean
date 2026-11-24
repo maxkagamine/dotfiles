@@ -25,7 +25,7 @@ are given, the current directory is used.
 Note: This uses mkvpropedit which does a quick delete by zeroing bytes; the MKV
 will need to be remuxed after this to reclaim space.
 
-See also: mkv-rm-cover
+See also: mkv-rm-cover, mkv-compact
 EOF
 }
 
@@ -100,5 +100,5 @@ echo
 read -rp 'If attachments were removed, the mkvs will need to be remuxed to remove free space. Do that now? [Yn] ' yn
 if [[ ! $yn =~ [Nn] ]]; then
   echo
-  CLEANING=1 mkv-batch "${paths[@]}"
+  mkv-compact "${paths[@]}"
 fi

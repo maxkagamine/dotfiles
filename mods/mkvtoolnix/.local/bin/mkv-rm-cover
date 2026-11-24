@@ -18,7 +18,10 @@ Removes all image/jpeg and image/png attachments from the given MKVs.
 Directories are expanded to contained *.mkv files (non-recursive). If no paths
 are given, the current directory is used.
 
-See also: mkv-clean
+Note: This uses mkvpropedit which does a quick delete by zeroing bytes; the MKV
+will need to be remuxed after this to reclaim space.
+
+See also: mkv-clean, mkv-compact
 EOF
 }
 
