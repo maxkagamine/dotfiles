@@ -12,7 +12,7 @@ alias ffprobe='ffprobe -hide_banner'
 flac() {
   local f
   for f; do
-    ffmpeg -i "$f" -compression_level 12 "${f%.*}.flac" || return $?
+    ffmpeg -i "$f" -c:v copy -compression_level 12 "${f%.*}.flac" || return
   done
 }
 
