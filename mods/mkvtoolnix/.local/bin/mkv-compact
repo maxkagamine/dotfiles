@@ -45,7 +45,7 @@ for f in "${REST[@]}"; do
   mkvmerge -o "$tmp" "$f"
 
   if command -v recycle &>/dev/null; then
-    recycle "$f"
+    recycle --rm "$f"
   fi
 
   mv "$tmp" "$mkv"
